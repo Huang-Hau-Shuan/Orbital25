@@ -166,8 +166,9 @@ typings/
 # Electron-Forge
 out/
 
-# Unity Builds
-unity_build/
+# Unity Builds (should exclude it by adding it to .git/info/exclude. 
+# adding it here prevents electron from packaging it)
+#unity_build/ 
 
 #vscode
 .vscode/
