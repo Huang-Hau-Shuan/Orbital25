@@ -4,7 +4,7 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
-    ignore: ["unity"]
+    ignore: ["unity/"]
   },
   rebuildConfig: {},
   makers: [
