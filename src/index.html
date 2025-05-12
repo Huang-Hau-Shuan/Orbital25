@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimuNUS</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #unity-container,
+        #desktop-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        #desktop-container {
+            display: none;
+            z-index: 10;
+            padding: 5vh 5vw;
+            box-sizing: border-box;
+        }
+
+        #desktop-container webview {
+            width: 100%;
+            height: 100%;
+            border: 2px solid #888;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        #desktop-container iframe {
+            width: 100%;
+            height: 100%;
+            border: 2px solid #888;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Unity WebGL Game -->
+    <iframe id="unity-container" src="http://localhost:3000" allowpopups tabindex="-1"></iframe>
+
+    <!-- Simulated Desktop (hidden until triggered) -->
+    <div id="desktop-container">
+        <iframe id="desktop-webview" src="desktop/index.html" allowpopups></iframe>
+    </div>
+
+    <script>
+        // External API that Unity will call
+        const desktop_container = document.getElementById('desktop-container');
+        const unity_container = document.getElementById('unity-container');
+        window.showSimDesktop = () => {
+            desktop_container.style.display = 'block';
+        }
+        showSimDesktop = window.showSimDesktop;
+        window.hideSimDesktop = () => {
+            desktop_container.style.display = 'none';
+            dunity_container.focus();
+            const evt = new MouseEvent('mousedown', { bubbles: true });
+            unity_container.dispatchEvent(evt);
+            unity_container.dispatchEvent(e);
+        }
+        hideSimDesktop = window.hideSimDesktop;
+        // Close desktop when user clicks outside its webview
+        desktop_container.addEventListener('mousedown', (e) => {
+            const webview = document.getElementById('desktop-webview');
+            if (!webview.contains(e.target)) {
+                hideSimDesktop();
+
+            }
+        });
+        // Receive shutdown message from inside simulated desktop
+        window.addEventListener('message', (event) => {
+            if (event.data?.action === 'shutdown' || event.data?.action === 'hideSim') {
+                hideSimDesktop();
+            }
+            else if (event.data?.action === 'showSim') {
+                showSimDesktop();
+            }
+        });
+    </script>
+</body>
+
+</html>

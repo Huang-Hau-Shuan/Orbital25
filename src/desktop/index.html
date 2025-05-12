@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulated Desktop</title>
+  <link rel="stylesheet" href="desktop.css">
+</head>
+
+<body>
+  <!-- App icons loaded from JSON -->
+  <div id="desktop"></div>
+
+  <!-- Taskbar -->
+  <div id="start-menu">
+    <button onclick="shutdownDesktop()">Shutdown</button> <!-- TODO: change to return to game -->
+    <button onclick="openAbout()">About</button>
+  </div>
+
+  <div id="taskbar">
+    <button class="start-button" onclick="toggleStartMenu()">☰</button>
+  </div>
+
+  <!-- Add a transparent overlay to Capture all mouse events, including when the cursor is over the <webview>,
+     and prevent interaction with the <webview> while dragging-->
+  <div id="drag-overlay"></div>
+
+  <script src="jquery-3.7.1.min.js"></script>
+  <script src="desktop.js"></script>
+</body>
+
+</html>

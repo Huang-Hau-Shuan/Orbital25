@@ -1,0 +1,17 @@
+[
+  {
+    "name": "canvas",
+    "icon": "icon/nus.png",
+    "path": "app/not-implemented/index.html"
+  },
+  {
+    "name": "EduRec",
+    "icon": "icon/nus.png",
+    "path": "app/not-implemented/index.html"
+  },
+  {
+    "name": "email",
+    "icon": "icon/email.svg",
+    "path": "app/email/index.html"
+  }
+]

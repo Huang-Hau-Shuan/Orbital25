@@ -1,0 +1,15 @@
+src/icon/email.svg 
+Email icons created by Pixel perfect - Flaticon
+https://www.flaticon.com/free-icon/email_726623?term=email&related_id=726623
+
+unity/Assets/Furniture_pixel_art_assets
+title: 2D-Basic-Room-Assets
+https://assetstore.unity.com/packages/2d/2d-basic-room-assets-234762
+Author: PixelChad (pixelchad.itch.io, 08nickaz.06@gmail.com)
+
+unity/Assets/CollegeStudent
+title: Cute 2D - College Student
+https://assetstore.unity.com/packages/2d/characters/cute-2d-college-student-198684
+Author: Junhyuck Jang(ClearSky) (blog.naver.com/ggogono3, junhyuckjang3@gmail.com)
+publisher page: https://assetstore.unity.com/publishers/45049
+

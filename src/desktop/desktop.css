@@ -1,0 +1,144 @@
+body {
+  margin: 0;
+  background: url('background/utown.jpg') no-repeat center center fixed;
+  background-size: cover;
+  font-family: sans-serif;
+  overflow: hidden;
+}
+img {
+  pointer-events: auto;
+  user-drag: none;
+  -webkit-user-drag: none;
+}
+#taskbar {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 40px;
+  background: #222;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 10px;
+  color: white;
+}
+
+#start-menu {
+  position: absolute;
+  bottom: 40px;
+  left: 10px;
+  background: #333;
+  color: white;
+  border: 1px solid #555;
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  z-index: 10000;
+}
+
+#start-menu button {
+  background: none;
+  border: none;
+  color: white;
+  padding: 10px;
+  text-align: left;
+  cursor: pointer;
+}
+
+#start-menu button:hover {
+  background: #444;
+}
+
+.start-button {
+  background: #444;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.app-container {
+  position: absolute;
+  text-align: center;
+  width: 80px;
+}
+
+.icon {
+  width: 48px;
+  height: 48px;
+  margin: 10px auto 0 auto;
+  cursor: pointer;
+}
+
+.icon-label {
+  color: white;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.window {
+  position: absolute;
+  top: 100px;
+  left: 100px;
+  width: 600px;
+  height: 400px;
+  background: white;
+  border: 1px solid #aaa;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  display: none;
+  flex-direction: column;
+}
+
+.titlebar {
+  background: #0078D7;
+  color: white;
+  padding: 5px 10px;
+  font-weight: bold;
+  cursor: move;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-btn {
+  background: red;
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  line-height: 20px;
+  cursor: pointer;
+  color: white;
+  border-radius: 3px;
+}
+
+iframe {
+  flex: 1;
+  border: none;
+}
+
+webview {
+  flex: 1;
+  border: none;
+}
+
+/*Disable select text*/
+body,
+.window,
+.titlebar,
+.icon-label,
+.icon {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#drag-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  cursor: move;
+}
