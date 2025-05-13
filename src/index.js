@@ -10,10 +10,11 @@ const OPEN_DEV = false;
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
-if (NO_CACHE) {
-  app.commandLine.appendSwitch("disable-http-cache");
-}
+
 const createWindow = () => {
+  if (NO_CACHE) {
+    app.commandLine.appendSwitch("disable-http-cache");
+  }
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     fullscreen: FULLSCREEN,
@@ -41,15 +42,11 @@ const createWindow = () => {
   }
 };
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 server.use('/', express.static(unityBuildPath, {
   setHeaders: (res, filePath) => {
     console.log(filePath);
     if (filePath.endsWith('.br')) {
       res.setHeader('Content-Encoding', 'br');
-      console.log("nmsl");
       if (filePath.endsWith('.wasm.br')) {
 
         res.setHeader('Content-Type', 'application/wasm');
@@ -78,6 +75,10 @@ server.use('/', express.static(unityBuildPath, {
     }
   }
 }));
+
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
 
   server.listen(3000, () => {
