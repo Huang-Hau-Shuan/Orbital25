@@ -62,11 +62,12 @@ public class InGameMenu : MonoBehaviour
 
     public void OnExitGameClicked()
     {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#elif UNITY_WEBGL
         SimuNUS_ExitGame();
 #else
         Application.Quit();
 #endif
-        
     }
 }

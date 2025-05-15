@@ -6,6 +6,7 @@ const unityBuildPath = path.join(__dirname, '../unity_build');
 const NO_CACHE = true;
 const FULLSCREEN = true;
 const OPEN_DEV = false;
+const UNITY_SERVE_PORT = 7224;
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -81,8 +82,8 @@ server.use('/', express.static(unityBuildPath, {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
 
-  server.listen(3000, () => {
-    console.log('Unity build served at http://localhost:3000');
+  server.listen(UNITY_SERVE_PORT, () => {
+    console.log('Unity build served at http://localhost:'+UNITY_SERVE_PORT);
     createWindow();
   });
 
