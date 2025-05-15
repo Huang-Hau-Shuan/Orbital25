@@ -58,21 +58,18 @@
     </div>
 
     <script>
-        // External API that Unity will call
         const desktop_container = document.getElementById('desktop-container');
         const unity_container = document.getElementById('unity-container');
-        window.showSimDesktop = () => {
+        const showSimDesktop = () => {
             desktop_container.style.display = 'block';
         }
-        showSimDesktop = window.showSimDesktop;
-        window.hideSimDesktop = () => {
+        const hideSimDesktop = () => {
             desktop_container.style.display = 'none';
-            dunity_container.focus();
+            unity_container.focus();
             const evt = new MouseEvent('mousedown', { bubbles: true });
             unity_container.dispatchEvent(evt);
             unity_container.dispatchEvent(e);
         }
-        hideSimDesktop = window.hideSimDesktop;
         // Close desktop when user clicks outside its webview
         desktop_container.addEventListener('mousedown', (e) => {
             const webview = document.getElementById('desktop-webview');
@@ -83,10 +80,15 @@
         });
         // Receive shutdown message from inside simulated desktop
         window.addEventListener('message', (event) => {
-            if (event.data?.action === 'shutdown' || event.data?.action === 'hideSim') {
+            switch(event.data?.channel){
+                case "hideSim": hideSimDesktop();break;
+                case "showSim": showSimDesktop();break;
+                default: window.SimuNUS_API.sendMessage(event.data?.channel, event.data?.data);
+            }
+            if (event.data?.channel === 'hideSim') {
                 hideSimDesktop();
             }
-            else if (event.data?.action === 'showSim') {
+            else if (event.data?.channel === 'showSim') {
                 showSimDesktop();
             }
         });

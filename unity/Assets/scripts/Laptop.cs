@@ -9,11 +9,7 @@ public class Laptop : MonoBehaviour
     {
         if (isPlayerNear && Input.GetKeyDown(interactKey))
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
-            OpenSimulatedDesktop();
-#else
-            Debug.Log("Simulated desktop would open here.");
-#endif
+            MessageBridge.ShowSimulatedDesktop();
             hideExclamation(); //hide the exclamation mark for now
         }
     }
@@ -34,14 +30,6 @@ public class Laptop : MonoBehaviour
             isPlayerNear = false;
             // Hide interaction prompt
         }
-    }
-
-    [System.Runtime.InteropServices.DllImport("__Internal")]
-    private static extern void ShowSimulatedDesktop();
-
-    private void OpenSimulatedDesktop()
-    {
-        ShowSimulatedDesktop();
     }
 
     private void hideExclamation(){

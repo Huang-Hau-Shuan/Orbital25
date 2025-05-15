@@ -3,71 +3,48 @@ using UnityEngine.SceneManagement;
 
 public class InGameMenu : MonoBehaviour
 {
-
-#if UNITY_WEBGL && !UNITY_EDITOR
-    [DllImport("__Internal")]
-    private static extern void SimuNUS_ExitGame();
-
-    [DllImport("__Internal")]
-    private static extern void SimuNUS_SaveGame();
-
-    [DllImport("__Internal")]
-    private static extern void SimuNUS_LoadGame();
-#endif
-
-    private void Start()
-    {
-        
-    }
-    private void Update()
-    {
-    }
-
-    
-
     public void OnSaveClicked()
     {
-#if UNITY_WEBGL && !UNITY_EDITOR
-        SimuNUS_SaveGame();
-#else
-        Debug.Log("Save Game (placeholder)");
-#endif
+        MessageBridge.SaveGame();
     }
 
     public void OnLoadClicked()
     {
-#if UNITY_WEBGL && !UNITY_EDITOR
-        SimuNUS_LoadGame();
-#else
-        Debug.Log("Load Game (placeholder)");
-#endif
+        MessageBridge.LoadGame();
+        toggle(false);
     }
 
     public void OnReturnToGameClicked()
     {
-        gameObject.SetActive(!gameObject.activeSelf);
+        toggle(false);
     }
 
     public void OnSettingsClicked()
     {
-        Debug.Log("Open Settings");
+        Debug.Log("Open Settings (placeholder)");
         //TODO: Jump to settings scene
+        toggle(false);
     }
 
     public void OnExitToMainMenuClicked()
     {
-        Debug.Log("Exit to Main Menu");
-        //TODO: Jump to main menu scene
+        toggle(false);
+        SceneManager.LoadScene(0); //0: MainMenu
     }
 
     public void OnExitGameClicked()
     {
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#elif UNITY_WEBGL
-        SimuNUS_ExitGame();
-#else
-        Application.Quit();
-#endif
+        MessageBridge.ExitGame();
+    }
+    public void toggle(bool active)
+    {
+        if (active) {
+            Time.timeScale = 0.0f;
+        }
+        else
+        {
+            Time.timeScale = 1.0f;
+        }
+        gameObject.SetActive(active);
     }
 }

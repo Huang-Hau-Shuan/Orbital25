@@ -60,8 +60,7 @@ function addAppView(name, path) {
   makeDraggable($win);
 }
 function shutdownDesktop() {
-  //window.close(); // TODO: change to return to game
-  window.parent.postMessage({ action: 'shutdown' }, '*');
+  window.parent.postMessage({ action: 'hideSim' }, '*');
 }
 function openAbout() {
   window.open('https://github.com/Huang-Hau-Shuan/Orbital25'); //TODO: add an about page and open it

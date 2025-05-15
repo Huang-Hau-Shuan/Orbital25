@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class KeyBoardListener : MonoBehaviour
 {
@@ -21,7 +22,17 @@ public class KeyBoardListener : MonoBehaviour
         if (menuCanvas != null)
         {
             bool active = menuCanvas.activeSelf;
-            menuCanvas.SetActive(!active);
+            if (!active)
+            {
+                //pause the game
+                Time.timeScale = 0.0f;
+                menuCanvas.SetActive(true);
+            }
+            else
+            {
+                Time.timeScale = 1.0f;
+                menuCanvas.SetActive(false);
+            }
         }
         else
         {
@@ -33,7 +44,12 @@ public class KeyBoardListener : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape)) //TODO: use key bindings instead of static esc
         {
-            ToggleMenu();
+            if (SceneManager.GetActiveScene().buildIndex != 0)
+            {
+                //toggle menu when it is not at front page
+                ToggleMenu();
+                
+            }
         }
     }
 }

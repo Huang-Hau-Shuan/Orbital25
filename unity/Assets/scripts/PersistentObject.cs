@@ -1,15 +1,18 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PersistentObject : MonoBehaviour
 {
-    private static PersistentObject instance;
+    private static List<int> strored_ids = new List<int>(); //store the persistID existent persistent object 
+    // we won't make >10 elements persistent so a simple list should be fine
+    public int persistID; //a unique persist ID, only one instance of each persist ID will exist
     private void Awake()
     {
         // Make this object persistent
-        if (instance == null)
+        if (!strored_ids.Contains(persistID))
         {
-            instance = this;
             DontDestroyOnLoad(gameObject);
+            strored_ids.Add(persistID);
         }
         else
         {
