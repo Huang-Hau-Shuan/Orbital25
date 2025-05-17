@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 97e1bfadcd8a346f08e4f26c39db68a1
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 188563
+  packageName: '[FREE] 2D Hand Painted'
+  packageVersion: 1.3
+  assetPath: Assets/2D Hand Painted/$Common/Shaders/Amplify Functions/WindSprite.asset
+  uploadId: 577880

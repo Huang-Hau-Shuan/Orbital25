@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      nus-entrance-A_0: -44670241642442639
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

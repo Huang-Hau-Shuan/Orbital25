@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 9761f418b14274a2a9155ba687d5fd8a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 188563
+  packageName: '[FREE] 2D Hand Painted'
+  packageVersion: 1.3
+  assetPath: Assets/2D Hand Painted/$Common/Shaders/Amplify Functions/WaterStream.asset
+  uploadId: 577880

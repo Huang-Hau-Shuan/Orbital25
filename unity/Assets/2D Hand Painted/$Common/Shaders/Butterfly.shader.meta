@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 19ca5073045624c0d9714a15cfd33ba0
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  preprocessorOverride: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 188563
+  packageName: '[FREE] 2D Hand Painted'
+  packageVersion: 1.3
+  assetPath: Assets/2D Hand Painted/$Common/Shaders/Butterfly.shader
+  uploadId: 577880

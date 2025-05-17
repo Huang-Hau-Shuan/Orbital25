@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: aedb57f6d6f74428b0080ffaa69e790f
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  preprocessorOverride: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 188563
+  packageName: '[FREE] 2D Hand Painted'
+  packageVersion: 1.3
+  assetPath: Assets/2D Hand Painted/$Common/Shaders/Water Stream Shape.shader
+  uploadId: 577880

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 377d47d6dbd0941c381a6c57b7ab581f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 188563
+  packageName: '[FREE] 2D Hand Painted'
+  packageVersion: 1.3
+  assetPath: Assets/2D Hand Painted/Sample/Animations/Candle Flame/Candle Flame.controller
+  uploadId: 577880
