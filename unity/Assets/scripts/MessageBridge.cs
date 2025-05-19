@@ -1,6 +1,6 @@
 using UnityEditor;
 using UnityEngine;
-
+using System.Runtime.InteropServices; //Necessary for DllImport
 public static class MessageBridge
 {
 #if UNITY_WEBGL && !UNITY_EDITOR

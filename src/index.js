@@ -2,13 +2,7 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const express = require("express");
 const path = require("node:path");
 const server = express();
-const unityBuildPath = path.join(__dirname, "../unity_build");
-const NO_CACHE = true;
-const FULLSCREEN = true;
-const OPEN_DEV = false;
-const UNITY_SERVE_PORT = 7224;
-const UNITY_SERVE_ORIGIN = "http://localhost:" + UNITY_SERVE_PORT;
-const DEBUG = true;
+const config = require("./SimuNUS_config.js");
 var unity_loaded = false;
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -21,7 +15,7 @@ function handleMessage(mainWindow) {
   };
   const passMessage = (channel) =>
     onMessage(channel, (data) => mainWindow.webContents.send(data));
-  if (DEBUG)
+  if (config.DEBUG)
     onMessage("debug", (data) => console.log("Received Debug Message:", data));
   onMessage("exit", () => app.quit());
   onMessage("save", (data) => {
@@ -34,7 +28,7 @@ function handleMessage(mainWindow) {
   });
   //Test message flow
   onMessage("unity_hello", () => {
-    if (DEBUG) {
+    if (config.DEBUG) {
       console.log("Unity Loaded");
     }
     unity_loaded = true;
@@ -44,39 +38,40 @@ function handleMessage(mainWindow) {
   passMessage("showSim");
 }
 const createWindow = () => {
-  if (NO_CACHE) {
+  if (config.NO_CACHE) {
     app.commandLine.appendSwitch("disable-http-cache");
   }
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    fullscreen: FULLSCREEN,
+    fullscreen: config.FULLSCREEN,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       webviewTag: true,
+      sandbox: false,
     },
   });
 
   //and load the index.html of the app.
-  if (NO_CACHE) {
+  if (config.NO_CACHE) {
     mainWindow.webContents.session.clearCache().then(() => {
       mainWindow.loadFile(path.join(__dirname, "index.html"), {
         extraHeaders: "pragma: no-cache\ncache-control: no-cache",
       });
-      if (OPEN_DEV) mainWindow.webContents.openDevTools();
+      if (config.OPEN_DEV) mainWindow.webContents.openDevTools();
     });
   } else {
     mainWindow.loadFile(path.join(__dirname, "index.html"));
     // Open the DevTools.
-    if (OPEN_DEV) mainWindow.webContents.openDevTools();
+    if (config.OPEN_DEV) mainWindow.webContents.openDevTools();
   }
   handleMessage(mainWindow);
 };
 
 server.use(
   "/",
-  express.static(unityBuildPath, {
+  express.static(config.UNITY_BUILD_PATH, {
     setHeaders: (res, filePath) => {
-      console.log(filePath);
+      //console.log(filePath);
       if (filePath.endsWith(".br")) {
         res.setHeader("Content-Encoding", "br");
         if (filePath.endsWith(".wasm.br")) {
@@ -112,9 +107,11 @@ server.use(
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  server.listen(UNITY_SERVE_PORT, () => {
-    if (DEBUG)
-      console.log("Unity build served at http://localhost:" + UNITY_SERVE_PORT);
+  server.listen(config.UNITY_SERVE_PORT, () => {
+    if (config.DEBUG)
+      console.log(
+        "Unity build served at http://localhost:" + config.UNITY_SERVE_PORT
+      );
     createWindow();
   });
 
@@ -135,9 +132,3 @@ app.on("window-all-closed", () => {
     app.quit();
   }
 });
-
-module.exports = {
-  UNITY_SERVE_PORT,
-  UNITY_SERVE_ORIGIN,
-  DEBUG,
-};

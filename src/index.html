@@ -50,7 +50,7 @@
 
 <body>
     <!-- Unity WebGL Game -->
-    <iframe id="unity-container" src="http://localhost:3000" allowpopups tabindex="-1"></iframe>
+    <iframe id="unity-container" src="" allowpopups tabindex="-1"></iframe>
 
     <!-- Simulated Desktop (hidden until triggered) -->
     <div id="desktop-container">
@@ -60,10 +60,10 @@
     <script>
         const desktop_container = document.getElementById('desktop-container');
         const unity_container = document.getElementById('unity-container');
-        const showSimDesktop = () => {
+        function showSimDesktop(){
             desktop_container.style.display = 'block';
         }
-        const hideSimDesktop = () => {
+        function hideSimDesktop(){
             desktop_container.style.display = 'none';
             unity_container.focus();
             const evt = new MouseEvent('mousedown', { bubbles: true });
@@ -75,15 +75,31 @@
             const webview = document.getElementById('desktop-webview');
             if (!webview.contains(e.target)) {
                 hideSimDesktop();
-
             }
         });
-        // Receive shutdown message from inside simulated desktop
+        if (window.SimuNUS_API === undefined){
+            console.error("SimuNUS API Undefined");
+        }else{
+            unity_container.src=window.SimuNUS_API.unity_serve_origin;
+        }
+        function sendUnity(channel, msg){
+            if (window.SimuNUS_API.unity_embedded_mode === "webview"){
+                //window.SimuNUS_API.sendMessage("forward_unity", [channel, msg]);
+            }else{
+                unity_container.contentWindow.postMessage(msg, window.SimuNUS_API.unity_serve_origin);
+            }
+        }
+        function forwardMessage(channel){
+            window.SimuNUS_API.onMessage(channel, (msg)=>sendUnity(msg));
+        }
+        forwardMessage("SimuNUS_hello");
         window.addEventListener('message', (event) => {
             switch(event.data?.channel){
                 case "hideSim": hideSimDesktop();break;
                 case "showSim": showSimDesktop();break;
-                default: window.SimuNUS_API.sendMessage(event.data?.channel, event.data?.data);
+                default: {
+                    window.SimuNUS_API.sendMessage(event.data?.channel, event.data?.data);
+                }
             }
             if (event.data?.channel === 'hideSim') {
                 hideSimDesktop();

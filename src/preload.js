@@ -1,5 +1,5 @@
 const { contextBridge, ipcRenderer } = require("electron");
-const { UNITY_SERVE_ORIGIN, DEBUG } = require("./index");
+const { UNITY_SERVE_ORIGIN, DEBUG } = require("./SimuNUS_config");
 contextBridge.exposeInMainWorld("SimuNUS_API", {
   _DEBUG: DEBUG,
   unity_embedded_mode: "iframe", //how to embed unity webGL build ("iframe", "webview", null)
