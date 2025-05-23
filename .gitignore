@@ -169,5 +169,8 @@ out/
 # Unity Builds
 unity_build/ 
 
+#Simulated desktop build
+web_build/
+
 #vscode
 .vscode/

@@ -1,27 +1,25 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
-const express = require("express");
-const path = require("node:path");
+import { app, BrowserWindow, ipcMain } from "electron";
+import express from "express";
+import path from "node:path";
+import config from "./SimuNUS_config.js";
+import fs from "fs";
+import chalk from "chalk"; //newest chalk only support es6, but electron only supports commonjs
 const server = express();
-const config = require("./SimuNUS_config.js");
-const fs = require("fs");
 var unity_loaded = false;
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require("electron-squirrel-startup")) {
-  app.quit();
-}
+console.log(config.SAVE_PATH);
 const dbgLog = (...args) => {
   if (config.DEBUG) {
-    console.log(...args);
+    console.log(chalk.grey(...args));
   }
 };
 const dbgWarn = (...args) => {
   if (config.DEBUG) {
-    console.warn(...args);
+    console.warn(chalk.hex("#FFA500")(...args));
   }
 };
 const dbgErr = (...args) => {
   if (config.DEBUG) {
-    console.error(...args);
+    console.error(chalk.red(...args));
   }
 };
 //Register how to handle messages from SimuNUS
@@ -36,8 +34,11 @@ function handleMessage(mainWindow) {
   };
   const forwardMessage = (channel) =>
     onMessage(channel, (data) => sendMessage(channel, data), false);
-  if (config.DEBUG)
-    onMessage("debug", (data) => console.log("Received Debug Message:", data));
+  if (config.DEBUG) {
+    onMessage("debug", (data) => dbgLog("[DEBUG]", data));
+    onMessage("error", (data) => dbgErr("[ERROR]", data));
+    onMessage("warn", (data) => dbgWarn("[WARN]", data));
+  }
   onMessage(
     "register_message_handler",
     (data) => {
@@ -62,20 +63,28 @@ function handleMessage(mainWindow) {
   );
   onMessage("exit", () => app.quit());
   onMessage("save", (data) => {
-    console.log("Game saved (placeholder)");
-    //TODO: save game
+    dbgLog("Saving game data: ", data);
+    fs.writeFile(config.SAVE_PATH, data, "utf-8", () => {
+      sendMessage("gameSaved");
+    });
   });
-  onMessage("load", (data) => {
-    console.log("Game loaded (placeholder)");
-    //TODO: load game
-  });
-  //Test message flow
-  onMessage("unity_hello", () => {
-    if (config.DEBUG) {
-      dbgLog("Unity Loaded");
+  onMessage("load", () => {
+    if (fs.existsSync(config.SAVE_PATH)) {
+      fs.readFile(config.SAVE_PATH, "utf-8", (err, data) => {
+        if (err) {
+          dbgErr("Failed to load game:", err);
+          return;
+        }
+        sendMessage("setGameData", data);
+      });
+    } else {
+      dbgErr("Failed to load game: no game save");
     }
+  });
+  onMessage("getGameConfig", () => {
+    dbgLog("Unity Loaded");
     unity_loaded = true;
-    mainWindow.webContents.send("SimuNUS_hello", null);
+    sendMessage("setGameConfig", { debug: true }); //TODO: implement game config
   });
   forwardMessage("hideSim");
   forwardMessage("showSim");
@@ -89,6 +98,9 @@ function handleMessage(mainWindow) {
   });
 }
 const createWindow = () => {
+  const serve_path = config.DEBUG
+    ? config.VITE_SERVE_ORIGIN
+    : config.SERVE_ORIGIN;
   if (config.NO_CACHE) {
     app.commandLine.appendSwitch("disable-http-cache");
   }
@@ -97,7 +109,7 @@ const createWindow = () => {
     const mw = new BrowserWindow({
       fullscreen: config.FULLSCREEN,
       webPreferences: {
-        preload: path.join(__dirname, "preload.js"),
+        preload: path.join(import.meta.dirname, "preload.js"),
         webviewTag: true,
         sandbox: false,
         devTools: config.ENABLE_DEV,
@@ -120,13 +132,13 @@ const createWindow = () => {
       { recursive: true, force: true },
       (err) => {
         if (err) {
-          console.warn("Failed to remove service worker cache:", err);
+          dbgWarn("Failed to remove service worker cache:", err);
         } else if (config.DEBUG) {
-          console.log("Unity Service Worker Folder removed");
+          dbgLog("Unity Service Worker Folder removed");
         }
         const mainWindow = createMW();
         mainWindow.webContents.session.clearCache().then(() => {
-          mainWindow.loadFile(path.join(__dirname, "index.html"), {
+          mainWindow.loadURL(serve_path, {
             extraHeaders: "pragma: no-cache\ncache-control: no-cache",
           });
         });
@@ -134,16 +146,14 @@ const createWindow = () => {
     );
   } else {
     const mainWindow = createMW();
-    mainWindow.loadFile(path.join(__dirname, "index.html"));
-    mainWindow.addListener();
+    mainWindow.loadURL(serve_path);
   }
 };
 
 server.use(
-  "/",
+  config.UNITY_SERVE_PATH,
   express.static(config.UNITY_BUILD_PATH, {
     setHeaders: (res, filePath) => {
-      //console.log(filePath);
       if (filePath.endsWith(".br")) {
         res.setHeader("Content-Encoding", "br");
         if (filePath.endsWith(".wasm.br")) {
@@ -174,16 +184,14 @@ server.use(
     },
   })
 );
-
+if (!config.DEBUG)
+  server.use("/", express.static(config.SIMULATED_DESKTOP_BUILD_PATH));
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  server.listen(config.UNITY_SERVE_PORT, () => {
-    if (config.DEBUG)
-      console.log(
-        "Unity build served at http://localhost:" + config.UNITY_SERVE_PORT
-      );
+  server.listen(config.SERVE_PORT, () => {
+    dbgLog("SimuNUS served at http://localhost:" + config.SERVE_PORT);
     createWindow();
   });
 

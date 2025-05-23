@@ -26,43 +26,31 @@
 
       #desktop-container {
         display: none;
+        background-color: rgba(0, 0, 0, 0.5);
         z-index: 10;
         padding: 5vh 5vw;
         box-sizing: border-box;
       }
-
-      #desktop-container webview {
-        width: 100%;
-        height: 100%;
-        border: 2px solid #888;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      }
-
-      #desktop-container iframe {
-        width: 100%;
-        height: 100%;
-        border: 2px solid #888;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      }
     </style>
   </head>
-
   <body>
-    <!-- Unity WebGL Game -->
-    <!-- <iframe id="unity-container" src="" allowpopups tabindex="-1"></iframe> -->
-
-    <!-- Simulated Desktop (hidden until triggered) -->
-    <div id="desktop-container">
-      <iframe
-        id="desktop-webview"
-        src="desktop/index.html"
-        allowpopups
-      ></iframe>
-    </div>
-
-    <script>
+    <div id="desktop-container"><div id="simdesk-root"></div></div>
+  </body>
+  <script type="module" src="/src/main.tsx"></script>
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const desktop_container = document.getElementById("desktop-container");
+      // Close desktop when user clicks outside its webview
+      desktop_container.addEventListener("mousedown", (e) => {
+        const webview = document.getElementById("simdesk-root");
+        if (!webview.contains(e.target)) {
+          hideSimDesktop();
+        }
+      });
       if (window.SimuNUS_API === undefined) {
         console.error("SimuNUS API Undefined");
+        showSimDesktop();
+        return;
       }
 
       const create_view = (_tag, _id, _src, parent, _preload = null) => {
@@ -78,29 +66,14 @@
         parent.appendChild(view);
         return view;
       };
-      const desktop_container = document.getElementById("desktop-container");
-      const desktop_view = create_view(
-        window.SimuNUS_API.desktop_embedded_mode,
-        "desktop-webview",
-        window.SimuNUS_API.simulated_laptop_path + "/index.html",
-        desktop_container,
-        "preload.js"
-      );
+
       const unity_container = create_view(
         window.SimuNUS_API.unity_embedded_mode,
         "unity-container",
-        window.SimuNUS_API.unity_serve_origin,
+        window.SimuNUS_API.origin + window.SimuNUS_API.unity_serve_path,
         document.body,
         "unityPreload.js"
       );
-
-      // Close desktop when user clicks outside its webview
-      desktop_container.addEventListener("mousedown", (e) => {
-        const webview = document.getElementById("desktop-webview");
-        if (!webview.contains(e.target)) {
-          hideSimDesktop();
-        }
-      });
 
       //Register Message handler
       const msg_forward_functions = {
@@ -112,7 +85,6 @@
             data,
             window.SimuNUS_API.unity_serve_origin
           ),
-        laptop: (channel, data) => sendTo(desktop_view, channel, data),
       };
       const msg_forward_channels = {};
       for (const source in msg_forward_functions) {
@@ -158,9 +130,9 @@
             }
           }
           if (!handled && window.SimuNUS_API._DEBUG) {
-            console.warn(
-              `Received from unknown channel ${channel} with msg ${event.data?.data}`
-            );
+            // console.warn(
+            //   `Received from unknown channel ${channel} with msg ${event.data?.data}`
+            // );
           }
         });
       }
@@ -173,7 +145,7 @@
       }
       function hideSimDesktop() {
         desktop_container.style.display = "none";
-        unity_container.focus();
+        if (window.SimuNUS_API !== undefined) unity_container.focus();
       }
       function sendTo(view, channel, msg, origin = "*") {
         //console.log(`send ${msg} over ${channel}`);
@@ -190,6 +162,6 @@
           );
         }
       }
-    </script>
-  </body>
+    });
+  </script>
 </html>

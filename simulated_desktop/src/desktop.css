@@ -1,26 +1,85 @@
-body {
+#simdesk-root {
   margin: 0;
-  background: url('background/utown.jpg') no-repeat center center fixed;
-  background-size: cover;
   font-family: sans-serif;
   overflow: hidden;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+}
+.sim-desktop {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+#desktop {
+  background: url("/background/utown.jpg") no-repeat center center fixed;
+  background-size: cover;
+  width: 100%;
+  flex: 1;
 }
 img {
   pointer-events: auto;
-  user-drag: none;
+  /* user-drag: none; */
   -webkit-user-drag: none;
 }
 #taskbar {
-  position: absolute;
   bottom: 0;
-  width: 100%;
-  height: 40px;
+  left: 0;
+  right: 0;
+  height: 48px;
   background: #222;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: flex-start;
-  padding: 0 10px;
+  padding: 0 8px;
   color: white;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.taskbar-left,
+.taskbar-center,
+.taskbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+}
+
+.start-button {
+  background: #444;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.taskbar-app {
+  background: #333;
+  color: white;
+  border: none;
+  padding: 4px 4px;
+  border-radius: 4px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  min-width: 120px;
+}
+.taskbar-app:hover {
+  background: #444;
+}
+.taskbar-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  margin-left: 4px;
+}
+
+.clock {
+  text-align: right;
 }
 
 #start-menu {
@@ -59,9 +118,9 @@ img {
 }
 
 .app-container {
-  position: absolute;
   text-align: center;
   width: 80px;
+  margin: 10px;
 }
 
 .icon {
@@ -78,7 +137,7 @@ img {
 }
 
 .window {
-  position: absolute;
+  position: relative;
   top: 100px;
   left: 100px;
   width: 600px;
@@ -86,12 +145,12 @@ img {
   background: white;
   border: 1px solid #aaa;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  display: none;
+  display: flex;
   flex-direction: column;
 }
 
 .titlebar {
-  background: #0078D7;
+  background: #0078d7;
   color: white;
   padding: 5px 10px;
   font-weight: bold;
@@ -132,13 +191,14 @@ body,
   -webkit-user-select: none;
 }
 
-#drag-overlay {
-  display: none;
+.drag-overlay {
+  /* display: none; */
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 9999;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  background: transparent;
   cursor: move;
 }

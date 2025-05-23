@@ -36,7 +36,10 @@ mergeInto(LibraryManager.library, {
       console.warn("bridge.jslib, in sendMessage():", err);
     }
   },
-
+  SendStringToSimuNUS: function (channel, str) {
+    if (typeof str !== "string") str = UTF8ToString(str);
+    _SendToSimuNUS(channel, str);
+  },
   SendDebugMessage: function (message) {
     if (typeof message !== "string") message = UTF8ToString(message);
     _SendToSimuNUS("debug", message);

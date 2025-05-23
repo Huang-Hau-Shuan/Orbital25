@@ -1,7 +1,5 @@
 const { contextBridge, ipcRenderer } = require("electron");
-//const { UNITY_SERVE_ORIGIN, DEBUG } = require("./SimuNUS_config"); how to disable sandbox for a webview?
-const UNITY_SERVE_PORT = 7224;
-const UNITY_SERVE_ORIGIN = "http://localhost:" + UNITY_SERVE_PORT;
+const { SERVE_ORIGIN, DEBUG } = require("./SimuNUS_config");
 const DEBUG = true;
 contextBridge.exposeInMainWorld("SimuNUS_API", {
   _DEBUG: DEBUG,
@@ -12,7 +10,7 @@ contextBridge.exposeInMainWorld("SimuNUS_API", {
       return;
     }
     // Verify the origin matches the Unity server
-    if (window.location.origin === UNITY_SERVE_ORIGIN) {
+    if (window.location.origin === SERVE_ORIGIN) {
       ipcRenderer.send(channel, ...args);
     } else {
       console.warn("Unauthorized origin:", window.location.origin);

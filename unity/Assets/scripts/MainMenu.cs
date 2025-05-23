@@ -3,29 +3,15 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-    public static bool SimuNUS_connected = false;
-    public void Awake()
-    {
-        MessageBridge.RegisterUnityMessageHandler("SimuNUS_hello", gameObject.name, "HandleHelloMsg", true);
-    }
-    public void Start()
-    {
-        //Debug.Log("Sending hello message to SimuNUS backend...");
-        MessageBridge.SendToSimuNUS("unity_hello", "");
-    }
-    public void HandleHelloMsg()
-    {
-        SimuNUS_connected = true;
-        Debug.Log("Received hello message from SimuNUS backend");
-    }
+    
     public void OnClickStart()
     {
-        SceneManager.LoadScene(1); // Loads scene 1 (main game scene)
+        GameDataManager.instance.NewGame();
     }
 
     public void OnClickLoad()
     {
-        MessageBridge.LoadGame(); // Calls load game functionality
+        MessageBridge.LoadGame(); // send get game data to main
     }
 
     public void OnClickSettings()
