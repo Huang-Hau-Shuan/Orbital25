@@ -112,10 +112,10 @@ TextureImporter:
       name: mc_nus_shirt_0
       rect:
         serializedVersion: 2
-        x: 168
-        y: 521
-        width: 254
-        height: 450
+        x: 172
+        y: 532
+        width: 245
+        height: 423
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
