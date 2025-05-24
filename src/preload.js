@@ -23,4 +23,22 @@ contextBridge.exposeInMainWorld("SimuNUS_API", {
     }
     ipcRenderer.on(channel, (event, ...args) => callback(...args));
   }, //Allow frontend to receive message from backend
+  removeListener: (channel, callback) => {
+    if (typeof channel !== "string" || !channel.trim()) {
+      console.error("Invalid channel:", channel);
+      return;
+    }
+    if (typeof callback !== "function") {
+      console.error("Callback is not a function");
+      return;
+    }
+    ipcRenderer.removeListener(channel, callback);
+  },
+  removeAllListener: (channel) => {
+    if (typeof channel !== "string" || !channel.trim()) {
+      console.error("Invalid channel:", channel);
+      return;
+    }
+    ipcRenderer.removeAllListeners(channel);
+  },
 });

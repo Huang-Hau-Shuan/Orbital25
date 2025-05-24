@@ -13,6 +13,7 @@ const VITE_SERVE_ORIGIN = "http://localhost:5173/";
 //workaround for importing from preload.js "app is not defined"
 const _app = app ? app : { getPath: (_) => "" };
 const SAVE_PATH = path.join(_app.getPath("userData"), "simunus_save.json");
+const EMAIL_PATH = path.join(__dirname, "../static");
 module.exports = {
   DEBUG,
   NO_CACHE,
@@ -25,4 +26,5 @@ module.exports = {
   UNITY_SERVE_PATH,
   VITE_SERVE_ORIGIN,
   SAVE_PATH,
+  EMAIL_PATH,
 };

@@ -1,0 +1,61 @@
+.email-app {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.email-app .sidebar {
+  width: 200px;
+  background-color: #f3f3f3;
+  border-right: 1px solid #ccc;
+  padding: 10px;
+}
+
+.email-app .sidebar h2 {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.email-app .email-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.email-app .email-item {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.email-app .email-item:hover {
+  background-color: #e6e6e6;
+}
+
+.email-app .content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: #fff;
+}
+
+.email-app .email-subject {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.email-app .email-body {
+  /* white-space: pre-wrap; */
+  line-height: 1.5;
+}
+
+.unread-dot {
+  display: inline-block;
+  margin-left: 6px;
+  width: 8px;
+  height: 8px;
+  background-color: red;
+  border-radius: 50%;
+}

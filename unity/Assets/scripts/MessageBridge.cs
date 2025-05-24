@@ -53,8 +53,7 @@ public static class MessageBridge
     public static void LoadGame()
     {
         //debug game save
-        const string dbg_save = "{\"year\":2025,\"month\":12,\"day\":31,\"hour\":23,\"minute\":54,\"currentScene\":1,\"playerOnScene\":true,\"playerLocation\":{\"x\":0.6764488220214844,\"y\":-1.9367430210113526,\"z\":0.0},\"playerRotation\":{\"x\":0.0,\"y\":0.0,\"z\":0.0,\"w\":1.0},\"playerScale\":{\"x\":-0.30000001192092898,\"y\":0.30000001192092898,\"z\":0.30000001192092898},\"tasks\":[]}";
-        GameDataManager.instance.HandleSetData( dbg_save );
+        GameDataManager.instance.HandleSetData( debug_save );
     }
 
     public static void ShowSimulatedDesktop()
@@ -69,6 +68,7 @@ public static class MessageBridge
 
     public static void SendStringToSimuNUS(string channel, string data)
     {
+        if (channel == "save") debug_save = data;
         Debug.Log($"Send message on channel: {channel} with data: {(data ?? "null")} (placeholder)");
     }
 
@@ -76,6 +76,8 @@ public static class MessageBridge
     {
         Debug.Log($"Register message handler for channel: {channel}, gameObject: {gameObjectName}, method: {methodName}, stringify: {stringify} (placeholder)");
     }
+
+    private static string debug_save = "";
 #endif
     public static void SendMessage(string channel, string data)
     {

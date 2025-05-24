@@ -84,6 +84,19 @@ mergeInto(LibraryManager.library, {
         : UTF8ToString(gameObjectName);
     const method =
       typeof methodName === "string" ? methodName : UTF8ToString(methodName);
+    if (typeof window.unity_registered_channels === "undefined") {
+      window.unity_registered_channels = {};
+    }
+    if (
+      channelName in window.unity_registered_channels &&
+      window.unity_registered_channels[channelName].gameObject == gameObject &&
+      window.unity_registered_channels[channelName].method == method
+    ) {
+      console.warn(
+        `Registering the same channel ${channel} of ${gameObject}.${method}`
+      );
+      return;
+    }
     const onSimuNUSMessage = function (channel, callback) {
       if (typeof callback !== "function") {
         console.error(

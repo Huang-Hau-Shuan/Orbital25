@@ -3,25 +3,37 @@ import express from "express";
 import path from "node:path";
 import config from "./SimuNUS_config.js";
 import fs from "fs";
-import chalk from "chalk"; //newest chalk only support es6, but electron only supports commonjs
+import { dbgErr, dbgLog, dbgWarn } from "./utils.js";
 const server = express();
 var unity_loaded = false;
-console.log(config.SAVE_PATH);
-const dbgLog = (...args) => {
-  if (config.DEBUG) {
-    console.log(chalk.grey(...args));
-  }
+const email_content = [];
+const email_meta = [];
+const game_save = {
+  unity_save: null,
+  received_emails: [],
+  tasks: [],
 };
-const dbgWarn = (...args) => {
-  if (config.DEBUG) {
-    console.warn(chalk.hex("#FFA500")(...args));
+fs.readFile(
+  path.join(config.EMAIL_PATH, "index.json"),
+  "utf-8",
+  (err, data) => {
+    if (err) {
+      dbgErr(err);
+      return;
+    }
+    JSON.parse(data).forEach((email, index) => {
+      if (true) {
+        email_content.push({ id: index.toString(), ...email });
+        email_meta.push({
+          id: index.toString(),
+          subject: email.subject,
+          unread: true,
+        });
+      }
+    });
   }
-};
-const dbgErr = (...args) => {
-  if (config.DEBUG) {
-    console.error(chalk.red(...args));
-  }
-};
+);
+
 //Register how to handle messages from SimuNUS
 function handleMessage(mainWindow) {
   const sendMessage = (...args) => mainWindow.webContents.send(...args);
@@ -86,6 +98,80 @@ function handleMessage(mainWindow) {
     unity_loaded = true;
     sendMessage("setGameConfig", { debug: true }); //TODO: implement game config
   });
+  onMessage("getUnlockedApps", () => {
+    dbgLog("set unlock");
+    //TODO: implement unlock apps
+    sendMessage("setUnlockedApps", [
+      "Email",
+      "Browser",
+      "Canvas",
+      "EduRec",
+      "NUSMods",
+    ]);
+  });
+  onMessage("getEmailList", () => {
+    //TODO: filter with whether the player has received the email
+    sendMessage("setEmailList", email_meta);
+  });
+  onMessage("markEmailRead", (id) => {
+    for (let i = 0; i < email_meta.length; i++) {
+      if (email_meta[i].id === id) {
+        email_meta[i].unread = false;
+        dbgLog("Read email:", email_meta[i].subject);
+        break;
+      }
+    }
+    sendMessage(
+      "setHasNewMessage",
+      email_meta.some((email) => email.unread)
+    );
+  });
+  onMessage("getEmailBody", (id) => {
+    const email = email_content.find((email) => email.id === id);
+    let email_body = null;
+    if ("body" in email) {
+      sendMessage("setEmailBody", {
+        id: id,
+        body:
+          typeof email_body === "string"
+            ? email_body
+            : "The requested email does not exist",
+      });
+    } else if ("file" in email) {
+      fs.readFile(
+        path.join(config.EMAIL_PATH, email.file),
+        "utf-8",
+        (err, data) => {
+          if (err) {
+            dbgErr(err);
+            return;
+          }
+          sendMessage("setEmailBody", {
+            id: id,
+            body: data,
+          });
+        }
+      );
+    } else {
+      sendMessage("setEmailBody", {
+        id: id,
+        body: "[this email has no content]",
+      });
+    }
+    sendMessage("setEmailBody", {
+      id: id,
+      body:
+        email_body != undefined
+          ? email_body
+          : "The requested email does not exist",
+    });
+  });
+  onMessage("getHasNewMessage", () => {
+    sendMessage(
+      "setHasNewMessage",
+      email_meta.some((email) => email.unread)
+    );
+  });
   forwardMessage("hideSim");
   forwardMessage("showSim");
   mainWindow.webContents.on("did-finish-load", () => {
@@ -95,6 +181,7 @@ function handleMessage(mainWindow) {
         channel: channel,
       });
     });
+    sendMessage("mainRegisterMessageComplete");
   });
 }
 const createWindow = () => {
@@ -117,6 +204,8 @@ const createWindow = () => {
         contextIsolation: true,
         webgl: true,
       },
+      width: 1200,
+      height: 800,
     });
     handleMessage(mw); // register message listeners
     return mw;

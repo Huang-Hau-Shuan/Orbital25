@@ -1,0 +1,20 @@
+.not-implemented-msg {
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  font-family: sans-serif;
+  background-color: #f9f9f9;
+  flex-direction: column;
+}
+.not-implemented-msg h1 {
+  font-size: 28px;
+  color: #666;
+}
+.not-implemented-msg p {
+  color: #999;
+}

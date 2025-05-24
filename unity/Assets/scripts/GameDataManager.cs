@@ -7,25 +7,87 @@ public class GameConfig
 {
     public bool debug = true;
 }
+[Serializable]
+public class PlayerStatus
+{
+    //whether the player is active
+    public bool isActive;
 
+    //transition
+    public Vector3 location;
+    public Vector4 rotation;
+    public Vector3 scale;
+
+    //personal info (before enrollment)
+    public string firstName; //same as passport, should be all capital letter
+    public string lastName; //same as passport, should be all capital letter
+    public bool firstNameBeforeLastName;
+    public string personalEmail;
+    public string passportNumber;
+
+    //personal info (NUS related)
+    public bool registered;
+    public string studentID; //the id on student card, starting with 'A'
+    public string studentEmail; //starts with 'E'
+    public string studentAccountPassword;
+
+    public PlayerStatus()
+    {
+        isActive = true;
+        location = new(-1.5f, -1f, 0f);
+        rotation = new(0, 0, 0, 1);
+        scale = new(0.3f, 0.3f, 0.3f);
+
+        firstNameBeforeLastName = true;
+        firstName = "";lastName = "";
+        personalEmail = "player@email.com";
+        passportNumber = "123456789";
+
+        registered = false;
+        studentID = null;
+        studentEmail = null;
+        studentAccountPassword = null;
+    }
+    public void SavePlayerTransition(GameObject player)
+    {
+        if (player == null)
+        {
+            isActive=false;
+            return;
+        }
+        location = player.transform.position;
+        rotation.x = player.transform.rotation.x;
+        rotation.y = player.transform.rotation.y;
+        rotation.z = player.transform.rotation.z;
+        rotation.w = player.transform.rotation.w;
+        scale = player.transform.localScale;
+        isActive = player.activeInHierarchy;
+    }
+    public void LoadPlayerTransition(GameObject player)
+    {
+        if (player == null)
+        {
+            Utils.LogWarning("Player is null");
+            return;
+        }
+        player.SetActive(isActive);
+        player.transform.localScale = scale;
+        player.transform.SetPositionAndRotation(location, 
+            new Quaternion(rotation.x, rotation.y, rotation.z, rotation.w));
+    }
+}
 [Serializable]
 public class GameSave
 {
     public int year, month, day, hour, minute;
     public int currentScene;
-    public bool playerOnScene;
-    public Vector3 playerLocation;
-    public Vector4 playerRotation;
-    public Vector3 playerScale;
+    public PlayerStatus playerStatus;
     public List<TaskProgress> tasks;
     public GameSave(List<TaskDetail> taskDetails)
     {
         year = 2025; month = 6; day = 10; hour = 9; minute = 0;
         currentScene = 1;
-        playerOnScene = true;
-        playerLocation = new(-1.5f, -1f, 0f);
-        playerRotation = new(0, 0, 0, 1);
-        playerScale = new(0.3f, 0.3f, 0.3f);
+        playerStatus = new PlayerStatus();
         if (taskDetails != null)
         {
             tasks = new(capacity: taskDetails.Count);
@@ -125,20 +187,7 @@ public class GameDataManager : MonoBehaviour
             gameSave.minute = GameTimeManager.instance.Minute;
         }
         GameObject player = GameObject.FindWithTag("Player");
-        if (player != null)
-        {
-            gameSave.playerLocation = player.transform.position;
-            gameSave.playerRotation.x = player.transform.rotation.x;
-            gameSave.playerRotation.y = player.transform.rotation.y;
-            gameSave.playerRotation.z = player.transform.rotation.z;
-            gameSave.playerRotation.w = player.transform.rotation.w;
-            gameSave.playerScale = player.transform.localScale;
-            gameSave.playerOnScene = true;
-        }
-        else
-        {
-            gameSave.playerOnScene = false;
-        }
+        gameSave.playerStatus.SavePlayerTransition(player);
         gameSave.currentScene = SceneManager.GetActiveScene().buildIndex;
     }
     public void SaveGame()
@@ -155,6 +204,7 @@ public class GameDataManager : MonoBehaviour
     public void NewGame()
     {
         gameSave = new GameSave(taskDetails);
+        MessageBridge.SendMessage("newGame","");
         ReloadGameBySave();
     }
 
@@ -171,15 +221,7 @@ public class GameDataManager : MonoBehaviour
             }
             player = Instantiate(playerPrefab);
         }
-        player.SetActive(gameSave.playerOnScene);
-        player.transform.localScale = gameSave.playerScale;
-        player.transform.position = gameSave.playerLocation;
-        player.transform.rotation = new Quaternion(
-            gameSave.playerRotation.x,
-            gameSave.playerRotation.y,
-            gameSave.playerRotation.z,
-            gameSave.playerRotation.w
-        );
+        gameSave.playerStatus.LoadPlayerTransition(player);
         GameTimeManager.instance.SetTime(gameSave.year, gameSave.month, gameSave.day, gameSave.hour, gameSave.minute);
         GameTimeManager.instance.StartTimer();
         SceneManager.sceneLoaded -= OnLoadGame_SceneLoaded;
