@@ -1,0 +1,46 @@
+import { useState } from "react";
+import { AppContext, type OpenApp } from "./AppContext";
+import type { AppMeta } from "../../apps/appRegistry";
+export const AppProvider = ({ children }: { children: React.ReactNode }) => {
+  const [openApps, setOpenApps] = useState<OpenApp[]>([]);
+  const _getName = (appinfo: string | AppMeta | OpenApp) => {
+    return typeof appinfo === "string"
+      ? appinfo
+      : "name" in appinfo
+      ? appinfo.name
+      : appinfo.appmeta.name;
+  };
+  const openApp = (appinfo: AppMeta) => {
+    if (!openApps.some((app) => app.appmeta === appinfo)) {
+      const maxZ = Math.max(0, ...openApps.map((app) => app.z));
+      //console.log("open", name, "from", path);
+      setOpenApps([...openApps, { appmeta: appinfo, z: maxZ + 1 }]);
+    }
+  };
+
+  const closeApp = (appinfo: string | AppMeta | OpenApp) => {
+    if (appinfo === "*") {
+      console.log("CLOSE ALL");
+      setOpenApps([]);
+      return;
+    }
+    setOpenApps(
+      openApps.filter((app) => app.appmeta.name !== _getName(appinfo))
+    );
+  };
+  const bringToFront = (appinfo: string | AppMeta | OpenApp) => {
+    setOpenApps((prev) => {
+      const maxZ = Math.max(...prev.map((app) => app.z));
+      return prev.map((app) => {
+        return app.appmeta.name === _getName(appinfo) && app.z < maxZ
+          ? { ...app, z: maxZ + 1 }
+          : app;
+      });
+    });
+  };
+  return (
+    <AppContext.Provider value={{ openApps, openApp, closeApp, bringToFront }}>
+      {children}
+    </AppContext.Provider>
+  );
+};

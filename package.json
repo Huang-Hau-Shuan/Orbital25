@@ -5,16 +5,19 @@
   "description": "SimuNUS is an interactive Unity + Electron-based simulation app designed to help NUS freshmen — especially international students — navigate administrative processes, campus wayfinding, and digital platforms via a fun, RPG-style interface",
   "main": "src/index.js",
   "scripts": {
-    "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish",
+    "build:desktop": "npm --prefix simulated_desktop run build",
+    "start:desktop": "npm --prefix simulated_desktop run dev",
+    "start": "concurrently \"npm --prefix simulated_desktop run dev\" \"electron-forge start\"",
+    "package": "npm --prefix simulated_desktop run build && electron-forge package",
+    "make": "npm --prefix simulated_desktop run build && electron-forge make",
+    "publish": "npm --prefix simulated_desktop run build && electron-forge publish",
     "lint": "echo \"No linting configured\""
   },
   "keywords": [],
   "author": "lenovo",
   "license": "MIT",
   "dependencies": {
+    "chalk": "^5.4.1",
     "electron-squirrel-startup": "^1.0.1",
     "express": "^5.1.0"
   },
@@ -27,6 +30,10 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.8.1",
     "@electron-forge/plugin-fuses": "^7.8.1",
     "@electron/fuses": "^1.8.0",
-    "electron": "36.2.0"
-  }
+    "concurrently": "^9.1.2",
+    "electron": "^36.2.1"
+  },
+  "workspaces": [
+    "simulated_desktop"
+  ]
 }

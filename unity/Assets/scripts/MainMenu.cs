@@ -3,14 +3,15 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
+    
     public void OnClickStart()
     {
-        SceneManager.LoadScene(1); // Loads scene 1 (main game scene)
+        GameDataManager.instance.NewGame();
     }
 
     public void OnClickLoad()
     {
-        MessageBridge.LoadGame(); // Calls load game functionality
+        MessageBridge.LoadGame(); // send get game data to main
     }
 
     public void OnClickSettings()

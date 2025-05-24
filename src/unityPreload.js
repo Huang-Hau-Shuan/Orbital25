@@ -1,17 +1,17 @@
 const { contextBridge, ipcRenderer } = require("electron");
-const { UNITY_SERVE_ORIGIN, DEBUG } = require("./index");
-
+const { SERVE_ORIGIN, DEBUG } = require("./SimuNUS_config");
+const DEBUG = true;
 contextBridge.exposeInMainWorld("SimuNUS_API", {
   _DEBUG: DEBUG,
-  sendMessage: (channel, data) => {
+  sendMessage: (channel, ...args) => {
     // Validate channel (must be a non-empty string)
     if (typeof channel !== "string" || !channel.trim()) {
       console.error("Invalid channel:", channel);
       return;
     }
     // Verify the origin matches the Unity server
-    if (window.location.origin === UNITY_SERVE_ORIGIN) {
-      ipcRenderer.send(channel, data);
+    if (window.location.origin === SERVE_ORIGIN) {
+      ipcRenderer.send(channel, ...args);
     } else {
       console.warn("Unauthorized origin:", window.location.origin);
     }
@@ -26,7 +26,7 @@ contextBridge.exposeInMainWorld("SimuNUS_API", {
       return;
     }
     if (window.location.origin === UNITY_SERVE_ORIGIN) {
-      ipcRenderer.on(channel, (event, data) => callback(data));
+      ipcRenderer.on(channel, (event, ...args) => callback(...args));
     } else {
       console.warn("Unauthorized origin:", window.location.origin);
     }

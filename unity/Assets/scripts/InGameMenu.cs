@@ -5,7 +5,14 @@ public class InGameMenu : MonoBehaviour
 {
     public void OnSaveClicked()
     {
-        MessageBridge.SaveGame();
+        if (GameDataManager.instance != null)
+        {
+            GameDataManager.instance.SaveGame();
+        }
+        else
+        {
+            Utils.LogError("Failed to save game: gameDataManager is null");
+        }
     }
 
     public void OnLoadClicked()
@@ -29,6 +36,7 @@ public class InGameMenu : MonoBehaviour
     public void OnExitToMainMenuClicked()
     {
         toggle(false);
+        GameTimeManager.instance.PauseTimer();
         SceneManager.LoadScene(0); //0: MainMenu
     }
 

@@ -1,17 +1,20 @@
 using UnityEditor;
 using UnityEngine;
-
+using System.Runtime.InteropServices; //Necessary for DllImport
 public static class MessageBridge
 {
 #if UNITY_WEBGL && !UNITY_EDITOR
+    [DllImport("__Internal")]
+    public static extern void SendToSimuNUS(string channel, string data); //DO NOT CALL IT TO SEND MSG
+
     [DllImport("__Internal")]
     public static extern void SendDebugMessage(string message);
 
     [DllImport("__Internal")]
     public static extern void ExitGame();
 
-    [DllImport("__Internal")]
-    public static extern void SaveGame();
+    //[DllImport("__Internal")]
+    //public static extern void SaveGame();
 
     [DllImport("__Internal")]
     public static extern void LoadGame();
@@ -23,7 +26,7 @@ public static class MessageBridge
     public static extern void HideSimulatedDesktop();
 
     [DllImport("__Internal")]
-    public static extern void SendToSimuNUS(string channel, string data);
+    public static extern void SendStringToSimuNUS(string channel, string data);
 
     [DllImport("__Internal")]
     public static extern void RegisterUnityMessageHandler(string channel, string gameObjectName, string methodName, bool stringify);
@@ -42,14 +45,15 @@ public static class MessageBridge
 #endif
     }
 
-    public static void SaveGame()
-    {
-        Debug.Log("Save game (placeholder)");
-    }
+    //public static void SaveGame()
+    //{
+    //    Debug.Log("Save game (placeholder)");
+    //}
 
     public static void LoadGame()
     {
-        Debug.Log("Load game (placeholder)");
+        //debug game save
+        GameDataManager.instance.HandleSetData( debug_save );
     }
 
     public static void ShowSimulatedDesktop()
@@ -62,8 +66,9 @@ public static class MessageBridge
         Debug.Log("Hide simulated desktop (placeholder)");
     }
 
-    public static void SendToSimuNUS(string channel, string data)
+    public static void SendStringToSimuNUS(string channel, string data)
     {
+        if (channel == "save") debug_save = data;
         Debug.Log($"Send message on channel: {channel} with data: {(data ?? "null")} (placeholder)");
     }
 
@@ -71,5 +76,11 @@ public static class MessageBridge
     {
         Debug.Log($"Register message handler for channel: {channel}, gameObject: {gameObjectName}, method: {methodName}, stringify: {stringify} (placeholder)");
     }
+
+    private static string debug_save = "";
 #endif
+    public static void SendMessage(string channel, string data)
+    {
+        SendStringToSimuNUS(channel, data);
+    }
 }
