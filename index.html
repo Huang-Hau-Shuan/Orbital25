@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SimuNUS</title>
+  </head>
+  <body>
+    <div id="desktop-container"><div id="simdesk-root"></div></div>
+  </body>
+  <script type="module" src="/src/simulated_desktop/main.tsx"></script>
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const desktop_container = document.getElementById("desktop-container");
+      // Close desktop when user clicks outside its webview
+      desktop_container.addEventListener("mousedown", (e) => {
+        const simdeskRoot = document.getElementById("simdesk-root");
+        if (!simdeskRoot.contains(e.target)) {
+          const rect = simdeskRoot.getBoundingClientRect();
+          const x = e.clientX;
+          const y = e.clientY;
+
+          const inside =
+            x >= rect.left &&
+            x <= rect.right &&
+            y >= rect.top &&
+            y <= rect.bottom;
+          if (!inside) hideSimDesktop();
+        }
+      });
+      if (window.SimuNUS_API === undefined) {
+        console.error("SimuNUS API Undefined");
+        showSimDesktop();
+        return;
+      }
+
+      const create_view = (_tag, _id, _src, parent, _preload = null) => {
+        const view = document.createElement(_tag);
+        view.id = _id;
+        view.src = _src;
+        view.setAttribute("allowpopups", "");
+        view.tabIndex = -1;
+        if (_tag == "webview" && _preload) {
+          view.setAttribute("sandbox", "false");
+          view.setAttribute("preload", _preload);
+        }
+        parent.appendChild(view);
+        return view;
+      };
+
+      const unity_container = create_view(
+        window.SimuNUS_API.unity_embedded_mode,
+        "unity-container",
+        window.SimuNUS_API.origin + window.SimuNUS_API.unity_serve_path,
+        document.body,
+        "unityPreload.js"
+      );
+
+      //Register Message handler
+      const msg_forward_functions = {
+        main: window.SimuNUS_API.sendMessage,
+        unity: (channel, data) =>
+          sendTo(
+            unity_container,
+            channel,
+            data,
+            window.SimuNUS_API.unity_serve_origin
+          ),
+      };
+      const msg_forward_channels = {};
+      for (const source in msg_forward_functions) {
+        msg_forward_channels[source] = [];
+      }
+      const msg_callback = {
+        hideSim: hideSimDesktop,
+        showSim: showSimDesktop,
+        register_message_handler: (msg) => {
+          const source = msg.source;
+          const channel = msg.channel;
+          if (source in msg_forward_channels) {
+            msg_forward_channels[source].push(channel);
+            window.SimuNUS_API.onMessage(channel, (data) =>
+              msg_forward_functions[source](channel, data)
+            );
+          } else {
+            console.warn("Invalid source:", source);
+            return;
+          }
+        },
+        mainRegisterMessageComplete: () => {
+          if (window.messageBridgeReady !== true) {
+            window.messageBridgeReady = true;
+            window.postMessage({
+              channel: "messageBridgeReady",
+              data: msg_forward_channels,
+            });
+          }
+        },
+      };
+      if (
+        window.SimuNUS_API.unity_embedded_mode === "iframe" ||
+        window.SimuNUS_API.desktop_embedded_mode === "iframe"
+      ) {
+        window.addEventListener("message", (event) => {
+          const channel = event.data?.channel;
+          let handled = false;
+          if (typeof channel !== "string") {
+            console.warn("Received message from invalid channel:", channel);
+            return;
+          }
+          if (channel in msg_callback) {
+            msg_callback[channel](event.data?.data);
+            handled = true;
+          }
+          //forward msg to ipcMain or other nodes
+          for (const source in msg_forward_channels) {
+            if (msg_forward_channels[source].includes(channel)) {
+              msg_forward_functions[source](channel, event.data?.data);
+              handled = true;
+            }
+          }
+          if (!handled && window.SimuNUS_API._DEBUG) {
+            // console.warn(
+            //   `Received from unknown channel ${channel} with msg ${event.data?.data}`
+            // );
+          }
+        });
+      }
+      for (const ch in msg_callback) {
+        window.SimuNUS_API.onMessage(ch, msg_callback[ch]);
+      }
+      function showSimDesktop() {
+        desktop_container.style.display = "block";
+        desktop_container.focus();
+      }
+      function hideSimDesktop() {
+        desktop_container.style.display = "none";
+        if (window.SimuNUS_API !== undefined) unity_container.focus();
+      }
+      function sendTo(view, channel, msg, origin = "*") {
+        //console.log(`send ${msg} over ${channel}`);
+        if (view.tagName == "IFRAME") {
+          view.contentWindow.postMessage(
+            { channel: channel, data: msg },
+            origin
+          );
+        } else if (view.tagName == "WEBVIEW") {
+          view.send(channel, msg);
+        } else {
+          window.postMessage({ channel: channel, data: msg });
+        }
+      }
+    });
+    window.reload = () => {
+      window.SimuNUS_API.sendMessage("reload");
+    };
+  </script>
+</html>

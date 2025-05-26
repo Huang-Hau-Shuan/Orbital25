@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class GameConfig
 {
     public bool debug = true;
+    public string gameSaveLocation= null;
 }
 [Serializable]
 public class PlayerStatus
@@ -36,7 +37,7 @@ public class PlayerStatus
         isActive = true;
         location = new(-1.5f, -1f, 0f);
         rotation = new(0, 0, 0, 1);
-        scale = new(0.3f, 0.3f, 0.3f);
+        scale = new(0.2f, 0.2f, 1f);
 
         firstNameBeforeLastName = true;
         firstName = "";lastName = "";

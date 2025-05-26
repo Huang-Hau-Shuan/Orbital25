@@ -1,6 +1,6 @@
-src/icon/email.svg 
-Email icons created by Pixel perfect - Flaticon
-https://www.flaticon.com/free-icon/email_726623?term=email&related_id=726623
+public/icon/email.svg 
+Email icons created by Pixel perfect (https://www.flaticon.com/authors/pixel-perfect) - Flaticon
+https://www.flaticon.com/free-icon/email_726623
 
 unity/Assets/Furniture_pixel_art_assets
 title: 2D-Basic-Room-Assets
@@ -16,5 +16,20 @@ publisher page: https://assetstore.unity.com/publishers/45049
 unity/Assets/images/nus-entrance-A.jpg
 https://cde.nus.edu.sg/news-detail/nus-announces-new-college-of-design-and-engineering/
 
-src/background/utown.jpg
+public/background/utown.jpg
 https://news.nus.edu.sg/creating-a-greener-and-more-sustainable-campus/
+
+nus colors
+orange: #EF7C00
+blue: #003D7C
+https://www.nus.edu.sg/identity/guidelines/corporate-colours
+
+unity/Assets/Sprites/bus-stop.png and unity/Assets/Sprites/bus-stop-current.png
+Email icons created by sonnycandra (https://www.flaticon.com/authors/sonnycandra) - Flaticon
+https://www.flaticon.com/free-icon/bus-stop_15092025
+
+public/background/oam-header-bg.png
+https://myaces.nus.edu.sg/applicantPortal/
+
+public/background/login.svg
+https://www.nus.edu.sg/canvas/login/

@@ -4,25 +4,31 @@ SimuNUS is an interactive Unity + Electron-based simulation app designed to help
 
 ---
 
-## 🚀 Setup
+## Setup
 
 ### Prerequisites
 
 - Node.js >= 18
 - Unity (2022+ with WebGL build support)
 
-### 1. Install dependencies
+### 1. Clone this repository
+
+```bash
+git clone https://github.com/Huang-Hau-Shuan/Orbital25
+```
+
+### 2. Install dependencies
 
 ```bash
 npm install
 ```
 
-### 2. Build Unity WebGL
+### 3. Build Unity WebGL
 
 - Open Unity project inside `unity/`
-- Build to `unity_build`
+- Build to `public/unity_build/` (platform: web)
 
-### 3. Run Electron
+### 4. Run Electron
 
 ```bash
 npm run start
@@ -30,6 +36,6 @@ npm run start
 
 ---
 
-## 📎 License
+## License
 
 MIT — © Orbital25 SimuNUS Team

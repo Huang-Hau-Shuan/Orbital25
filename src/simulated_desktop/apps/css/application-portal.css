@@ -1,0 +1,263 @@
+.applicant-login {
+  display: flex;
+  height: 100%;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+}
+
+.login-left {
+  flex: 1.5;
+  background: linear-gradient(to bottom, #d3efff, #b5e2f8);
+  padding: 40px 20px;
+  position: relative;
+  background: url("/background/login.svg") center left;
+  background-size: cover;
+}
+
+.announcement-box,
+.instruction-box {
+  background: white;
+  border-radius: 8px;
+  padding-top: 5px;
+  padding-left: 15px;
+  padding-bottom: 5px;
+  padding-right: 15px;
+  margin-bottom: 20px;
+}
+
+.announcement-box h3,
+.instruction-box h3 {
+  color: #00356b;
+  font-size: 14px;
+}
+
+.instruction-box ul {
+  padding-left: 30px;
+}
+
+.instruction-box li {
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+
+.instruction-box a {
+  color: #0055aa;
+  text-decoration: none;
+}
+
+.login-right {
+  flex: 1;
+  background: white;
+  padding: 40px 20px 5px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-left: 1px solid #ddd;
+  font-size: 12px;
+}
+.login-right h3 {
+  font-size: 22px;
+}
+.login-right p {
+  width: 80%;
+}
+.nus-logo {
+  width: 80px;
+  height: 40px;
+  height: auto;
+  padding-right: 20px;
+  border-right: 1px solid #dee2e6;
+}
+
+.login-btn {
+  background-color: #039;
+  color: white;
+  padding: 10px 24px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 20px;
+  width: 80%;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease 0s;
+  box-shadow: 0.1875rem 0.1875rem 0.3125rem #0006;
+}
+.login-btn:hover {
+  background: #ef7c00 !important;
+  border-color: #f60 !important;
+}
+
+.disclaimer {
+  font-size: 10px;
+  color: #777;
+  width: 100%;
+}
+.portal-title {
+  display: flex;
+  margin-bottom: 20px;
+}
+.portal-title div {
+  font-size: 16px;
+  font-weight: 700;
+  color: #58595a;
+  padding-left: 20px;
+}
+.applicant-main {
+  font-family: "Segoe UI", sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  padding: 0px 70px;
+  height: 110px;
+  color: #003d7c;
+}
+
+.header-logo {
+  height: 60px;
+}
+
+.flex-space {
+  flex: 1;
+}
+.portal-welcome {
+  text-align: right;
+  height: 40px;
+  font-weight: 400;
+  margin-top: 50px;
+}
+.portal-welcome * {
+  margin: 0;
+  padding: 0;
+}
+.applicant-portal-header-img {
+  width: 300px;
+  height: 100%;
+  object-fit: cover;
+  clip-path: polygon(0 100%, 100% 100%, 100% 0, 17.46% 0);
+}
+.user-section {
+  font-size: 14px;
+}
+
+.logout-btn {
+  margin-left: 10px;
+  padding: 4px 12px;
+  border-radius: 10px;
+  background-color: white;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.app-nav {
+  display: flex;
+  background: #f1f1f1;
+  padding: 10px 20px;
+  gap: 30px;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
+
+.app-nav a {
+  color: #333;
+  text-decoration: none;
+  font-weight: normal;
+}
+
+.app-nav .active {
+  border-bottom: 2px solid orange;
+  color: #039;
+}
+
+.app-content {
+  flex: 1;
+  padding: 20px 40px;
+}
+.app-content h2 {
+  font-weight: 500;
+  line-height: 1.1;
+  font-size: 30px;
+  text-align: center;
+}
+.app-table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+.app-table th,
+.app-table td {
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.app-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: #003062;
+  color: #999;
+  text-align: center;
+  padding: 20px 0;
+  font-size: 13px;
+  height: 60px;
+}
+.admission-inquiry {
+  padding: 20px 40px;
+}
+.admission-inquiry div {
+  font-size: 20px;
+  padding: 10px 0;
+}
+.link-btn {
+  display: inline-block;
+  color: #0055aa;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.admission-details {
+  padding: 40px;
+}
+
+.admission-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.admission-table thead {
+  background-color: #003980;
+  color: white;
+}
+.admission-table th,
+.admission-table td {
+  border: 1px solid #ccc;
+  padding: 12px;
+  vertical-align: top;
+}
+
+.left-col {
+  width: 220px;
+}
+
+.action-list {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 10px;
+}
+
+.action-list li {
+  margin: 6px 0;
+}
+
+.action-list a {
+  color: #0055aa;
+  cursor: pointer;
+  text-decoration: underline;
+}
