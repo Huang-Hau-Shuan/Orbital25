@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { appRegistry, type AppMeta } from "../apps/appRegistry";
+import { appRegistry, apps_array, type AppMeta } from "../apps/appRegistry";
 import DesktopIcon from "./DesktopIcon";
 import { SendToSimuNUS, onSimuNUSMessage } from "../MessageBridge";
 const Desktop = () => {
@@ -8,8 +8,16 @@ const Desktop = () => {
   useEffect(() => {
     SendToSimuNUS("getUnlockedApps", {});
     onSimuNUSMessage("setUnlockedApps", (unlocked: unknown) => {
-      if (Array.isArray(unlocked)) {
-        const resolved = unlocked.map((name) => appRegistry[name]);
+      if (unlocked == "*") {
+        setApps(apps_array);
+      } else if (Array.isArray(unlocked)) {
+        if (unlocked.includes("*")) {
+          //setApps(apps_array);
+          //return;
+        }
+        const resolved = unlocked
+          .filter((val) => val in appRegistry)
+          .map((name) => appRegistry[name]);
         setApps(resolved);
       }
     });

@@ -2,7 +2,16 @@ import fs from "fs";
 import { CONFIG_PATH, DEBUG, EMAIL_PATH, SAVE_PATH } from "./SimuNUS_config";
 import path from "node:path";
 import { dbgErr, dbgLog, dbgWarn, deserializeFromJsonFile } from "./utils.js";
-import { isGameConfig, isGameSave } from "./gamedata.guard.js";
+import { isGameConfig, isIGameSave } from "./gamedata.guard.js";
+import {
+  isImmediate,
+  newGameTaskCompletion,
+  taskDetails,
+  TaskStatus,
+  toTime,
+  type TaskCompletion,
+  type TaskStep,
+} from "./tasks.js";
 export interface EmailMeta {
   id: string;
   subject: string;
@@ -13,42 +22,23 @@ export interface EmailContent {
   file?: string;
   content?: string;
 }
-export enum TaskStatus {
-  NotStarted,
-  Ongoing,
-  Finished,
-  Failed,
-}
-export interface TaskProcedure {
-  description: string;
-  status: TaskStatus;
-}
+
 export interface GameConfig {
   debug: boolean;
   gameSavePath: string;
   unityGameConfig: string;
 }
-export interface SubTask {
-  platform: "unity" | "laptop";
-  procedures: TaskProcedure[];
-  status: TaskStatus;
-}
-export interface Task {
-  id: string;
-  name: string;
-  steps: SubTask[];
-  status: TaskStatus;
-}
+
 export interface IGameSave {
   unitySave: string;
   receivedEmails: EmailMeta[];
-  tasks: Task[];
+  tasks: TaskCompletion[];
   unlockedApps: string[];
 }
 class GameSave implements IGameSave {
   unitySave: string = "";
   receivedEmails: EmailMeta[] = [];
-  tasks: Task[] = [];
+  tasks: TaskCompletion[] = newGameTaskCompletion();
   unlockedApps: string[] = [];
 }
 const emailContent: EmailContent[] = [];
@@ -95,14 +85,15 @@ deserializeFromJsonFile(CONFIG_PATH, isGameConfig, (data) => {
     ? gameConfig.gameSavePath
     : "";
 });
-
+type OnMessageType = (
+  channel: string,
+  callback: (...args: unknown[]) => void,
+  register?: boolean
+) => void;
 export const handleGameSaveMessage = (
-  onMessage: (
-    channel: string,
-    callback: (...args: unknown[]) => void,
-    register?: boolean
-  ) => void,
-  sendMessage: (channel: string, ...args: unknown[]) => void
+  onMessage: OnMessageType,
+  sendMessage: (channel: string, ...args: unknown[]) => void,
+  onceMessage: OnMessageType
 ) => {
   const updateHasNewEmail = () => {
     sendMessage(
@@ -124,8 +115,10 @@ export const handleGameSaveMessage = (
     gameSave.receivedEmails.push(email);
     updateHasNewEmail();
     sendMessage("setEmailList", gameSave.receivedEmails);
+    sendMessage("newEmail", email.id); //notify unity that there's a new email
   };
   const unlockApp = (...name: string[]) => {
+    dbgLog("unlockApp:", ...name);
     gameSave.unlockedApps.push(...name);
     sendMessage("setUnlockedApps", gameSave.unlockedApps);
   };
@@ -147,7 +140,7 @@ export const handleGameSaveMessage = (
     });
   });
   onMessage("load", () => {
-    deserializeFromJsonFile(gameConfig.gameSavePath, isGameSave, (data) => {
+    deserializeFromJsonFile(gameConfig.gameSavePath, isIGameSave, (data) => {
       gameSave = data;
       dbgLog("Read game data:", gameSave);
       sendMessage("setGameData", gameSave.unitySave);
@@ -158,21 +151,9 @@ export const handleGameSaveMessage = (
   onMessage("newGame", () => {
     dbgLog("new game");
     gameSave = new GameSave();
-    if (gameConfig.debug)
-      //unlock all apps to debug
-      unlockApp(
-        "Email",
-        "Browser",
-        "Canvas",
-        "EduRec",
-        "NUSMods",
-        "Applicant Portal"
-      );
-    else unlockApp("Email", "Browser");
-    setTimeout(() => {
-      gameSave = new GameSave();
-      sendEmail("0");
-    }, 1000);
+    if (gameConfig.debug) {
+      //unlockApp("*");//unlock all apps to debug
+    }
   });
   onMessage("getGameConfig", () => {
     dbgLog("Unity Loaded");
@@ -186,6 +167,10 @@ export const handleGameSaveMessage = (
     sendMessage("setEmailList", gameSave.receivedEmails);
   });
   onMessage("markEmailRead", (id: unknown) => {
+    if (id === "0") {
+      //mark task 0 as complete
+      sendMessage("offerEmailRead");
+    }
     for (let i = 0; i < gameSave.receivedEmails.length; i++) {
       if (gameSave.receivedEmails[i].id === id) {
         gameSave.receivedEmails[i].unread = false;
@@ -231,4 +216,444 @@ export const handleGameSaveMessage = (
     }
   });
   onMessage("getHasNewMessage", updateHasNewEmail);
+
+  //DEAL WITH TASKS
+  type CompleteIndex = {
+    taskIndex: number;
+    stepIndex: number;
+    playerStepIndex: number;
+  };
+  //whether the result of completing a task has already shown
+  const task_completed_result_shown = gameSave.tasks.map(
+    (task) => task.status === TaskStatus.Finished
+  );
+  const performStaticStep = (step: TaskStep) => {
+    switch (step.node) {
+      case "main":
+        {
+          switch (step.function) {
+            case "sendEmail":
+              {
+                if (step.params) {
+                  step.params.forEach((e) => {
+                    if (typeof e === "string") sendEmail(e);
+                    else dbgErr("invalid email id:", e);
+                  });
+                }
+              }
+              break;
+            case "showGameOver":
+              {
+                /* TODO: Add a game over scene */
+                dbgErr("GAME OVER !!!!!!!!!!");
+              }
+              break;
+            case "unlockApp":
+              {
+                if (step.params) {
+                  step.params.forEach((e) => {
+                    if (typeof e === "string") unlockApp(e);
+                    else dbgErr("invalid app name:", e);
+                  });
+                }
+              }
+              break;
+            default: {
+              dbgErr("Invalid task step function:", step.function);
+            }
+          }
+        }
+        break;
+      case "unity":
+        {
+          if (step.function) {
+            sendMessage(step.function, step.params);
+          }
+        }
+        break;
+      case "laptop":
+        {
+          if (step.function) {
+            sendMessage(step.function, step.params);
+          }
+        }
+        break;
+      default: {
+        dbgErr("Invalid task step node:", step.node);
+      }
+    }
+  };
+  const setComplete = (
+    taskIndex: number,
+    stepIndex?: number,
+    playerStepIndex?: number
+  ) => {
+    if (taskIndex >= taskDetails.length) {
+      dbgErr(
+        "setComplete: taskIndex",
+        taskIndex,
+        "out of range, total task number is",
+        taskDetails.length
+      );
+    }
+    const completeTask = () => {
+      //set a task to be completed
+      if (gameSave.tasks[taskIndex].status === TaskStatus.Finished) {
+        dbgLog(`Task ${taskDetails[taskIndex].name} is already completed`);
+        return;
+      }
+      dbgLog(`Task ${taskDetails[taskIndex].name} completed!`);
+      if (task_completed_result_shown[taskIndex] === false) {
+        taskDetails[taskIndex].completedResult?.forEach(performStaticStep);
+      }
+      gameSave.tasks[taskIndex].status = TaskStatus.Finished;
+      sendMessage("taskComplete", taskDetails[taskIndex].name); //notify unity the task is completed
+    };
+    if (stepIndex !== undefined) {
+      const step_length = taskDetails[taskIndex].steps.length;
+      if (stepIndex >= step_length) {
+        if (stepIndex > step_length) {
+          dbgWarn(
+            `setComplete: Task ${taskDetails[taskIndex].name}: `,
+            `stepIndex ${stepIndex} is strictly greater than total steps ${step_length}`
+          );
+        }
+        dbgLog(`Task ${taskDetails[taskIndex].name} all steps completed`);
+        completeTask();
+      }
+      const completeStep = () => {
+        //set a step to be completed
+        dbgLog(
+          `Task ${taskDetails[taskIndex].name}, step ${stepIndex} completed!`
+        );
+        gameSave.tasks[taskIndex].steps[stepIndex].status = TaskStatus.Finished;
+        if (stepIndex < step_length - 1) {
+          //start next step
+          performStep(taskIndex, stepIndex + 1);
+        } else {
+          //no next step, last step done
+          completeTask();
+        }
+      };
+      if (playerStepIndex !== undefined) {
+        //Set a specific playerStep to be completed
+        if (!taskDetails[taskIndex].steps[stepIndex].playerSteps) {
+          dbgErr(
+            `setComplete: task ${taskDetails[taskIndex].name}, step ${stepIndex} has no playerSteps`
+          );
+          return;
+        }
+        const player_step_length =
+          taskDetails[taskIndex].steps[stepIndex].playerSteps.length;
+        if (playerStepIndex >= player_step_length - 1) {
+          if (playerStepIndex > player_step_length) {
+            dbgWarn(
+              `setComplete: task ${taskDetails[taskIndex].name}, step ${stepIndex}: `,
+              `playerStepIndex ${playerStepIndex} is strictly greater then total steps ${player_step_length}`
+            );
+          }
+          completeStep();
+        }
+        if (
+          gameSave.tasks[taskIndex].steps[stepIndex].playerCurrentStep >
+          playerStepIndex
+        ) {
+          //the current step is already completed
+          return;
+        }
+        gameSave.tasks[taskIndex].steps[stepIndex].playerCurrentStep =
+          playerStepIndex + 1;
+      } else {
+        completeStep();
+      }
+    } else {
+      completeTask();
+    }
+  };
+  const listenButtons: Record<string, CompleteIndex> = {};
+  const checkOngoing = (index: CompleteIndex, callback: () => void) => {
+    const taskIndex = index.taskIndex;
+    const stepIndex = index.stepIndex;
+    const playerStepIndex = index.playerStepIndex;
+    const task_complete = gameSave.tasks[taskIndex];
+    if (task_complete.status === TaskStatus.Ongoing) {
+      const step_completion = task_complete.steps[stepIndex];
+      if (step_completion.status === TaskStatus.Ongoing) {
+        if (step_completion.playerCurrentStep <= playerStepIndex) {
+          callback();
+        }
+      }
+    }
+  };
+  onMessage("buttonMounted", (id) => {
+    if (typeof id !== "string") return;
+    if (id in listenButtons) {
+      checkOngoing(listenButtons[id], () => {
+        dbgLog(`Button #${id} mounted, guiding user to click it`);
+        sendMessage("guideClick_" + id);
+      });
+    } else {
+      //dbgLog("Untracked button mounted:", id);
+    }
+  });
+  onMessage("buttonClicked", (id) => {
+    if (typeof id !== "string") return;
+    if (id in listenButtons) {
+      checkOngoing(listenButtons[id], () => {
+        dbgLog(`Button #${id} clicked, set ${listenButtons[id]} complete`);
+        setComplete(
+          listenButtons[id].taskIndex,
+          listenButtons[id].stepIndex,
+          listenButtons[id].playerStepIndex
+        );
+      });
+    }
+  });
+  //perform a certain taskstep that requires player engagement
+  const performStep = (taskidx: number, stepidx: number) => {
+    if (taskidx >= taskDetails.length) {
+      dbgErr(`performStep: task index (${taskidx}) out of range`);
+      return;
+    }
+    const task = taskDetails[taskidx];
+    if (stepidx >= task.steps.length) {
+      dbgErr(`performStep: step index (${stepidx}) out of range`);
+      return;
+    }
+    const step = task.steps[stepidx];
+    if (gameSave.tasks[taskidx].status !== TaskStatus.Ongoing) {
+      dbgWarn(
+        `performStep is called for not ongoing task "${task.name}", return`
+      );
+      return;
+    }
+    if (
+      gameSave.tasks[taskidx].steps[stepidx].status === TaskStatus.NotStarted
+    ) {
+      if (stepidx === 0) {
+        dbgLog(`task "${task.name}" has a total of ${task.steps.length} steps`);
+      }
+      dbgLog(`Start on task "${task.name}", step ${stepidx}`);
+      gameSave.tasks[taskidx].steps[stepidx].status = TaskStatus.Ongoing;
+    } else if (
+      gameSave.tasks[taskidx].steps[stepidx].status === TaskStatus.Failed
+    ) {
+      //this step has failed
+      dbgWarn(`Task "${task.name}" has already failed, return`);
+      return;
+    } else {
+      //this step is completed
+      dbgWarn(`Task "${task.name}" has already completed, return`);
+      return;
+    }
+    const checkPlayerNextSteps = () => {
+      if (!step.playerSteps) return;
+      const playerNextSteps = step.playerSteps.filter((_step, index) => {
+        return (
+          index >= gameSave.tasks[taskidx].steps[stepidx].playerCurrentStep
+        );
+      });
+      if (playerNextSteps.length === 0) {
+        //completed
+        dbgLog(
+          `checkPlayerNextSteps: Task "${task.name}" step ${stepidx}, all ${playerNextSteps.length} steps done`
+        );
+        setComplete(taskidx, stepidx);
+        return;
+      }
+      return playerNextSteps;
+    };
+    switch (step.node) {
+      case "main":
+        {
+          performStaticStep(step);
+          setComplete(taskidx, stepidx);
+        }
+        break;
+      case "unity":
+        {
+          if (step.playerSteps) {
+            //ask unity to help guide the user
+            dbgLog(`Task "${task.name}" next step will on Unity`);
+            if (step.playerSteps === undefined) {
+              dbgWarn(
+                `Task "${task.name}" step ${stepidx} is an empty Unity task, skipping`
+              );
+              setComplete(taskidx, stepidx);
+            }
+            const ns = checkPlayerNextSteps();
+            if (ns === undefined) {
+              return;
+            }
+
+            const last_step = step.playerSteps[step.playerSteps.length - 1];
+            if (last_step.type === "interact" && last_step.object === "desk") {
+              dbgLog(
+                "Typical go to laptop task, register general message callback"
+              );
+              sendMessage("getSimStatus");
+              onceMessage("simStatus", (s) => {
+                if (s === true) {
+                  dbgLog("laptop shown, skipping unity steps");
+                  setComplete(taskidx, stepidx);
+                } else {
+                  sendMessage("setUnityPlayerNextSteps", {
+                    steps: checkPlayerNextSteps(),
+                    taskIndex: taskidx,
+                    stepIndex: stepidx,
+                  });
+                }
+              });
+              onceMessage("showSim", () => {
+                setComplete(taskidx, stepidx);
+              });
+            }
+          }
+        }
+        break;
+      case "laptop":
+        {
+          if (step.playerSteps) {
+            const current_step_index =
+              gameSave.tasks[taskidx].steps[taskidx].playerCurrentStep;
+            if (current_step_index >= step.playerSteps.length) {
+              //already completed all steps
+              dbgLog(
+                `Task "${task.name}" step ${stepidx}, player already all ${step.playerSteps.length} steps, skipping`
+              );
+              setComplete(taskidx, stepidx);
+            }
+            step.playerSteps.forEach((step, index) => {
+              if (index < current_step_index) return; // exclude completed tasks
+              if (step.type !== "click") {
+                dbgErr("Invalid laptop task type:", step.type);
+                return;
+              }
+              dbgLog(
+                `Task "${task.name}" step ${stepidx}, Listens for button ${step.id} reaction`
+              );
+              //guide user to click all buttons
+              sendMessage("guideClick_" + step.id);
+              listenButtons[step.id] = {
+                taskIndex: taskidx,
+                stepIndex: stepidx,
+                playerStepIndex: index,
+              };
+            });
+          } else {
+            dbgWarn(
+              `Task "${task.name}" step ${stepidx} is an empty laptop task, skipping`
+            );
+            setComplete(taskidx, stepidx);
+          }
+        }
+        break;
+      default: {
+        dbgErr("Invalid task step node:", step.node);
+      }
+    }
+  };
+  //perform a static taskstep that does not require player engagement nor update gamesave
+
+  onMessage("playerCompletedUnitySteps", (data) => {
+    if (typeof data === "string") {
+      data = JSON.parse(data);
+    }
+    if (
+      typeof data === "object" &&
+      data != null &&
+      "taskIndex" in data &&
+      "stepIndex" in data
+    ) {
+      if (
+        !(
+          typeof data.taskIndex === "number" &&
+          data.taskIndex < taskDetails.length
+        )
+      ) {
+        dbgErr(
+          "Invalid task index from unity message on playerCompletedUnitySteps:",
+          data.taskIndex
+        );
+        return;
+      }
+      if (
+        !(
+          typeof data.stepIndex === "number" &&
+          data.stepIndex < taskDetails[data.taskIndex].steps.length
+        )
+      ) {
+        dbgErr(
+          "Invalid step index from unity message on playerCompletedUnitySteps:",
+          data.stepIndex
+        );
+        return;
+      }
+      setComplete(data.taskIndex, data.stepIndex);
+    } else {
+      dbgErr(
+        "Invalid data from unity message on playerCompletedUnitySteps:",
+        data
+      );
+    }
+  });
+  //register tasks
+  taskDetails.forEach((task, idx) => {
+    //ignore failed or completed tasks
+    if (
+      gameSave.tasks[idx].status == TaskStatus.Failed ||
+      gameSave.tasks[idx].status == TaskStatus.Finished
+    )
+      return;
+    const startTask = () => {
+      gameSave.tasks[idx].status = TaskStatus.Ongoing;
+      performStep(idx, 0);
+    };
+    if (gameSave.tasks[idx].status == TaskStatus.NotStarted) {
+      //need to register message and time
+      if (gameSave.tasks[idx].scheduled) {
+        //already scheduled
+        sendMessage("scheduleTaskStart", {
+          taskID: idx,
+          time: toTime(
+            gameSave.tasks[idx].scheduled.year,
+            gameSave.tasks[idx].scheduled.month,
+            gameSave.tasks[idx].scheduled.day,
+            gameSave.tasks[idx].scheduled.hour,
+            gameSave.tasks[idx].scheduled.minute
+          ),
+        });
+      }
+      if (task.startTime.relative_to) {
+        //relative to the time receiving a certain message
+        onMessage(task.startTime.relative_to, () => {
+          if (isImmediate(task.startTime.time)) {
+            //immediately happen
+            startTask();
+          }
+          //ask unity in game time manager to schedule this event
+          sendMessage("scheduleTaskStart", {
+            taskID: idx,
+            time: task.startTime.time,
+          });
+        });
+      } else {
+        //schedule absolute time
+        sendMessage("scheduleTaskStart", {
+          taskID: idx,
+          time: task.startTime.time,
+        });
+      }
+      onMessage("startTask", (taskid) => {
+        if (taskid === idx) startTask();
+      });
+    }
+    //register completed message
+    onMessage(task.completedMessage, () => {
+      dbgLog(
+        `Received complete message ${task.completedMessage} for task ${task.name}`
+      );
+      setComplete(idx);
+    });
+  });
 };

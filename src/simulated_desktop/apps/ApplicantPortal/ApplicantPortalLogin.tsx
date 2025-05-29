@@ -1,3 +1,5 @@
+import GuideButton from "../GuideButton";
+
 const ApplicantPortalLogin = ({
   setLogin,
 }: {
@@ -6,11 +8,11 @@ const ApplicantPortalLogin = ({
   return (
     <div className="applicant-login">
       <div className="login-left">
-        <div className="announcement-box">
+        <div className="login-left-info-box">
           <h3>ANNOUNCEMENTS</h3>
         </div>
 
-        <div className="instruction-box">
+        <div className="login-left-info-box">
           <h3>INSTRUCTIONS</h3>
           <ul>
             <li>
@@ -49,9 +51,13 @@ const ApplicantPortalLogin = ({
         <h3>Login</h3>
 
         <p>Prospective Students or Returning NSmen can log in with</p>
-        <button className="login-btn" onClick={() => setLogin(true)}>
+        <GuideButton
+          id="applicant-portal-login-btn"
+          className="login-btn"
+          onClick={() => setLogin(true)}
+        >
           Social Account
-        </button>
+        </GuideButton>
 
         <p>Current NUS Students to log in with</p>
         <button

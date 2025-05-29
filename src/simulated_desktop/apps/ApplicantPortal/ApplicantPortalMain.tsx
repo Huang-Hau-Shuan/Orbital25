@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ApplicantPortalHome from "./ApplicantPortalHome";
 import AdmissionPage from "./AdmissionPage";
+import GuideButton from "../GuideButton";
 enum Page {
   Home,
   Admission,
@@ -34,20 +35,20 @@ const ApplicantPortalMain = ({
       </header>
 
       <div className="app-nav">
-        <a
+        <GuideButton
           id="applicant-portal-home"
           className={page == Page.Home ? "active" : undefined}
           onClick={() => setPage(Page.Home)}
         >
           Home
-        </a>
-        <a
+        </GuideButton>
+        <GuideButton
           id="applicant-portal-admission"
           className={page == Page.Admission ? "active" : undefined}
           onClick={() => setPage(Page.Admission)}
         >
           Admission
-        </a>
+        </GuideButton>
         <a
           className={page == Page.Financial_Aid ? "active" : undefined}
           onClick={() => setPage(Page.Financial_Aid)}
@@ -68,11 +69,12 @@ const ApplicantPortalMain = ({
           </button>
         </div>
       </div>
-
-      {page == Page.Home && <ApplicantPortalHome />}
-      {page == Page.Admission && <AdmissionPage />}
-      <div className="app-footer">
-        <a>Privacy Statement</a> &nbsp;&middot;&nbsp; <a>Contact Us</a>
+      <div className="applicant-main-page">
+        {page == Page.Home && <ApplicantPortalHome />}
+        {page == Page.Admission && <AdmissionPage />}
+        <div className="app-footer">
+          <a>Privacy Statement</a> &nbsp;&middot;&nbsp; <a>Contact Us</a>
+        </div>
       </div>
     </div>
   );

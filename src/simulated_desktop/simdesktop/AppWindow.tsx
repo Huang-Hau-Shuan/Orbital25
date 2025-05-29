@@ -70,7 +70,7 @@ const AppWindow = ({ app }: { app: OpenApp }) => {
           x
         </div>
       </div>
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1, overflow: "overlay" }}>
         <app.appmeta.component {...app.appmeta.props} />
       </div>
       {/* add another layer of overlay to prevent windows events from leaking to iframe and webview */}

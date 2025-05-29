@@ -12,34 +12,48 @@ export interface Time {
   minute: TimeValue;
 }
 export interface TaskTime {
-  relative_to?: string;
+  relative_to?: string; //relative to the time when the system receives the message on this channel
   time: Time;
 }
 export type PlayerStep =
-  | { type: "openApp"; app: string } // player needs to open an app on simulated desktop
   | { type: "goScene"; scene: string } // player needs to go to this scene
-  | { type: "click"; selector: string } // player needs to click the element with selector (like .class or #id)
+  | { type: "click"; id: string } // player needs to click the element with this id
   | { type: "interact"; object: string }; //player needs to interact with the object
-const openApp = (app: string) => ({ type: "openApp", app } as PlayerStep);
-const goScene = (scene: string) => ({ type: "goScene", scene } as PlayerStep);
-const click = (selector: string) => ({ type: "click", selector } as PlayerStep);
-const interact = (object: string) =>
-  ({ type: "interact", object } as PlayerStep);
+type PlayerStepFactory = (_: string) => PlayerStep;
+const openApp: PlayerStepFactory = (app: string) => ({
+  type: "click",
+  id: "simdesktop-app-" + app.replace(" ", "-"),
+});
+const openEmail: PlayerStepFactory = (emailId: string) => ({
+  type: "click",
+  id: "email-" + emailId,
+});
+const goScene: PlayerStepFactory = (scene: string) => ({
+  type: "goScene",
+  scene,
+});
+const click: PlayerStepFactory = (id: string) => ({ type: "click", id });
+const interact: PlayerStepFactory = (object: string) => ({
+  type: "interact",
+  object,
+});
 export interface TaskStep {
   node: "main" | "unity" | "laptop";
-  function?: string;
+  function?: "showGameOver" | "sendEmail" | "unlockApp"; //the step that the system do
   params?: unknown[];
   playerSteps?: PlayerStep[];
 }
 export interface TaskDetail {
   name: string;
   description: string;
+  guide: boolean;
   startTime: TaskTime;
   steps: TaskStep[];
   completedMessage: string;
-  completedResult: TaskStep[];
-  failedMessage: string | undefined;
-  failedResult: TaskStep[];
+  completedResult?: TaskStep[];
+  failedMessage?: string | undefined;
+  failedResult?: TaskStep[];
+  timeout?: TaskTime;
 }
 type ToTime1 = TimeValue | number | [number, number];
 /**
@@ -68,10 +82,10 @@ const toTime1: (
  * @param d - day
  * @param h - hour
  * @param min - minute
- * @param relative_to - the start time related to receiving the message
+ * @param relative_to - the start time related to receiving the message on this channel
  * @returns converted standard task time
  */
-const toTime = (
+export const toTime = (
   y: ToTime1,
   mo: ToTime1,
   d: ToTime1,
@@ -119,17 +133,20 @@ export const getExactTime = (
     getExactTime1(taskTime.minute, minute, 0, 60)
   );
 };
-const GAME_OVER_RESULT: TaskStep[] = [
-  {
-    node: "unity",
-    function: "jump to scene",
-    params: ["GameOver"],
-  },
-];
+const gameOverResult: (message: string, fiy: string) => TaskStep = (
+  message,
+  fiy
+) => {
+  return {
+    node: "main",
+    function: "showGameOver",
+    params: [message, fiy],
+  };
+};
 const sendEmailTask: (emailId: string) => TaskStep = (emailId) => {
   return {
     node: "main",
-    function: "send email",
+    function: "sendEmail",
     params: [emailId],
   };
 };
@@ -147,34 +164,124 @@ const finishOnLaptopTask: (...playerStep: PlayerStep[]) => TaskStep[] = (
     },
   ];
 };
+const unlockApp: (...appNames: string[]) => TaskStep = (...appNames) => {
+  return {
+    node: "main",
+    function: "unlockApp",
+    params: appNames,
+  };
+};
 export const taskDetails: TaskDetail[] = [
+  {
+    name: "Read Offer Email",
+    description: "Open the laptop and read the NUS offer email",
+    guide: false,
+    startTime: toTime(0, 0, 0, 0, 0, "newGame"),
+    steps: [
+      sendEmailTask("0"),
+      unlockApp("Email", "Browser"),
+      ...finishOnLaptopTask(openApp("Email"), openEmail("0")),
+    ], //"0" is the id of the offer email
+    completedMessage: "offerEmailRead",
+    completedResult: [unlockApp("Applicant Portal")],
+  },
   {
     name: "Accept Offer",
     description: "Login to applicant portal to accept NUS offer",
-    startTime: toTime(0, 0, 0, 0, 1, "newGame"), //1 second after starting new game
+    guide: true,
+    startTime: toTime(0, 0, 0, 0, 0, "offerEmailRead"),
     steps: [
-      sendEmailTask("0"), //"0" is the id of the offer email
       ...finishOnLaptopTask(
         openApp("Applicant Portal"),
-        click(".login-btn"),
-        click("#applicant-portal-admission"),
-        click(".admission-inquiry"),
+        click("applicant-portal-login-btn"),
+        click("applicant-portal-admission"),
+        click("admission-inquiry"),
         click("applicant-portal-accept")
       ),
     ],
     completedMessage: "offerAccepted",
-    completedResult: [],
+    completedResult: [unlockApp("Photo Submission Portal")],
     failedMessage: "offerRejected",
-    failedResult: GAME_OVER_RESULT,
+    failedResult: [
+      gameOverResult(
+        "What has NUS done to make you reject the offer",
+        `In real life, it is more complecated to accept / reject NUS offer. 
+Singapore-Cambridge GCE A-Level, Polytechnic, IB Diploma, NUS High School students 
+indicate their decisions on Joint Acceptance Portal (JAP) while 
+International Students / Singapore Citizens / Permanent Residents with International Qualifications
+indicate their decisions independently. International students can only take 
+one offer from any Singapore's universities to obtain student pass`
+      ),
+    ],
   },
   {
     name: "Upload Photo",
     description: "Upload the photo for Student Card",
+    guide: true,
     startTime: toTime(0, 0, 0, 0, 0, "offerAccepted"),
     steps: [...finishOnLaptopTask(/* TODO */)],
     completedMessage: "photoUploaded",
-    completedResult: [],
-    failedMessage: undefined, //only if the player did not upload the photo in time
-    failedResult: GAME_OVER_RESULT,
+    failedResult: [
+      gameOverResult(
+        "You should submit your photo in time",
+        `In real life, failure to submit a photograph that meets the requirements is not Game Over but
+may result in delays in processing your student card and registration formalities. 
+Therefore it is still highly recommended that you submit your photo as soon as you accept your offer
+Besides, the photo you submit in this step will  It will be appear on your physical Student
+Card, e-student card in the uNivUS app, Canvas, Undergraduate concession card, etc.
+so do pick your most satisfying photo`
+      ),
+    ],
   },
 ];
+export enum TaskStatus {
+  NotStarted,
+  Ongoing,
+  Finished,
+  Failed,
+}
+export interface StepCompletion {
+  status: TaskStatus;
+  playerCurrentStep: number; //the current step the user is
+}
+
+export interface TaskCompletion {
+  name: string;
+  steps: StepCompletion[];
+  status: TaskStatus;
+  scheduled?: {
+    year: number;
+    month: number;
+    day: number;
+    hour: number;
+    minute: number;
+  };
+}
+export const newGameTaskCompletion: () => TaskCompletion[] = () =>
+  taskDetails.map((task) => {
+    return {
+      name: task.name,
+      steps: task.steps.map((_step) => {
+        return {
+          status: TaskStatus.NotStarted,
+          playerCurrentStep: 0,
+        };
+      }),
+      status: TaskStatus.NotStarted,
+      scheduled: undefined,
+    };
+  });
+export const isImmediate: (t: Time | TimeValue) => boolean = (t) => {
+  if ("type" in t) {
+    //t: TimeValue
+    return t.type === "relative" && t.value === 0;
+  }
+  //t: Time
+  return (
+    isImmediate(t.year) &&
+    isImmediate(t.month) &&
+    isImmediate(t.day) &&
+    isImmediate(t.hour) &&
+    isImmediate(t.minute)
+  );
+};

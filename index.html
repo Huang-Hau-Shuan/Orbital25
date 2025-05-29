@@ -6,31 +6,30 @@
     <title>SimuNUS</title>
   </head>
   <body>
-    <div id="desktop-container"><div id="simdesk-root"></div></div>
+    <div id="simdesk-root"></div>
   </body>
   <script type="module" src="/src/simulated_desktop/main.tsx"></script>
   <script>
     window.addEventListener("DOMContentLoaded", () => {
       const desktop_container = document.getElementById("desktop-container");
       // Close desktop when user clicks outside its webview
-      desktop_container.addEventListener("mousedown", (e) => {
-        const simdeskRoot = document.getElementById("simdesk-root");
-        if (!simdeskRoot.contains(e.target)) {
-          const rect = simdeskRoot.getBoundingClientRect();
-          const x = e.clientX;
-          const y = e.clientY;
+      // desktop_container.addEventListener("mousedown", (e) => {
+      //   const simdeskRoot = document.getElementById("simdesk-root");
+      //   if (!simdeskRoot.contains(e.target)) {
+      //     const rect = simdeskRoot.getBoundingClientRect();
+      //     const x = e.clientX;
+      //     const y = e.clientY;
 
-          const inside =
-            x >= rect.left &&
-            x <= rect.right &&
-            y >= rect.top &&
-            y <= rect.bottom;
-          if (!inside) hideSimDesktop();
-        }
-      });
+      //     const inside =
+      //       x >= rect.left &&
+      //       x <= rect.right &&
+      //       y >= rect.top &&
+      //       y <= rect.bottom;
+      //     if (!inside) hideSimDesktop();
+      //   }
+      // });
       if (window.SimuNUS_API === undefined) {
         console.error("SimuNUS API Undefined");
-        showSimDesktop();
         return;
       }
 
@@ -38,7 +37,6 @@
         const view = document.createElement(_tag);
         view.id = _id;
         view.src = _src;
-        view.setAttribute("allowpopups", "");
         view.tabIndex = -1;
         if (_tag == "webview" && _preload) {
           view.setAttribute("sandbox", "false");
@@ -72,8 +70,8 @@
         msg_forward_channels[source] = [];
       }
       const msg_callback = {
-        hideSim: hideSimDesktop,
-        showSim: showSimDesktop,
+        // hideSim: hideSimDesktop,
+        // showSim: showSimDesktop,
         register_message_handler: (msg) => {
           const source = msg.source;
           const channel = msg.channel;
@@ -129,14 +127,14 @@
       for (const ch in msg_callback) {
         window.SimuNUS_API.onMessage(ch, msg_callback[ch]);
       }
-      function showSimDesktop() {
-        desktop_container.style.display = "block";
-        desktop_container.focus();
-      }
-      function hideSimDesktop() {
-        desktop_container.style.display = "none";
-        if (window.SimuNUS_API !== undefined) unity_container.focus();
-      }
+      // function showSimDesktop() {
+      //   desktop_container.style.display = "block";
+      //   desktop_container.focus();
+      // }
+      // function hideSimDesktop() {
+      //   desktop_container.style.display = "none";
+      //   if (window.SimuNUS_API !== undefined) unity_container.focus();
+      // }
       function sendTo(view, channel, msg, origin = "*") {
         //console.log(`send ${msg} over ${channel}`);
         if (view.tagName == "IFRAME") {
@@ -151,8 +149,5 @@
         }
       }
     });
-    window.reload = () => {
-      window.SimuNUS_API.sendMessage("reload");
-    };
   </script>
 </html>

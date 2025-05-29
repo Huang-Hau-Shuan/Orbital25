@@ -12,6 +12,7 @@ function handleMessage(mainWindow: BrowserWindow) {
   const sendMessage = (channel: string, ...args: unknown[]) =>
     mainWindow.webContents.send(channel, ...args);
   const to_register = new Set<string>(); // only register once for every channel
+  let register_ready = false;
   const onMessage = (
     channel: string,
     callback: (...args: unknown[]) => void,
@@ -19,7 +20,31 @@ function handleMessage(mainWindow: BrowserWindow) {
   ) => {
     ipcMain.on(channel, (_event, ...args) => callback(...args));
     if (register) {
-      to_register.add(channel);
+      if (register_ready) {
+        sendMessage("register_message_handler", {
+          source: "main",
+          channel: channel,
+        });
+      } else {
+        to_register.add(channel);
+      }
+    }
+  };
+  const onceMessage = (
+    channel: string,
+    callback: (...args: unknown[]) => void,
+    register = true
+  ) => {
+    ipcMain.once(channel, (_event, ...args) => callback(...args));
+    if (register) {
+      if (register_ready) {
+        sendMessage("register_message_handler", {
+          source: "main",
+          channel: channel,
+        });
+      } else {
+        to_register.add(channel);
+      }
     }
   };
   const forwardMessage = (channel: string) =>
@@ -63,9 +88,9 @@ function handleMessage(mainWindow: BrowserWindow) {
       app.relaunch();
       app.exit(0);
     });
-  handleGameSaveMessage(onMessage, sendMessage);
-  forwardMessage("hideSim");
-  forwardMessage("showSim");
+  handleGameSaveMessage(onMessage, sendMessage, onceMessage);
+  //forwardMessage("hideSim");
+  //forwardMessage("showSim");
   mainWindow.webContents.on("did-finish-load", () => {
     to_register.forEach((channel) => {
       sendMessage("register_message_handler", {
@@ -74,6 +99,7 @@ function handleMessage(mainWindow: BrowserWindow) {
       });
     });
     sendMessage("mainRegisterMessageComplete");
+    register_ready = true;
   });
 }
 const createWindow = () => {

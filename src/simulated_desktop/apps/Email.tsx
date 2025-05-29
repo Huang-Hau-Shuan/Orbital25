@@ -8,6 +8,7 @@ import {
   dbgLog,
   dbgWarn,
 } from "../MessageBridge";
+import GuideButton from "./GuideButton";
 
 interface EmailMeta {
   id: string;
@@ -67,8 +68,9 @@ const EmailApp = () => {
         <h2>Inbox</h2>
         <ul className="email-list">
           {emails.map((email) => (
-            <li
+            <GuideButton
               key={email.id}
+              id={"email-" + email.id}
               className="email-item"
               onClick={() => openEmail(email.id)}
             >
@@ -80,7 +82,7 @@ const EmailApp = () => {
                 {email.subject}
               </span>
               {email.unread && <span className="unread-dot" />}
-            </li>
+            </GuideButton>
           ))}
         </ul>
       </div>

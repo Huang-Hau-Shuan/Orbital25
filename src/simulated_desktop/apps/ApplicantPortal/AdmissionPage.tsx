@@ -1,5 +1,6 @@
 // apps/AdmissionPage.tsx
 import { useState } from "react";
+import GuideButton from "../GuideButton";
 
 const AdmissionPage = () => {
   const [showDetails, setShowDetails] = useState(false);
@@ -17,9 +18,13 @@ const AdmissionPage = () => {
     return (
       <div className="admission-inquiry">
         <div>Admission</div>
-        <a onClick={() => setShowDetails(true)} className="link-btn">
+        <GuideButton
+          onClick={() => setShowDetails(true)}
+          className="link-btn"
+          id="admission-inquiry"
+        >
           Enquire Admission Status
-        </a>
+        </GuideButton>
       </div>
     );
   }
@@ -58,9 +63,12 @@ const AdmissionPage = () => {
                 {offerAccepted === null ? (
                   <>
                     <li>
-                      <a onClick={handleAccept} id="applicant-portal-accept">
+                      <GuideButton
+                        onClick={handleAccept}
+                        id="applicant-portal-accept"
+                      >
                         Accept Offer
-                      </a>
+                      </GuideButton>
                     </li>
                     <li>
                       <a onClick={handleReject} id="applicant-portal-reject">

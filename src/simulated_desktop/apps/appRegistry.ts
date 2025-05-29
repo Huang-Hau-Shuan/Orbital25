@@ -11,7 +11,7 @@ export interface AppMeta {
   component: React.FC<any>;
   props?: Record<string, any>;
 }
-const apps_array: AppMeta[] = [
+export const apps_array: AppMeta[] = [
   {
     name: "Email",
     icon: "icon/email.svg",

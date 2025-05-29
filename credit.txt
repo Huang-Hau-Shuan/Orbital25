@@ -7,12 +7,6 @@ title: 2D-Basic-Room-Assets
 https://assetstore.unity.com/packages/2d/2d-basic-room-assets-234762
 Author: PixelChad (pixelchad.itch.io, 08nickaz.06@gmail.com)
 
-unity/Assets/CollegeStudent
-title: Cute 2D - College Student
-https://assetstore.unity.com/packages/2d/characters/cute-2d-college-student-198684
-Author: Junhyuck Jang(ClearSky) (blog.naver.com/ggogono3, junhyuckjang3@gmail.com)
-publisher page: https://assetstore.unity.com/publishers/45049
-
 unity/Assets/images/nus-entrance-A.jpg
 https://cde.nus.edu.sg/news-detail/nus-announces-new-college-of-design-and-engineering/
 
@@ -22,6 +16,14 @@ https://news.nus.edu.sg/creating-a-greener-and-more-sustainable-campus/
 nus colors
 orange: #EF7C00
 blue: #003D7C
+A1: #FF0000
+A2: #E3CE0B
+D1: #C075E1
+D2: #6F1B6F
+K: #345A9B
+E: #16B050
+BTC: #EF8136
+L: #BFBFBF
 https://www.nus.edu.sg/identity/guidelines/corporate-colours
 
 unity/Assets/Sprites/bus-stop.png and unity/Assets/Sprites/bus-stop-current.png
@@ -33,3 +35,8 @@ https://myaces.nus.edu.sg/applicantPortal/
 
 public/background/login.svg
 https://www.nus.edu.sg/canvas/login/
+
+unity/Assets/HintsStarsLite
+Hints Stars Points & Rewards Sound Effects - Lite Pack
+https://assetstore.unity.com/packages/audio/sound-fx/hints-stars-points-rewards-sound-effects-lite-pack-295538
+Author: Cyberwave Orchestra (cyberwaveorchestra@gmail.com, www.patreon.com/c/cyberwave?redirect=true)

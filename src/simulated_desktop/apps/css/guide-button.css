@@ -1,0 +1,23 @@
+.guide-button-highlight {
+  /* content: "";
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px; */
+  border: 0px solid #ff6600;
+  border-radius: 6px;
+  animation: pulse 0.8s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 2px rgba(255, 102, 0, 1);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(255, 102, 0, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 0 2px rgba(255, 102, 0, 1);
+  }
+}
