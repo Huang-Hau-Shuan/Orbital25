@@ -24,7 +24,6 @@ public class Laptop : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerNear = true;
-            // You could also show an interaction prompt here (like "Press E to use laptop")
         }
     }
 
@@ -33,7 +32,7 @@ public class Laptop : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerNear = false;
-            // Hide interaction prompt
+            MessageBridge.HideSimulatedDesktop();
         }
     }
     public void ShowExclamation(string show)

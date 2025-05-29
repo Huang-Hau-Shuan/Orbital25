@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BusStop : MonoBehaviour
@@ -8,6 +9,7 @@ public class BusStop : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     public Sprite sprite;
     public Sprite spriteFocused;
+    public List<BusRoute> availableLines = new();
     void Start()
     {
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
@@ -31,5 +33,9 @@ public class BusStop : MonoBehaviour
     {
         focused = f;
         UpdateSprite() ;
+    }
+    public void AddAvailableLine(BusRoute line)
+    {
+        availableLines.Add(line);
     }
 }

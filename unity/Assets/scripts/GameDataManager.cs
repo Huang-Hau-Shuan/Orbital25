@@ -81,13 +81,13 @@ public class PlayerStatus
 public class GameSave
 {
     public int year, month, day, hour, minute;
-    public int currentScene;
+    public int currentScene, previousScene;
     public PlayerStatus playerStatus;
     public List<TaskProgress> tasks;
     public GameSave(List<TaskDetail> taskDetails)
     {
         year = 2025; month = 6; day = 10; hour = 9; minute = 0;
-        currentScene = 1;
+        currentScene = 1; previousScene = 0;
         playerStatus = new PlayerStatus();
         if (taskDetails != null)
         {
@@ -226,5 +226,39 @@ public class GameDataManager : MonoBehaviour
         GameTimeManager.instance.SetTime(gameSave.year, gameSave.month, gameSave.day, gameSave.hour, gameSave.minute);
         GameTimeManager.instance.StartTimer();
         SceneManager.sceneLoaded -= OnLoadGame_SceneLoaded;
+    }
+    //load scene and update currentScene, previous Scene
+    public void LoadScene(int sceneId)
+    {
+        gameSave.previousScene = gameSave.currentScene;
+        SceneManager.LoadScene(sceneId);
+        gameSave.currentScene=sceneId;
+    }
+    public void LoadScene(string sceneName)
+    {
+        gameSave.previousScene = gameSave.currentScene;
+        SceneManager.LoadScene(sceneName);
+        gameSave.currentScene = SceneManager.GetSceneByName(sceneName).buildIndex;
+    }
+    public void LoadScene(Scene scene)
+    {
+        LoadScene(scene.buildIndex);
+    }
+    public int GetCurrentSceneIndex()
+    {
+        return gameSave.currentScene;
+    }
+    public string GetCurrentSceneName()
+    {
+        return Utils.GetSceneName(gameSave.currentScene);
+    }
+
+    public int GetPreviousSceneIndex()
+    {
+        return gameSave.previousScene;
+    }
+    public string GetPreviousSceneName()
+    {
+        return Utils.GetSceneName(gameSave.previousScene);
     }
 }

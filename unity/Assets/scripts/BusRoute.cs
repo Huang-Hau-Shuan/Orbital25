@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Splines;
+using UnityEngine.UI;
 using static UnityEngine.GraphicsBuffer;
 [System.Serializable]
 public class BusStopPair
@@ -13,20 +15,21 @@ public class BusStopPair
 public class BusRoute : MonoBehaviour
 {
     public GameObject busObject;
-    [Header("The spline container")]
+    public Button getOffButton;
     public SplineContainer splineContainer;
-    [Header("The bus line name, eg. A1, D2")]
     public string lineName;
-    [Header("The corresponding bus stops to a point on the spline container")]
     public List<BusStopPair> busStops;
+    public float waitTime;
+    public float speed = 1;
     private Spline spline;
     private bool isMoving = false;
+    private int currentStopIndex = 0;
     //use dictionary for faster and more convenient look up
-    private Dictionary<string, BusStopPair> _busStops = new();
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    private void Start()
+    private Dictionary<string, int> _busStops = new();
+    //initializing bus stops must come before BusManager.start
+    private void Awake()
     {
-        spline = splineContainer.Spline;
+        int index = 0;
         foreach (var busStopPair in busStops)
         {
             if (busStopPair.value == null)
@@ -34,14 +37,22 @@ public class BusRoute : MonoBehaviour
                 Utils.LogError("Bus Route " + lineName + ": bus stop is null");
                 continue;
             }
-            _busStops[busStopPair.value.name] = busStopPair;
+            busStopPair.value.GetComponent<BusStop>().AddAvailableLine(this);
+            _busStops[busStopPair.value.name] = index;
+            index++;
         }
-        MoveImmediatelyToStop("PGP");
-        MoveToStop("CLB",1);
+        spline = splineContainer.Spline;
+    }
+    private void Start()
+    {
     }
     private void Update()
     {
 
+    }
+    public bool HasStop(string stopName)
+    {
+        return _busStops.ContainsKey(stopName);
     }
     //Teleport the bus toward a bus stop
     public void MoveImmediatelyToStop(string stopName)
@@ -51,9 +62,12 @@ public class BusRoute : MonoBehaviour
             Utils.LogError("Bus Route " + lineName + ": busStops is null");
             return;
         }
-        var pair = _busStops[stopName];
+        int index = _busStops[stopName];
+        currentStopIndex = index;
+        var pair = busStops[index];
         if (pair != null)
         {
+            Utils.Log("Move bus to "+ pair.value.name+"which is the " + pair.key.ToString() +" knot on spline");
             //find the position and tangent of that spline point
             float t = spline.ConvertIndexUnit(pair.key, PathIndexUnit.Knot, PathIndexUnit.Normalized);
             SetBusPos(t);
@@ -63,18 +77,40 @@ public class BusRoute : MonoBehaviour
             Utils.LogError("Stop not found: " + stopName);
         }
     }
-    public void MoveToStop(string stopName, float speed)
+    //let the bus start moving along the spline till the destination
+    public void MoveBus(string startStopName, string targetStopName = null, bool nonStop = false)
     {
-        if (isMoving) return;
-        var target = _busStops[stopName];
-        if (target != null)
+        int fromIndex = _busStops[startStopName];
+        int toIndex = targetStopName==null? busStops.Count - 1:_busStops[targetStopName];
+        MoveImmediatelyToStop(startStopName);
+        StartCoroutine(MoveAndStopAtEach(fromIndex, toIndex, nonStop));
+    }
+    public void GetOff()
+    {
+        GetOff(busStops[currentStopIndex].value.name);
+    }
+    public void GetOff(string stopName)
+    {
+        if (busStops == null)
         {
-            int currentKnot = FindClosestKnotToBus();
-            StartCoroutine(MoveAlongSpline(currentKnot, target.key, speed));
+            Utils.LogError("BusRoute.GetOff: stopName is null");
+        }else if (_busStops.ContainsKey(stopName))
+        {
+            if (stopName == "PGP" || stopName =="PGP Foyer")
+            {
+                stopName = "Room";
+            }
+            if (Utils.SceneExists(stopName)) {
+                GameDataManager.instance.LoadScene(stopName);
+            }
+            else
+            {
+                ToastNotification.Show("Map "+ stopName+" Not Implemented", 2, "alert");
+            }
         }
         else
         {
-            Debug.LogWarning("Stop not found: " + stopName);
+            Utils.LogError("BusRoute.GetOff: invalid stopName for line " + lineName);
         }
     }
 
@@ -94,8 +130,25 @@ public class BusRoute : MonoBehaviour
         }
         return closestIndex;
     }
-
-    private IEnumerator MoveAlongSpline(int startKnot, int endKnot, float speed)
+    private IEnumerator MoveAndStopAtEach(int fromIndex, int toIndex, bool nonStop)
+    {
+        for (int i = fromIndex; i < toIndex; i++)
+        {
+            currentStopIndex = i;
+            yield return MoveAlongSpline(busStops[i].key, busStops[i+1].key);
+            ToastNotification.Show("We are arriving at: " + busStops[i + 1].value.name,1,"info");
+            // Wait at this stop
+            if (!nonStop) { 
+                getOffButton.gameObject.SetActive(true);
+                currentStopIndex = i+1;
+                yield return new WaitForSeconds(waitTime);
+                getOffButton.gameObject.SetActive(false);
+            }
+        }
+        //Force get off
+        getOffButton.onClick.Invoke();
+    }
+    private IEnumerator MoveAlongSpline(int startKnot, int endKnot)
     {
         isMoving = true;
 
@@ -120,6 +173,7 @@ public class BusRoute : MonoBehaviour
 
         isMoving = false;
     }
+    
     //get the absolute position of a point on the spline
     private Vector3 GetKnotPosition(int idx)
     {

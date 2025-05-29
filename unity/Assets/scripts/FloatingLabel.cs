@@ -5,7 +5,6 @@ public class FloatingLabel : MonoBehaviour
 {
     [Header("Text Settings")]
     public bool showText = true;
-    public string text = null;
     public bool updateText = true;
     [Header("Position Settings")]
     public Vector3 offset = Vector3.up;
@@ -31,7 +30,7 @@ public class FloatingLabel : MonoBehaviour
         if (!textGameObject.TryGetComponent(out textObj))
         textObj = textGameObject.AddComponent<TextMeshProUGUI>();
         textObj.alignment = TextAlignmentOptions.Center;
-        if (text != null && text.Length>0) { textObj.text = text; }
+        if (gameObject.name != null && gameObject.name.Length>0) { textObj.text=gameObject.name; }
         // Position it above the object in screen space
         UpdateLabelPosition();
     }
@@ -51,12 +50,6 @@ public class FloatingLabel : MonoBehaviour
         textObj.gameObject.SetActive(showText);
     }
 
-    public void SetText(string text)
-    {
-        if (textObj == null) return;
-        this.text = text;
-        textObj.text = text;
-    }
     public void SetShowText(bool showText)
     {
         this.showText = showText;
