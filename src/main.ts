@@ -158,8 +158,8 @@ const createWindow = () => {
 };
 
 server.use(
-  config.UNITY_SERVE_PATH,
-  express.static(config.UNITY_BUILD_PATH, {
+  "/",
+  express.static(config.SERVER_ROOT, {
     setHeaders: (res, filePath) => {
       if (filePath.endsWith(".br")) {
         res.setHeader("Content-Encoding", "br");
@@ -191,7 +191,7 @@ server.use(
     },
   })
 );
-server.use("/", express.static(config.SIMULATED_DESKTOP_BUILD_PATH));
+//server.use("/", express.static(config.SIMULATED_DESKTOP_BUILD_PATH));
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.

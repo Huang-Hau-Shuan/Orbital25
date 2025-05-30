@@ -15,7 +15,7 @@ export const FULLSCREEN = false;
 export const ENABLE_DEV = true;
 export const SERVE_PORT = 7224;
 export const SERVE_ORIGIN = "http://localhost:" + SERVE_PORT;
-export const UNITY_SERVE_PATH = "/unity";
+export const UNITY_SERVE_PATH = "/unity_build";
 export const VITE_SERVE_ORIGIN =
   typeof MAIN_WINDOW_VITE_DEV_SERVER_URL === "string"
     ? MAIN_WINDOW_VITE_DEV_SERVER_URL

@@ -1,24 +1,15 @@
 import { randomInt } from "crypto";
 import { normalizeTime } from "./utils";
+import {
+  TaskStatus,
+  type PlayerStep,
+  type TaskCompletion,
+  type TaskDetail,
+  type TaskStep,
+  type Time,
+  type TimeValue,
+} from "./types";
 
-export type TimeValue =
-  | { type: "random"; value: [number, number] } //either from number 1 to number 2 or no limit
-  | { type: "absolute" | "relative"; value: number };
-export interface Time {
-  year: TimeValue;
-  month: TimeValue;
-  day: TimeValue;
-  hour: TimeValue;
-  minute: TimeValue;
-}
-export interface TaskTime {
-  relative_to?: string; //relative to the time when the system receives the message on this channel
-  time: Time;
-}
-export type PlayerStep =
-  | { type: "goScene"; scene: string } // player needs to go to this scene
-  | { type: "click"; id: string } // player needs to click the element with this id
-  | { type: "interact"; object: string }; //player needs to interact with the object
 type PlayerStepFactory = (_: string) => PlayerStep;
 const openApp: PlayerStepFactory = (app: string) => ({
   type: "click",
@@ -37,24 +28,7 @@ const interact: PlayerStepFactory = (object: string) => ({
   type: "interact",
   object,
 });
-export interface TaskStep {
-  node: "main" | "unity" | "laptop";
-  function?: "showGameOver" | "sendEmail" | "unlockApp"; //the step that the system do
-  params?: unknown[];
-  playerSteps?: PlayerStep[];
-}
-export interface TaskDetail {
-  name: string;
-  description: string;
-  guide: boolean;
-  startTime: TaskTime;
-  steps: TaskStep[];
-  completedMessage: string;
-  completedResult?: TaskStep[];
-  failedMessage?: string | undefined;
-  failedResult?: TaskStep[];
-  timeout?: TaskTime;
-}
+
 type ToTime1 = TimeValue | number | [number, number];
 /**
  * Convert a time expression to type TimeValue, it can be a number, a time range or TimeValue
@@ -234,29 +208,7 @@ so do pick your most satisfying photo`
     ],
   },
 ];
-export enum TaskStatus {
-  NotStarted,
-  Ongoing,
-  Finished,
-  Failed,
-}
-export interface StepCompletion {
-  status: TaskStatus;
-  playerCurrentStep: number; //the current step the user is
-}
 
-export interface TaskCompletion {
-  name: string;
-  steps: StepCompletion[];
-  status: TaskStatus;
-  scheduled?: {
-    year: number;
-    month: number;
-    day: number;
-    hour: number;
-    minute: number;
-  };
-}
 export const newGameTaskCompletion: () => TaskCompletion[] = () =>
   taskDetails.map((task) => {
     return {

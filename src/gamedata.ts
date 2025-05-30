@@ -2,39 +2,23 @@ import fs from "fs";
 import { CONFIG_PATH, DEBUG, EMAIL_PATH, SAVE_PATH } from "./SimuNUS_config";
 import path from "node:path";
 import { dbgErr, dbgLog, dbgWarn, deserializeFromJsonFile } from "./utils.js";
-import { isGameConfig, isIGameSave } from "./gamedata.guard.js";
 import {
   isImmediate,
   newGameTaskCompletion,
   taskDetails,
-  TaskStatus,
   toTime,
+} from "./tasks.js";
+import { isGameConfig, isIGameSave } from "./types.guard.js";
+import {
+  TaskStatus,
+  type EmailContent,
+  type EmailMeta,
+  type GameConfig,
+  type IGameSave,
   type TaskCompletion,
   type TaskStep,
-} from "./tasks.js";
-export interface EmailMeta {
-  id: string;
-  subject: string;
-  unread: boolean;
-}
-export interface EmailContent {
-  id: string;
-  file?: string;
-  content?: string;
-}
+} from "./types.js";
 
-export interface GameConfig {
-  debug: boolean;
-  gameSavePath: string;
-  unityGameConfig: string;
-}
-
-export interface IGameSave {
-  unitySave: string;
-  receivedEmails: EmailMeta[];
-  tasks: TaskCompletion[];
-  unlockedApps: string[];
-}
 class GameSave implements IGameSave {
   unitySave: string = "";
   receivedEmails: EmailMeta[] = [];

@@ -48,8 +48,11 @@ export const deserializeFromJsonFile = <T>(
       callback(parsed);
     } else {
       dbgErr(
-        `JSON structure is invalid for expected type ${typename} in file: ${path}`
+        `JSON structure is invalid for expected type ${
+          typename ? typename : ""
+        } in file: ${path}`
       );
+      dbgErr(content);
     }
   });
 };
