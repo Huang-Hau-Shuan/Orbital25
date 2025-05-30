@@ -8,6 +8,15 @@
 
 ## Project Idea & Overview
 
+### Motivation
+
+Navigating around NUS’s and Singapore’s systems is difficult, especially for international
+students. I am such one who previously knew nothing about Singapore and nobody in NUS, and having nobody to guide me I incurred actual financial costs. Although NUS did provide a checklist of what to do in `NUS Acceptance Guidelines.pdf`, it was very much incomplete: the checklist mentioned student pass application but did not specify
+when and how. Additionally, a lot of critical procedures including Registration Part I, the guideline just said "more details will be emailed to you". This led to weeks of uncertainty. And it had finally arrived, it required me to complete everything in just a few days. To make matters worse, the checklist did not even mention residency application at all. Although there were tutorials to attend and online resources to search for, nobody could **demonstrate** how to finish all the steps. In the end, due to these unclear instructions, I missed the ICA off-site enrolment slots, which delayed my STP. Without it, I could not open a bank account for GIRO or PayNow and had to pay the tuition fee with international credit card, incurring a 1% fee and
+losses from SGD appreciation in that month.  
+Besides administration, way-finding inside the NUS campus itself is difficult. Each building could have completely different levels: one building’s B1 could be F2 of another, even though the two buildings are connected. I had got lost a lot of times, especially when rushing between classes.  
+I seek to channel my past struggle into making a possible solution. My team and I want to create something that would make the administrative and navigation processes easier and smoother for future freshmen (not just international students!). This project gives us the opportunity to do so in the form of a game simulation.
+
 ### Aim
 
 **SimuNUS** is an interactive NUS simulator that allows freshmen to explore and experience key administrative processes, campus navigation, and academic tasks (armed with advice from us and other seniors). Instead of guessing from incomplete instructions, search
@@ -188,6 +197,89 @@ SimuNUS contains two major tech stacks, one for unity and the other for nodeJS (
 
 ### Simulated Desktop (Web App)
 
+- **React**: A frontend framework for us to build user interfaces out of individual pieces called components. Each simulated application, as well the the simulated desktop itself, are react all components
+- **TypeScript**: A strongly typed language that ensures type safety at compile type.
+- **HTML/CSS**: Used to create the layout and styles for the app window and simulated NUS websites
+- **Vite**: Lightweight, fast bundler and dev server for React and TS projects. It provides hot module reload (HMR) in develop phase and optimizes the build
+
+### Backend
+
+- **Electron**: The framework to creates browser windows and manages the overall app lifecycle. It also provides `ipcMain` and `ipcRenderer` to communicate between frontend and backend.
+- **electron-forge with vite plugin**: The tool to build the whole app.
+- **Express**: The library to serve the unity build. It allows customized headers that allows the browser to automatically unzip `*.br` in unity build
+- **Chalk**: A library for customized CLI output. It helps us debug.
+- **Json**: The game save is serialized using json format and stored on local machine
+
 ## Technical proof of concept
+
+To demonstrate the technical feasibility of SimuNUS, we built a prototype integrating all major components:
+
+- (All the videos, source code and release can be found [here]())
+
+### Demo Video
+
+A short [video]() showcasing:
+
+- Unity WebGL game loading and running
+- Open simulated desktop by intracting with the laptop
+- Finishing the first task - accept NUS offer with guide
+- Taking NUS internal shuttle bus
+
+### Release ([Windows]())
+
+- Download the realease
+- Unzip it
+- Open SimuNUS.exe and try it out yourself
+
+### Build SimuNUS yourself from [Source Code]()
+
+#### Repository Structure
+
+```
+SimuNUS
+├─public # Assets for the simulated desktop
+│  ├─background # background imaged for simulated desktop and its apps
+│  ├─emails # the content of the email
+│  └─icon # icons on simulated desktop and its apps
+├─src
+│  └─simulated_desktop # Source code for the simulated desktop
+│      ├─apps # Source code for all the apps
+│      │  ├─ApplicantPortal
+│      │  └─css # styles for the apps
+│      └─simdesktop # Source code for the desktop itself
+│          └─context # React context for desktop
+└─unity # the unity project
+    ├─Assets
+    │  ├─2D NUS MAP # Assets for map
+    │  ├─images # background for UI interfaces
+    │  ├─prefabs # reusable unity prefabs
+    │  ├─Scenes # scenes for main menu, player's room and campus maps
+    │  ├─scripts # the C# scripts and jslib plugin
+    │  ├─Settings
+    │  │  └─Scenes
+    │  ├─Sprites # sprite assets for the game
+    │  │  ├─campus map
+    │  │  ├─furnitures
+    │  │  └─tiles
+    ├─Packages
+    └─ProjectSettings
+```
+
+#### Build Instructions
+
+- Prerequisites
+  - Node.js (We use v22.15.0)
+  - Unity (6 with WebGL build support)
+
+1. Clone the repository (since in orbital the github project is set to be private, you can download it [here]())
+2. Build the unity project (Alternatively, if you don't have unity 6 installed, you can download it [here]() and unzip it under /public/unity_build)
+   - Set build target to WebGL
+   - Build the project to /public/unity_build (it may take more than 10 minutes)
+3. Run SimuNUS
+   ```bash
+   npm install
+   npm run start
+   ```
+   alternatively, run `npm run make` to build the project, the build will be under `/out/SimuNUS-win32-x64` for windows
 
 ## Documentation
