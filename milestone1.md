@@ -283,4 +283,364 @@ SimuNUS
    ```
    alternatively, run `npm run make` to build the project, the build will be under `/out/SimuNUS-win32-x64` for windows
 
-## Documentation
+## Technical Detail & Implementations
+
+### 1. Main
+
+1. `src/main.ts`: the **entry point** of the SimuNUS Electron application
+
+   1. Create Browser Window
+      - Configured via `BrowserWindow` with settings for:
+      - WebGL support
+      - Preload script (`preload.js`)
+      - Context isolation set to true and node integration to false to ensure security
+      - import `src/SimuNUS_config.ts` as `config` to conditionally enable fullscreen, dev tools, or no-cache
+      - Automatically reloads Unity if `NO_CACHE` is enabled by clearing service worker cache (critical for debugging)
+   2. Setup Local Server
+      - Uses `express` to serve files from `config.SERVER_ROOT`
+      - Adds correct headers for `.br` and `.gz` compressed assets so that the browser in electron can automatically unzip the compressed unity build
+      - Supports WebAssembly MIME types (e.g. `.wasm.br`, `.wasm.gz`)
+      - listens on `config.SERVE_PORT`
+   3. Message Handling - Defines `sendMessage`, `onMessage`, `onceMessage`, and `forwardMessage` utilities. These functions will be used for in all parts of backend.
+
+      - For `onMessage` and `onceMessage`, we add a parameter to determine whether sending register message to main renderer:
+
+      ```json
+      {
+        "type": "register_message_handler",
+        "source": "main",
+        "channel": "example_channel"
+      }
+      ```
+
+      - It stored these registrations in to_register and actually register them after the main window (main renderer) finishes loading `did-finish-loading`
+
+   4. Handles App level commands: `exit`, `reload` (in debug mode)
+   5. Call handleGameSaveMessage() defined in `gamedata.ts` and pass `sendMessage`, `onMessage`, `onceMessage` to it to.
+
+2. `src/gamedata.ts`: manages **game state**, **tasks**, **save/load**. It implements most of the features for handling game data.
+
+   1. Save/Load System
+      - Uses `GameSave` class to store:
+        - `unitySave`: serialized string from Unity
+        - `receivedEmails`: email metadata. The contents of the email are defined separately and loaded on demand in simulated desktop
+        - `tasks`: array of taskStatus, stored the task states
+        - `unlockedApps`: which desktop apps are available
+      - `onMessage("save")` serializes `gameSave` and writes to file
+      - `onMessage("load")` deserializes and updates Unity and desktop via `sendMessage`. Here we also checks if the deserialized object matches the type to ensure type safety. The checking functions are defined in `src/types.guard.ts`
+      - the game save location is configurable in `src/SimuNUS_config.ts`
+      - All the `sendMessage`, `onMessage`, `onceMessage` are passed from `src/main.ts`
+      - **All the data types, including all interfaces, enums for email system, unlock apps, tasks system are defined in `src/types.ts`**
+   2. Email system
+      - Loads email metadata (`emailMeta`) and body content (`emailContent`) from local files
+      - `sendEmail(id)` to add an email to `gameSave.receivedEmails` and notify Unity
+      - `getEmailList`: get the list of emails in `gameSave.receivedEmails`
+      - `getEmailBody`: get the body (content) of a specific email. The email is loaded from local files
+      - `markEmailRead`: set the unread attribute of an email to `false`
+      - `getHasNewMessage`: check and send whether any email is unread
+      - All the `get...` callback will send the result to channel `set...`
+   3. Task system
+      - Manages tasks defined in `src/tasks.ts`
+      - Handles task lifecycle (`NotStarted`, `Ongoing`, `Finished`, `Failed`) and the state of each step of the task
+      - Task Scheduling
+        - Tasks are registered at runtime and scheduled via messages. (since in game time system is implemented in Unity) However, once a task is registered, the sceduled time will be stored in game save, thus reloading won't change the date and status of a task
+        - At startup, tasks are registered based on status:
+          1. Absolute start time → schedule directly
+          2. Relative time (relative to the time when receiving a message, such as the completion message of the previous task) → listen for trigger message, then schedule
+      - Task Excution
+        - Tasks consist of **steps** (`TaskStep`), and some steps have **playerSteps** (`PlayerStep[]`) while others are solely the instructions of what the system do: send email, unlock app, etc.
+        - Each step is assigned to one of: `"main"`, `"unity"`, `"laptop"`
+        - Different implementations for static steps (no player action required) from interactive ones
+        - Tasks on unity are implemented in unity, here it sends the instructions to `setUnityPlayerNextSteps` and listens `playerCompletedUnitySteps` for completion. However, if the prequisite for the next task is already satified, it may skip this task.
+      - Task Guide
+        - The guide for on-screen tasks are triggured here
+        - For each step the player needs to do, it sends message to simulated desktop, which will then highlight the components that the player needs to interact with. For example, to guide a user to click a button, it sends out `guideClick_<id>`.
+      - Task Completion
+        - There are 2 ways of completing a task
+          1. All of its steps are done
+          2. Receives the completion message
+        - Upon completing a task, it sends `taskComplete` and perform all the static tasks in `completedResult`
+        - The completion message will triggers notification and a cheerful sound in unity. It may also unlock the next tasks
+      - Task Failure
+        - The players may fail a task if they
+          1. Interact with the wrong components ~~(e.g. click the button to reject the NUS offer)~~
+          2. Failed to meet the deadline
+        - Upon failing a task, it sends `taskFail` and perform all the static tasks in `failedResult`, which may includes jumping to the game over scene
+
+3. `src/tasks.ts`: Defined the structure, timing, and progression of tasks and the utility functions to create tasks. The excution of the task system is implemented in `src/gamedata.ts`
+
+   1. Task Structure - Each task is defined as a `TaskDetail`
+      - `name` and `description`: the name and description of the task
+      - `startTime`: When to trigger the task (absolute, relative or random)
+      - `steps`: An array of `TaskStep`s
+        1. `node`: Defined where the task should be executed - `"main"`, `"unity"`, or `"laptop"`.
+        2. optional `function` and `params` that defines what the system should do. e.g. `sendEmail`, `unlockApp`
+        3. optional `playerSteps` for interactive tasks requiring user action
+      - `completedMessage` / `failedMessage` (optional): The channel name of trigger messages to mark task as complete or failure
+      - `completedResult` / `failedResult` (optional): Steps to execute upon success/failure. They are static TaskStep[] that will be executed immediately after the task is done
+   2. Time Utility Functions
+      - `toTime1(...)`: Converts numeric values to `TimeValue` (absolute, relative, or random)
+      - `toTime(...)`: Converts all year/month/day/hour/minute inputs into a full `Time` object (where all year/month/day/hour/minute are of type `TimeValue`)
+      - `getExactTime(...)`: Get the absolyte time of the task according to a `Time` object and the current in-game date and time. Alternatively is the type of the `TimeValue` is set to random it generates a random value in the range. Once a absolute time is generated, it should be stored in game save so reloading won't change its time.
+      - `isImmediate`: Check if a task should happen immediately. It may skip scheduling and directly start a task if this function return true
+   3. PlayerTask Utility functions
+      - Convert simplified inputs into standard `PlayerStep`s:
+      ```ts
+      openApp(appName);
+      openEmail(emailID);
+      goScene(sceneName);
+      click(buttonID);
+      interact(gameObjectName);
+      ```
+   4. Task Initialization:
+      - `newGameTaskCompletion()`: it creates a new `TaskCompletion` object with all states of all tasks and their steps to `NotStarted`, currentPlayerStep to `0`
+
+4. `src/types.ts`: defines all the types in main
+   1. Time & Scheduling Types
+      - `TimeValue`: A flexible time descriptor which can be:
+      ```ts
+      { type: "random"; value: [number, number] } |
+      { type: "absolute" | "relative"; value: number };
+      ```
+      - `Time`: An object that has `TimeValue` for each of: `year`, `month`, `day`, `hour`, `minute`.
+      - `TaskTime`: Includes a `Time` object and optional `relative_to` which is the name of the channel of the message that the task is relative to
+   2. Tasks Details (definitions)
+      - `TaskStatus`: an enum representing the task state
+        ```ts
+        enum TaskStatus {
+          NotStarted,
+          Ongoing,
+          Finished,
+          Failed,
+        }
+        ```
+      - `PlayerStep`: a player interaction. It is also the smallest structure of a task
+        - `goScene`: switch to a Unity scene
+        - `click`: click an element by id
+        - `interact`: interact with an gameObject in unity
+      - `TaskStep`: Defines a single step in a task:
+        - `node`: where to execute (`"main"`, `"unity"`, `"laptop"`)
+        - `function`: optional function (`sendEmail`, `unlockApp`, `showGameOver`) for the system to execute
+        - `params`: arguments for the function
+        - `playerSteps`: optional interactions from the player
+      - `TaskDetail`: A full task:
+        - `name`, `description`
+        - `guide`: a boolean indicating whether enabling guide for this task
+        - `startTime`: when the task start
+        - `steps`: an array of `TaskStep`s
+        - `completedMessage`: string message to mark completion
+        - `completedResult`, `failedMessage`, `failedResult`: optional outcomes
+        - `timeOut`: optional deadline. it is also a `Time` object
+   3. Email Types
+      - `EmailMeta`: Stores info for each email. It contains a unique string `id`, `subject` of the email as well as if it is `unread`.
+      - `EmailContent`: the content of the email. We separate it from `EmailMeta` so that the simulated desktop can load email on demand, thus reducing memory usage
+        - `id`: email ID
+        - `file`: optional file to load from disk
+        - `content`: optional inline string
+   4. Game Data & Configuration
+      - `GameConfig`: Stores configuration for the game:
+        - `debug`: a boolean of whether enabling debug mode
+        - `gameSavePath`: path to save file
+        - `unityGameConfig`: serialized string Unity config, including key bindin, UI setting, etc.
+      - `StepCompletion`: The progress of a single step
+        - `status`: `TaskStatus`
+        - `playerCurrentStep`: The index of step that the player is at in the `TaskStep.playerSteps`
+        - `TaskCompletion`: The progress of a full task
+          - `name`: `string`
+          - `steps`: `StepCompletion[]`
+          - `status`: `TaskStatus`
+          - `scheduled`: optional, if the task is scheduled but yet to happen, its absulute time will be stored here
+      - `IGameSave`: Full game state interface (its implementation is in `class GameSave` gamedata.ts)
+        - `unitySave`: serialized string of Unity game state
+        - `receivedEmails`: email metadata array
+        - `tasks`: task completion array
+        - `unlockedApps`: list of unlocked apps on simulated desktop
+
+### 2. Simulated Desktop
+
+1. `src/simulated_desktop/main.tsx`: The entry point of the simulated desktop.
+
+   - Render the React App Component into the DOM element with ID `simdesk-root` with:
+     - `StrictMode`
+     - `AppProvider`: React context that stores openned applications (see `context/AppProvider.tsx`)
+
+2. `src/simulated_desktop/simdesktop/App.tsx`
+   1. Control when the simulated desktop is shown. It listens for `hideSim` and `showSim` to show and hide the desktop; `getSimStatus` responds with whether the desktop is shown
+      - It implements this feature with `useState(showSimDesktop)`
+      - When clicking outside of the desktop, it also hides it so that the player can easily switch back to game
+   2. Render desktop components: wallpaper, taskbar, and app windows (one for each app)
+      ```html
+      <div id="desktop-container" onClick="hideDesktop">
+        <div class="sim-desktop" onClick="stopPropagation">
+          <Desktop />
+          <Taskbar />
+          <!-- One for each open app -->
+          <AppWindow ... />
+        </div>
+      </div>
+      ```
+3. `src/simulated_desktop/simdesktop/context/AppProvider.tsx` and `src/simulated_desktop/simdesktop/context/AppContext.ts`: the context for simulated desktop
+
+   1. This React context stores and manages **app window state** (open/close/focus) in the simulated desktop.
+      - `openApps`: list of all open apps
+   2. Provide methods to:
+      - `openApp(appMeta)`: Open a new app
+      - `closeApp(app | name | "*")`: Close an app or all apps
+      - `bringToFront(app)`: Bring an app to the front (set its `z-index` to be the highest)
+   3. Export the `AppContext` via `AppContext.ts` (in vite, and tsx/jsx file should only contains one component in order to hot reload)
+   4. Usage:
+      ```tsx
+      <AppProvider>...</AppProvider>
+      ```
+
+4. `src/simulated_desktop/apps/appRegistry.ts`: registers all apps that in simulated desktop
+
+   1. Centralized definition of all apps as an `AppMeta` object(including unimplemented ones)
+
+   ```ts
+   interface AppMeta {
+     name: string; // Display name and unique id
+     icon: string; // Path to icon image. the icons are stored in public/icons
+     component: React.FC<any>; // React component to render in AppWindow
+     props?: Record<string, any>; // Optional props to pass to the component
+   }
+   ```
+
+   2. `app_array` (`AppMeta[]`): This is a list of all apps. it is exported as appRegistry (`Record<string, AppMeta>`) to facilitate look up
+
+   ```js
+   apps_array.forEach((app) => {
+     appRegistry[app.name] = app;
+   });
+   ```
+
+   - This design enables creating window for all different types via the context system. It also helps the desktop and taskbar component to render the name and icon of the app.
+   - It also makes our life easier by making adding apps as simple as putting it to apps_array without changing the rest of the code.
+
+5. `src/simulated_desktop/simdesktop/AppWindow.tsx`: App Window Component
+
+   1. Renders a title bar that the player can drag, focus or close the app
+      - `onClick`: Calls `bringToFront(app)` to raise the window to the top
+      - `onMouseDown`: Initiates dragging
+      - `mousemove`: Updates `position.top` and `position.left` to move the window aligned with the cursor
+      - `mouseup`: Stop dragging
+      - The `x` button inside the title bar calls `closeApp(app)` from AppContext
+   2. Read the z-index from appContext to position the app correctly
+   3. When dragging, it adds an overlay to prevent the inner app from capturing the mouse movement message (when `<iframe>` and `<webview>` captures the message, the parent window cannot receive it)
+   4. Render the inner app
+      - Uses `position: absolute` to manually place the window and enable dragging
+      - Renders the app's React component from `app.appmeta.component`
+      - Optinally pass the props from `app.appmeta.props` to the app
+
+   - Simplied DOM
+
+   ```tsx
+   <div class="window" style="[Set the z-index and position]">
+     <div class="titlebar" onMouseDown="startDrag">
+       {app.appmeta.name}
+       <div class="close-btn">x</div>
+     </div>
+     <div style={{ flex: 1, overflow: "overlay" }}>
+       <app.appmeta.component {...app.appmeta.props} />
+     </div>
+     <Overlay visible="{dragging}" />
+   </div>
+   ```
+
+6. `src/simulated_desktop/simdesktop/Desktop.tsx`
+
+   1. Request the list of unlocked apps from the backend and listens for unlocked apps
+
+      - On mount (`useEffect`):
+
+      1. apps and setApps are defined using `useState`
+      2. Registers a listener for `setUnlockedApps` to receive the unlocked app list
+      3. Sends `getUnlockedApps`
+      4. Filters and maps unlocked names to actual `AppMeta` according to `appRegistry`
+      5. Call `setApps` to set the apps
+
+   2. render one `DesktopIcon` for each unlocked app
+
+      ```tsx
+      <div id="desktop">
+        {apps.map((app, index) => (
+          <DesktopIcon key={app.name} app={app} index={index} />
+        ))}
+      </div>
+      ```
+
+7. `src/simulated_desktop/simdesktop/DesktopIcon.tsx`:App Icon Component
+
+   1. Display the icon and name of an app using prop `AppMeta`
+   2. Call `openApp(app)` defined in AppContext when clicked
+   3. Uses `GuideButton` to highlight the app when the player is guided to do so
+
+   - example DOM structure
+
+   ```html
+   <GuideButton id="simdesktop-app-Email" class="app-container">
+     <img src="icon/email.svg" class="icon" />
+     <div class="icon-label">Email</div>
+   </GuideButton>
+   ```
+
+8. `src/simulated_desktop/apps/GuideButton.tsx`
+
+   - allows components (desktop icons and buttons) to be highlighted from backend message, and sends back message when it is clicked. It helps tracking task progress
+
+   1. Message flow
+
+      - Inform the backend when it is mounted: sends `buttonMounted` message to the backend, indicating the button is ready to interact
+      - Listens to `guideClick_<id>` messages. When it receives messages from this channel, it highlight it self
+      - When clicked, it Logs the click and optinally calls `onClick` if it is passed as props. Then it sends `buttonClicked` to backend with its `id`. Finally it stops highlighting itself.
+
+   2. Highlight implementation
+
+      - defines `highlighted` and `setHighlighted` using `useState`
+      - when highlighted is set to true, it add a `guide-button-highlight`
+
+   3. Usage
+
+      - Wrap any clickable element inside `GuideButton`, or
+      - Replace `<button>` with `<GuideButton>` while keeping all of its original classes
+
+9. `src\simulated_desktop\MessageBridge.ts`: Provides functions to send and listen for messages from main renderer
+
+   1. `SendToSimuNUS(channel: string, data: unknown)`
+
+      - Send messages to main renderer, which will then redirect the message to unity or backend
+      - It handles both when simulated desktop is embedded inside a `<iframe>` or not
+      - Push messages to `toSend()` if the message bridge is not ready (i.e. the main renderer have not registered all channels) and sends them on `messageBridgeReady`
+
+   2. `onSimuNUSMessage(channel: string, callback: (data)=>void)`
+
+      - Add the callback functions to `registered` and `window.SimuNUS_API.onMessage` (which is actually `ipcRenderer.on` exposed from `preload.js`)
+      - the callback functions will be called when receiving the message no matter from the backend or from unity
+      - if running inside an `<iframe>`, is also sends `register_message_handler` to main renderer
+
+   3. Debug utilities
+
+      - Three functions to directly send the debug message to backend to log them so that they will appear in the terminal and we don't need to open dev tool to view them
+
+      ```ts
+      dbgLog(data: unknown)
+      dbgWarn(data: unknown)
+      dbgErr(data: unknown)
+      ```
+
+10. `src\simulated_desktop\apps` Simulated Apps Components
+
+    1. Email: A simulated app to receive emails from NUS
+    1. Applicant Portal: simulated NUS [applicant portal](https://myaces.nus.edu.sg/applicantPortal/)
+       - used for accepting offer task
+    1. Browser: The app to open external links like NUSMods
+
+    **(Below are the apps that have not been implemented in milestone 1)**
+
+    1. Photo Submission Portal
+    1. Registration Portal
+    1. UHC Appointment Portal
+    1. UHMS
+    1. Canvas
+    1. EduRec
+    1. Student Pass Application Portal

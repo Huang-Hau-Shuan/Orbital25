@@ -50,12 +50,13 @@ export const onSimuNUSMessage = function (
     );
     return;
   }
-  //Register channel
-  // SendToSimuNUS("register_message_handler", {
-  //   source: "laptop",
-  //   channel: channel,
-  // });
-  // Browser / iframe messages
+  if (window.parent && window.parent !== window) {
+    // Register channel when inside a iframe
+    SendToSimuNUS("register_message_handler", {
+      source: "laptop",
+      channel: channel,
+    });
+  }
   if (register_only_once) {
     if (channel in registered) {
       dbgLog(`Channel ${channel} is already registered`);

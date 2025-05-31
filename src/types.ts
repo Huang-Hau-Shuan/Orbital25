@@ -1,5 +1,5 @@
 export type TimeValue =
-  | { type: "random"; value: [number, number] } //either from number 1 to number 2 or no limit
+  | { type: "random"; value: [number, number] }
   | { type: "absolute" | "relative"; value: number };
 export interface Time {
   year: TimeValue;

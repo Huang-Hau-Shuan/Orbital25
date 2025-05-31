@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// data/appRegistry.ts
 import Email from "./Email";
 import NotImplemented from "./NotImplemented";
 import Browser from "./Browser";

@@ -1,4 +1,3 @@
-// components/AppWindow.tsx
 import React, { useRef, useState, useEffect } from "react";
 import { useAppManager, type OpenApp } from "./context/AppContext";
 import Overlay from "./Overlay";

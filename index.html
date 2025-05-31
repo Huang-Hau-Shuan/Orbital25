@@ -12,22 +12,6 @@
   <script>
     window.addEventListener("DOMContentLoaded", () => {
       const desktop_container = document.getElementById("desktop-container");
-      // Close desktop when user clicks outside its webview
-      // desktop_container.addEventListener("mousedown", (e) => {
-      //   const simdeskRoot = document.getElementById("simdesk-root");
-      //   if (!simdeskRoot.contains(e.target)) {
-      //     const rect = simdeskRoot.getBoundingClientRect();
-      //     const x = e.clientX;
-      //     const y = e.clientY;
-
-      //     const inside =
-      //       x >= rect.left &&
-      //       x <= rect.right &&
-      //       y >= rect.top &&
-      //       y <= rect.bottom;
-      //     if (!inside) hideSimDesktop();
-      //   }
-      // });
       if (window.SimuNUS_API === undefined) {
         console.error("SimuNUS API Undefined");
         return;
@@ -127,14 +111,6 @@
       for (const ch in msg_callback) {
         window.SimuNUS_API.onMessage(ch, msg_callback[ch]);
       }
-      // function showSimDesktop() {
-      //   desktop_container.style.display = "block";
-      //   desktop_container.focus();
-      // }
-      // function hideSimDesktop() {
-      //   desktop_container.style.display = "none";
-      //   if (window.SimuNUS_API !== undefined) unity_container.focus();
-      // }
       function sendTo(view, channel, msg, origin = "*") {
         //console.log(`send ${msg} over ${channel}`);
         if (view.tagName == "IFRAME") {
