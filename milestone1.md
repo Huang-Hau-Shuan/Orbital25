@@ -110,77 +110,78 @@ The Main Renderer (Electron’s render process, or `index.html`) acts as a **cen
 ## Develop plan
 
 The updated, detailed and complete table can be found at https://docs.google.com/spreadsheets/d/1jvdNMGsKPCKg4VsxSEb0RdIZnZKi3kA1/
-| Week | Date | Learn | tasks | Important Dates |
-|------|------------------|----------------------------|------------------------------------|-----------------------------------------|
-| 1 | 12 - 18 May | git | Repository setup | Poster & Video Submission (19 May, 2pm) |
-| | | unity foundation | Planning & task breakdown | Mission Control #1 (17 May) |
-| | | c#, javascript, typescript | Poster (due 19 May) | |
-| | | Web App: React (Part 1) | Video (due 19 May) | |
-| | | electron framework | Unity setup (WebGL) | |
-| | | | NodeJS setup (Electron) | |
-| | | | Prototype of first scene | |
-| | | | Prototype of a player | |
-| | | | Prototype of interactive laptop | |
-| | | | Prototype of a campus map | |
-| 2 | 19 - 25 May | Web App: React (Part 2) | Simulated desktop UI | Mission Control #2 (24 May) |
-| | | Game: Unity (Part 1) | Email app | |
-| | | unity tile system | Applicant Portal simulation | |
-| | | nodejs filesystem | Implement accept offer task | |
-| | | unity basics | Task system draft | |
-| | | | Design save data structure | |
-| | | | Implement save/load functions | |
-| | | | ISB route template | |
-| | | | Implement the player | |
-| | | | switching map logic | |
-| 3 | 26 May - 1 June | Game: Unity (Part 2) | Basic manual save/load UI | Mission Control #3 (31 May) |
-| | | | Submit Photograph task | |
-| | | | In game time system | |
-| | | | Basic frontpage, menu UI | |
-| | | | Selecting starting character UI | |
-| | | | Bus transpotation prototype | |
-| | | | Design hostel room | |
-| | | | generate Milestone 1 README | |
-| 4 | 2 - 8 June | | Expand UI framework | 2 June 2pm - Milestone 1 - Ideation |
-| | | | Browser app simulation | |
-| | | | Begin housing/visa simulation UI | |
-| | | | Pre-arrival flow logic | |
-| | | | Implement Bus transpotation | |
-| | | | expand hostel map | |
-| | | | Campus navigation prototype | |
-| 5 | 9 - 15 June | | Arriving at Singapore | Mission Control #4 (9 June) |
-| | | | expand visa application simulation | |
-| | | | implement more bus routes | |
-| | | | expand UHMS simulation | |
-| | | | UHC map | |
-| | | | Medical Examination appointment | |
-| 6 | 16 - 22 June | | Auto-save checkpoints | |
-| | | | expand campus navigation | |
-| | | | MPSH map | |
-| | | | EduRec registration simulation | |
-| | | | Implement registration part 1 | |
-| | | | Medical Examination | |
-| | | | polish sprites | |
-| 7 | 23 - 29 June | | Registration (Part Two) | |
-| | | | Kent Ridge MRT map | |
-| | | | International Students Orientation | |
-| | | | hostel canteen map | |
-| | | | Course registration simulation | |
-| | | | tuition fee payment simulation | |
-| | | | Integration testing | |
-| | | | polish UI for save/load | |
-| | | | generate Milestone 2 README | |
-| 8 | 30 June - 6 July | | implement feedback collection | 30 June 2pm - Milestone 2 - Prototyping |
-| | | | prepare for end-user testing | |
-| | | | COM3 map | |
-| 9 | 7 - 13 July | | end-user testing | |
-| | | | bug fix | |
-| | | | document code | |
-| 10 | 14 - 20 July | | | Mission Control #5 (mid-July) |
-| 11 | 21 - 27 July | | | |
-| 12 | 28 July - 3 Aug | | generate Milestone 3 README | 28 July 2pm - Milestone 3 - Extension |
-| 13 | 4 - 10 Aug | | | 4 Aug - Week 0 of Y2S1 |
-| 14 | 11 - 17 Aug | | | |
-| 15 | 18 - 24 Aug | | | 27 August - Splashdown - Refinement |
+
+| Week | Date             | Learn                      | tasks                              | Important Dates                         |
+| ---- | ---------------- | -------------------------- | ---------------------------------- | --------------------------------------- |
+| 1    | 12 - 18 May      | git                        | Repository setup                   | Poster & Video Submission (19 May, 2pm) |
+|      |                  | unity foundation           | Planning & task breakdown          | Mission Control #1 (17 May)             |
+|      |                  | c#, javascript, typescript | Poster (due 19 May)                |                                         |
+|      |                  | Web App: React (Part 1)    | Video (due 19 May)                 |                                         |
+|      |                  | electron framework         | Unity setup (WebGL)                |                                         |
+|      |                  |                            | NodeJS setup (Electron)            |                                         |
+|      |                  |                            | Prototype of first scene           |                                         |
+|      |                  |                            | Prototype of a player              |                                         |
+|      |                  |                            | Prototype of interactive laptop    |                                         |
+|      |                  |                            | Prototype of a campus map          |                                         |
+| 2    | 19 - 25 May      | Web App: React (Part 2)    | Simulated desktop UI               | Mission Control #2 (24 May)             |
+|      |                  | Game: Unity (Part 1)       | Email app                          |                                         |
+|      |                  | unity tile system          | Applicant Portal simulation        |                                         |
+|      |                  | nodejs filesystem          | Implement accept offer task        |                                         |
+|      |                  | unity basics               | Task system draft                  |                                         |
+|      |                  |                            | Design save data structure         |                                         |
+|      |                  |                            | Implement save/load functions      |                                         |
+|      |                  |                            | ISB route template                 |                                         |
+|      |                  |                            | Implement the player               |                                         |
+|      |                  |                            | switching map logic                |                                         |
+| 3    | 26 May - 1 June  | Game: Unity (Part 2)       | Basic manual save/load UI          | Mission Control #3 (31 May)             |
+|      |                  |                            | Submit Photograph task             |                                         |
+|      |                  |                            | In game time system                |                                         |
+|      |                  |                            | Basic frontpage, menu UI           |                                         |
+|      |                  |                            | Selecting starting character UI    |                                         |
+|      |                  |                            | Bus transpotation prototype        |                                         |
+|      |                  |                            | Design hostel room                 |                                         |
+|      |                  |                            | generate Milestone 1 README        |                                         |
+| 4    | 2 - 8 June       |                            | Expand UI framework                | 2 June 2pm - Milestone 1 - Ideation     |
+|      |                  |                            | Browser app simulation             |                                         |
+|      |                  |                            | Begin housing/visa simulation UI   |                                         |
+|      |                  |                            | Pre-arrival flow logic             |                                         |
+|      |                  |                            | Implement Bus transpotation        |                                         |
+|      |                  |                            | expand hostel map                  |                                         |
+|      |                  |                            | Campus navigation prototype        |                                         |
+| 5    | 9 - 15 June      |                            | Arriving at Singapore              | Mission Control #4 (9 June)             |
+|      |                  |                            | expand visa application simulation |                                         |
+|      |                  |                            | implement more bus routes          |                                         |
+|      |                  |                            | expand UHMS simulation             |                                         |
+|      |                  |                            | UHC map                            |                                         |
+|      |                  |                            | Medical Examination appointment    |                                         |
+| 6    | 16 - 22 June     |                            | Auto-save checkpoints              |                                         |
+|      |                  |                            | expand campus navigation           |                                         |
+|      |                  |                            | MPSH map                           |                                         |
+|      |                  |                            | EduRec registration simulation     |                                         |
+|      |                  |                            | Implement registration part 1      |                                         |
+|      |                  |                            | Medical Examination                |                                         |
+|      |                  |                            | polish sprites                     |                                         |
+| 7    | 23 - 29 June     |                            | Registration (Part Two)            |                                         |
+|      |                  |                            | Kent Ridge MRT map                 |                                         |
+|      |                  |                            | International Students Orientation |                                         |
+|      |                  |                            | hostel canteen map                 |                                         |
+|      |                  |                            | Course registration simulation     |                                         |
+|      |                  |                            | tuition fee payment simulation     |                                         |
+|      |                  |                            | Integration testing                |                                         |
+|      |                  |                            | polish UI for save/load            |                                         |
+|      |                  |                            | generate Milestone 2 README        |                                         |
+| 8    | 30 June - 6 July |                            | implement feedback collection      | 30 June 2pm - Milestone 2 - Prototyping |
+|      |                  |                            | prepare for end-user testing       |                                         |
+|      |                  |                            | COM3 map                           |                                         |
+| 9    | 7 - 13 July      |                            | end-user testing                   |                                         |
+|      |                  |                            | bug fix                            |                                         |
+|      |                  |                            | document code                      |                                         |
+| 10   | 14 - 20 July     |                            |                                    | Mission Control #5 (mid-July)           |
+| 11   | 21 - 27 July     |                            |                                    |                                         |
+| 12   | 28 July - 3 Aug  |                            | generate Milestone 3 README        | 28 July 2pm - Milestone 3 - Extension   |
+| 13   | 4 - 10 Aug       |                            |                                    | 4 Aug - Week 0 of Y2S1                  |
+| 14   | 11 - 17 Aug      |                            |                                    |                                         |
+| 15   | 18 - 24 Aug      |                            |                                    | 27 August - Splashdown - Refinement     |
 
 ## Technologies
 
@@ -227,7 +228,7 @@ A short [video]() showcasing:
 
 ### Release ([Windows]())
 
-- Download the realease
+- Download the release zip file
 - Unzip it
 - Open SimuNUS.exe and try it out yourself
 
