@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      SimuNUS-Logo_0: 780118562627631152
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
