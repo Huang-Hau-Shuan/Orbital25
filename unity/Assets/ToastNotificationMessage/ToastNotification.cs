@@ -32,8 +32,8 @@ public class ToastNotification : MonoBehaviour, IPointerEnterHandler, IPointerEx
     public static bool isCanvasGroup = false; // Check if has a CanvasGroup in toastNotification object
 
     // Private static variables
-    private static Transform messagePrefab; // Get the public prefab in a static variable
-    private static Transform toastNotification; // Get the object that this script is linked to this static variable
+    private static Transform messagePrefab = null; // Get the public prefab in a static variable
+    private static Transform toastNotification = null; // Get the object that this script is linked to this static variable
 
     // Default message patterns configurable in the Unity Editor
     [Header("Default Message Patterns:")]
@@ -61,6 +61,7 @@ public class ToastNotification : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
         // Assign public variables to their static counterparts
         messagePrefab = _messagePrefab;
+        if (toastNotification == null)
         toastNotification = transform;
 
         minimumMessageTime = _minimumMessageTime;
@@ -87,7 +88,6 @@ public class ToastNotification : MonoBehaviour, IPointerEnterHandler, IPointerEx
         }
 
     }
-
     // You can change FixedUpdate to Update. But I recommend keeping it this way to consume less processing
     private void FixedUpdate()
     {

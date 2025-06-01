@@ -1,3 +1,5 @@
+![SimuNUS](SimuNUS-Logo.png)
+
 # SimuNUS
 
 SimuNUS is an interactive Unity + Electron-based simulation app designed to help NUS freshmen — especially international students — navigate administrative processes, campus wayfinding, and digital platforms via a fun, RPG-style interface.

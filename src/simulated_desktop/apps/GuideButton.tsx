@@ -5,6 +5,7 @@ import "./css/guide-button.css";
 interface GuideButtonProps {
   id: string;
   children: React.ReactNode;
+  originalTag?: "button" | "div" | "a";
   onClick?: () => void;
   className?: string;
   style?: React.CSSProperties;
@@ -13,6 +14,7 @@ interface GuideButtonProps {
 const GuideButton = ({
   id,
   children,
+  originalTag,
   onClick,
   className = "",
   style,
@@ -39,17 +41,47 @@ const GuideButton = ({
     SendToSimuNUS("buttonClicked", id);
     setHighlighted(false);
   };
-
-  return (
-    <div
-      onClick={handleClick}
-      className={`${className} ${highlighted ? "guide-button-highlight" : ""}`}
-      style={style}
-      id={id}
-    >
-      {children}
-    </div>
-  );
+  switch (originalTag) {
+    case "a":
+      return (
+        <a
+          onClick={handleClick}
+          className={`${className} ${
+            highlighted ? "guide-button-highlight" : ""
+          }`}
+          style={style}
+          id={id}
+        >
+          {children}
+        </a>
+      );
+    case "button":
+      return (
+        <button
+          onClick={handleClick}
+          className={`${className} ${
+            highlighted ? "guide-button-highlight" : ""
+          }`}
+          style={style}
+          id={id}
+        >
+          {children}
+        </button>
+      );
+    default:
+      return (
+        <div
+          onClick={handleClick}
+          className={`${className} ${
+            highlighted ? "guide-button-highlight" : ""
+          }`}
+          style={style}
+          id={id}
+        >
+          {children}
+        </div>
+      );
+  }
 };
 
 export default GuideButton;

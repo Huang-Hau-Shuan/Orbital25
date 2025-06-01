@@ -13,10 +13,10 @@ public class GameTimeManager : MonoBehaviour
 
 
     private int _year = 2025;
-    private int _month = 12;
-    private int _day = 31;
-    private int _hour = 23;
-    private int _minute = 50;
+    private int _month = 1;
+    private int _day = 1;
+    private int _hour = 0;
+    private int _minute = 0;
 
     private float timer;
     private bool isPaused = true;
@@ -45,11 +45,11 @@ public class GameTimeManager : MonoBehaviour
     }
     void Update()
     {
-        if (!isPaused) 
+        if (!isPaused)
             timer += Time.deltaTime;
         while (timer >= realSecondsPerTick)
         {
-            timer-=realSecondsPerTick;
+            timer -= realSecondsPerTick;
             AdvanceMinutes(minutesPerTick);
         }
         UpdateText();
@@ -75,7 +75,7 @@ public class GameTimeManager : MonoBehaviour
         {
             int m = ((value - 1) % 12 + 12) % 12; // Positive remainder: 0-11
             _month = m + 1;                       // Month: 1-12
-            int yearAdjust = (value - 1 - m) / 12; 
+            int yearAdjust = (value - 1 - m) / 12;
             Year += yearAdjust;
         }
     }
@@ -89,7 +89,7 @@ public class GameTimeManager : MonoBehaviour
             _day = value;
             while (_day > maxDays)
             {
-                _day-=maxDays;
+                _day -= maxDays;
                 Month++;
                 maxDays = DaysInMonth(Month, Year);
             }
@@ -109,8 +109,8 @@ public class GameTimeManager : MonoBehaviour
         {
             _hour = value % 24;
             Day += value / 24;
-            if (_hour < 0) 
-            { 
+            if (_hour < 0)
+            {
                 _hour += 24;
                 Day -= 1;
             }
@@ -122,9 +122,10 @@ public class GameTimeManager : MonoBehaviour
         get => _minute;
         set
         {
-            _minute = value%60;
+            _minute = value % 60;
             Hour += value / 60;
-            if (_minute < 0){ 
+            if (_minute < 0)
+            {
                 _minute += 60;
                 Hour -= 1;
             }
@@ -152,7 +153,7 @@ public class GameTimeManager : MonoBehaviour
     }
     public void SetDate(int y, int m, int d)
     {
-        Day = d;Month = m;Year = y;
+        Day = d; Month = m; Year = y;
     }
     public void SetTime(int y, int mo, int d, int h, int mi)
     {
@@ -173,7 +174,7 @@ public class GameTimeManager : MonoBehaviour
     }
     public void OnGetTime()
     {
-        MessageBridge.SendMessage("setTime", 
+        MessageBridge.SendMessage("setTime",
             $"{{\"year\":{Year},\"month\":{Month},\"day\":{Day},\"hour\":{Hour},\"minute\":{Minute}}}");
     }
 }

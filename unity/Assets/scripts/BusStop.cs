@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class BusStop : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     public bool initiallyFocused = false;
     private bool focused;
     private SpriteRenderer spriteRenderer;
@@ -13,12 +12,13 @@ public class BusStop : MonoBehaviour
     void Start()
     {
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
-        focused=initiallyFocused;
+        focused = initiallyFocused;
         UpdateSprite();
     }
     void UpdateSprite()
     {
-        if (spriteRenderer != null) {
+        if (spriteRenderer != null)
+        {
             if (focused)
             {
                 spriteRenderer.sprite = spriteFocused;
@@ -32,7 +32,7 @@ public class BusStop : MonoBehaviour
     public void SetFocus(bool f)
     {
         focused = f;
-        UpdateSprite() ;
+        UpdateSprite();
     }
     public void AddAvailableLine(BusRoute line)
     {

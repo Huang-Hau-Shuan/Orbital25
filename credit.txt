@@ -40,3 +40,13 @@ unity/Assets/HintsStarsLite
 Hints Stars Points & Rewards Sound Effects - Lite Pack
 https://assetstore.unity.com/packages/audio/sound-fx/hints-stars-points-rewards-sound-effects-lite-pack-295538
 Author: Cyberwave Orchestra (cyberwaveorchestra@gmail.com, www.patreon.com/c/cyberwave?redirect=true)
+
+unity/Assets/Clean Settings UI
+Clean Settings UI
+https://assetstore.unity.com/packages/tools/gui/clean-settings-ui-65588
+Author: Landan Lloyd (www.landanlloyd.com, landanlloyd@me.com)
+
+unity/Assets/ToastNotificationMessage
+Toast Notification Message
+https://assetstore.unity.com/packages/tools/gui/toast-notification-message-278006
+Author: Conrado Saud (conradosaud.com.br, conradosaud@gmail.com)

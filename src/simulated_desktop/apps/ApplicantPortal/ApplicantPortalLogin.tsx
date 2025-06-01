@@ -54,6 +54,7 @@ const ApplicantPortalLogin = ({
         <GuideButton
           id="applicant-portal-login-btn"
           className="login-btn"
+          originalTag="button"
           onClick={() => setLogin(true)}
         >
           Social Account

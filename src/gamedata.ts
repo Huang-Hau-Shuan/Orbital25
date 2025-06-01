@@ -135,13 +135,13 @@ export const handleGameSaveMessage = (
   onMessage("newGame", () => {
     dbgLog("new game");
     gameSave = new GameSave();
-    if (gameConfig.debug) {
-      //unlockApp("*");//unlock all apps to debug
-    }
+    // if (gameConfig.debug) {
+    //   unlockApp("*"); //unlock all apps to debug
+    // }
   });
   onMessage("getGameConfig", () => {
     dbgLog("Unity Loaded");
-    sendMessage("setGameConfig", { debug: true }); //TODO: implement game config
+    sendMessage("setGameConfig", gameConfig);
   });
   onMessage("getUnlockedApps", () => {
     dbgLog("set unlock");

@@ -21,6 +21,7 @@ const AdmissionPage = () => {
         <GuideButton
           onClick={() => setShowDetails(true)}
           className="link-btn"
+          originalTag="a"
           id="admission-inquiry"
         >
           Enquire Admission Status
@@ -66,6 +67,7 @@ const AdmissionPage = () => {
                       <GuideButton
                         onClick={handleAccept}
                         id="applicant-portal-accept"
+                        originalTag="a"
                       >
                         Accept Offer
                       </GuideButton>

@@ -10,10 +10,11 @@ const Desktop = () => {
     onSimuNUSMessage("setUnlockedApps", (unlocked: unknown) => {
       if (unlocked == "*") {
         setApps(apps_array);
+        return;
       } else if (Array.isArray(unlocked)) {
         if (unlocked.includes("*")) {
-          //setApps(apps_array);
-          //return;
+          setApps(apps_array);
+          return;
         }
         const resolved = unlocked
           .filter((val) => val in appRegistry)
