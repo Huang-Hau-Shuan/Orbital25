@@ -2,6 +2,8 @@
 
 # Milestone 1: Ideation
 
+## Apollo
+
 ### 2 June 2025
 
 ---
@@ -14,7 +16,7 @@
 
 ---
 
-**_Before you start: source code (including the original `milestone1.md` of this document and the images) and release build can be found in this [folder](https://drive.google.com/drive/folders/10SUKK2kPEl_qIpdlfgFMivk8qsDO-FHe?usp=sharing)_**
+**_Before you start: videos, posters, project log and source code (including the original `milestone1.md` of this document and the images) and release build can be found in this [folder](https://drive.google.com/drive/folders/10SUKK2kPEl_qIpdlfgFMivk8qsDO-FHe?usp=sharing)_**
 
 ## 1. Project Idea & Overview
 
@@ -231,24 +233,26 @@ SimuNUS contains two major tech stacks, one for unity and the other for [nodeJS]
 
 To demonstrate the technical feasibility of SimuNUS, we built a prototype integrating all major components:
 
-- (All the videos, source code and release can be found [here]())
+- (All the videos, source code and release can be found in this [folder](https://drive.google.com/drive/folders/10SUKK2kPEl_qIpdlfgFMivk8qsDO-FHe?usp=drive_link))
 
 ### 1. Demo Video
 
-A short [video]() showcasing:
+A short [video](https://drive.google.com/file/d/1tTyT7elR5zEx50hWZ_Fw_3QwPzcNWqGm/view?usp=drive_link) showcasing:
 
 - Unity WebGL game loading and running
 - Open simulated desktop by intracting with the laptop
 - Finishing the first task - accept NUS offer with guide
 - Taking NUS internal shuttle bus
+- Our time log and time table for milestone 1
 
-### 2. Release ([Windows]())
+### 2. Release ([Windows](https://drive.google.com/file/d/1PuU1EPYlBaGPvbGuajIZY8e4GMcy2rDZ/view?usp=sharing))
 
 - Download the release zip file
 - Unzip it
 - Open SimuNUS.exe and try it out yourself
+- Although the packages SimuNUS uses are all cross-platfrom, we have not yet built for Mac and Linux in milestone 1. You may read next part and build yourself
 
-### 3. Build SimuNUS yourself from [Source Code]()
+### 3. Build SimuNUS yourself from [Source Code](https://drive.google.com/file/d/1zfAj83E7Si0K9xFmT5eKFs76-IR7B_ik/view?usp=sharing)
 
 #### 1. Repository Structure (As of milestone 1)
 
@@ -286,18 +290,19 @@ SimuNUS
 
 - Prerequisites
   - [Node.js](https://nodejs.org/en) (We use v22.15.0)
-  - Unity (6 with WebGL build support)
+  - [Unity](https://unity.com/) (6 with WebGL build support)
 
-1. Clone the repository (since in orbital the github project is set to be private, you can download it [here]())
-1. Build the unity project (Alternatively, if you don't have unity 6 installed, you can download it [here]() and unzip it under /public/unity_build)
+1. Clone the repository (since orbital requires the github project to be private, you can download it [here](https://drive.google.com/file/d/1zfAj83E7Si0K9xFmT5eKFs76-IR7B_ik/view?usp=drive_link))
+1. Open unity/ in Unity editor
    - Set build target to WebGL
    - Build the project to /public/unity_build (it may take more than 10 minutes)
+   - _Alternatively, if you don't have Unity 6 installed, you can download the separate unity build [here](https://drive.google.com/file/d/1PuU1EPYlBaGPvbGuajIZY8e4GMcy2rDZ/view?usp=sharing) and unzip it under /public/unity_build_
 1. Run SimuNUS
    ```bash
    npm install
    npm run start
    ```
-   alternatively, run `npm run make` to build the project, the build will be under `/out/SimuNUS-win32-x64` for windows
+   Or run `npm run make` to build, the build will be under `out/`
 
 ## 6. Technical Detail & Implementations
 
@@ -585,7 +590,7 @@ SimuNUS
        - schedule tasks (not implemented in milestone 1)
          - Responds to schedule message in backend
          - When the time come, send message to activate the task
-    1. GameDataManageer (`unity/Assets/scripts/GameDataManager.cs`): The object to manager all game data
+    1. GameDataManageer (`unity/Assets/scripts/GameDataManager.cs`): The object to manage all game data
        1. Defines data structures for game save and config
           - `GameConfig`: global config like debug mode and save path, after milestone 1 we will add more configurations
           - `PlayerStatus`: Tracks location (`transition`), personal info, and state of the player
@@ -682,7 +687,7 @@ As of milestone 1, we used the following assets
   Source: [Flaticon - Pixel perfect](https://www.flaticon.com/authors/pixel-perfect)  
   License: [Email Icon #726623](https://www.flaticon.com/free-icon/email_726623)
 
-- **Bus Stop Icons**  
+- **Bus Stop Icon**  
   Source: [Flaticon - sonnycandra](https://www.flaticon.com/authors/sonnycandra)  
   License: [Bus Stop Icon #15092025](https://www.flaticon.com/free-icon/bus-stop_15092025)
 
