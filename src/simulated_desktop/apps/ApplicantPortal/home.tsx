@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import "../css/application-portal.css";
 const ApplicantPortalHome = () => {
   const [applications] = useState([
     {

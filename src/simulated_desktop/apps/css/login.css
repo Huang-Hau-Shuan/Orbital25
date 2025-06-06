@@ -1,0 +1,91 @@
+.applicant-login {
+  display: flex;
+  height: 100%;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+}
+
+.login-left {
+  flex: 1.5;
+  background: linear-gradient(to bottom, #d3efff, #b5e2f8);
+  padding: 40px 20px;
+  position: relative;
+  background: url("/background/login.svg") center left;
+  background-size: cover;
+}
+
+.login-left-info-box {
+  background: white;
+  border-radius: 8px;
+  padding-top: 5px;
+  padding-left: 15px;
+  padding-bottom: 5px;
+  padding-right: 15px;
+  margin-bottom: 20px;
+}
+
+.login-left-info-box h3 {
+  color: #00356b;
+  font-size: 14px;
+}
+
+.login-left-info-box ul {
+  padding-left: 30px;
+}
+
+.login-left-info-box li {
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+
+.login-left-info-box a {
+  color: #0055aa;
+  text-decoration: none;
+}
+
+.login-left-info-box p {
+  font-size: 14px;
+}
+
+.login-right {
+  flex: 1;
+  background: white;
+  padding: 40px 20px 5px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-left: 1px solid #ddd;
+  font-size: 12px;
+}
+.login-right h3 {
+  font-size: 22px;
+}
+.login-right p {
+  width: 80%;
+}
+.nus-logo {
+  width: 80px;
+  height: 40px;
+  height: auto;
+  padding-right: 20px;
+  border-right: 1px solid #dee2e6;
+}
+
+.login-btn {
+  background-color: #039;
+  color: white;
+  padding: 10px 24px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 20px;
+  width: 80%;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease 0s;
+  box-shadow: 0.1875rem 0.1875rem 0.3125rem #0006;
+  text-align: center;
+}
+.login-btn:hover {
+  background: #ef7c00 !important;
+  border-color: #f60 !important;
+}

@@ -1,68 +1,30 @@
 import fs from "fs";
-import { CONFIG_PATH, DEBUG, EMAIL_PATH, SAVE_PATH } from "./SimuNUS_config";
+import { CONFIG_PATH, DATA_PATH, DEBUG, SAVE_PATH } from "./SimuNUS_config";
 import path from "node:path";
 import { dbgErr, dbgLog, dbgWarn, deserializeFromJsonFile } from "./utils.js";
-import {
-  isImmediate,
-  newGameTaskCompletion,
-  taskDetails,
-  toTime,
-} from "./tasks.js";
+import { isImmediate, taskDetails, toTime } from "./tasks.js";
 import { isGameConfig, isIGameSave } from "./types.guard.js";
 import {
+  GameSave,
   TaskStatus,
-  type EmailContent,
   type EmailMeta,
   type GameConfig,
-  type IGameSave,
-  type TaskCompletion,
   type TaskStep,
 } from "./types.js";
 
-class GameSave implements IGameSave {
-  unitySave: string = "";
-  receivedEmails: EmailMeta[] = [];
-  tasks: TaskCompletion[] = newGameTaskCompletion();
-  unlockedApps: string[] = [];
-}
-const emailContent: EmailContent[] = [];
-const emailMeta: EmailMeta[] = [];
+const emailMeta: EmailMeta[] = [
+  {
+    id: "offer",
+    subject: "[NUS] Offer of Admission",
+    unread: true,
+  },
+];
 let gameSave: GameSave = new GameSave();
 let gameConfig: GameConfig = {
   debug: DEBUG,
   gameSavePath: SAVE_PATH,
   unityGameConfig: "",
 };
-fs.readFile(path.join(EMAIL_PATH, "index.json"), "utf-8", (err, _data) => {
-  if (err) {
-    dbgErr("Failed to load emails:", err);
-    return;
-  }
-  const data = JSON.parse(_data);
-  if (!Array.isArray(data)) {
-    dbgErr("Invalid emails in ", path.join(EMAIL_PATH, "index.json"));
-    return;
-  }
-  data.forEach((email: unknown, index: number) => {
-    if (true) {
-      //todo: check if read
-      if (typeof email === "object" && email != null) {
-        emailContent.push({ id: index.toString(), ...email });
-        const subject =
-          "subject" in email && typeof email.subject === "string"
-            ? email.subject
-            : "[No subject]";
-        emailMeta.push({
-          id: index.toString(),
-          subject: subject,
-          unread: true,
-        });
-      } else {
-        dbgErr("Invalid Email: ", email);
-      }
-    }
-  });
-});
 deserializeFromJsonFile(CONFIG_PATH, isGameConfig, (data) => {
   gameConfig = data;
   gameConfig.gameSavePath = fs.existsSync(gameConfig.gameSavePath)
@@ -144,14 +106,16 @@ export const handleGameSaveMessage = (
     sendMessage("setGameConfig", gameConfig);
   });
   onMessage("getUnlockedApps", () => {
-    dbgLog("set unlock");
     sendMessage("setUnlockedApps", gameSave.unlockedApps);
   });
   onMessage("getEmailList", () => {
     sendMessage("setEmailList", gameSave.receivedEmails);
   });
   onMessage("markEmailRead", (id: unknown) => {
-    if (id === "0") {
+    if (typeof id !== "string") {
+      dbgWarn("Read invalid email id:", id);
+    }
+    if (id === "offer") {
       //mark task 0 as complete
       sendMessage("offerEmailRead");
     }
@@ -167,40 +131,28 @@ export const handleGameSaveMessage = (
       gameSave.receivedEmails.some((email) => email.unread)
     );
   });
-  onMessage("getEmailBody", (id: unknown) => {
-    const email = emailContent.find((email) => email.id === id);
-    if (email === undefined) {
-      dbgWarn("Cannot find email with id", id);
-      return;
-    }
-    if ("body" in email) {
-      sendMessage("setEmailBody", {
-        id: id,
-        body:
-          typeof email.body === "string"
-            ? email.body
-            : "The requested email does not exist",
-      });
-    } else if ("file" in email && typeof email.file === "string") {
-      fs.readFile(path.join(EMAIL_PATH, email.file), "utf-8", (err, data) => {
-        if (err) {
-          dbgErr(`Failed to set read email body from ${email.file}`, err);
-          return;
-        }
-        sendMessage("setEmailBody", {
-          id: id,
-          body: data,
+  onMessage("getHasNewMessage", updateHasNewEmail);
+  onMessage("submitPhoto", (data) => {
+    if (
+      typeof data === "object" &&
+      data !== null &&
+      "content" in data &&
+      "filename" in data &&
+      typeof data.content == "string" &&
+      typeof data.filename === "string"
+    ) {
+      try {
+        const buffer = Buffer.from(data.content, "base64");
+        const photoPath = path.join(DATA_PATH, data.filename);
+        fs.writeFile(photoPath, buffer, () => {
+          dbgLog(`Photo saved to: ${photoPath}`);
+          sendMessage("photoSubmitted");
         });
-      });
-    } else {
-      sendMessage("setEmailBody", {
-        id: id,
-        body: "[this email has no content]",
-      });
+      } catch (err) {
+        dbgErr("Failed to save photo:", err);
+      }
     }
   });
-  onMessage("getHasNewMessage", updateHasNewEmail);
-
   //DEAL WITH TASKS
   type CompleteIndex = {
     taskIndex: number;
@@ -316,6 +268,7 @@ export const handleGameSaveMessage = (
           performStep(taskIndex, stepIndex + 1);
         } else {
           //no next step, last step done
+          dbgLog(`Task ${taskDetails[taskIndex].name} all steps completed`);
           completeTask();
         }
       };
@@ -499,7 +452,7 @@ export const handleGameSaveMessage = (
         {
           if (step.playerSteps) {
             const current_step_index =
-              gameSave.tasks[taskidx].steps[taskidx].playerCurrentStep;
+              gameSave.tasks[taskidx].steps[stepidx].playerCurrentStep;
             if (current_step_index >= step.playerSteps.length) {
               //already completed all steps
               dbgLog(

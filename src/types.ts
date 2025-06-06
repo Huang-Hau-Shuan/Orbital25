@@ -1,3 +1,5 @@
+import { newGameTaskCompletion } from "./tasks";
+
 export type TimeValue =
   | { type: "random"; value: [number, number] }
   | { type: "absolute" | "relative"; value: number };
@@ -9,7 +11,7 @@ export interface Time {
   minute: TimeValue;
 }
 export interface TaskTime {
-  relative_to?: string; //relative to the time when the system receives the message on this channel
+  relative_to: string | undefined; //relative to the time when the system receives the message on this channel
   time: Time;
 }
 export type PlayerStep =
@@ -39,10 +41,18 @@ export interface EmailMeta {
   subject: string;
   unread: boolean;
 }
-export interface EmailContent {
-  id: string;
-  file?: string;
-  content?: string;
+
+export interface PlayerProfile {
+  firstName: string;
+  lastName: string;
+  firstNameBefore: boolean; // if first name is before last name
+  major: string;
+  studentID: string | undefined;
+  studentEmail: string | undefined;
+  passport: string | undefined;
+  finOrNric: string | undefined;
+  isSingaporean: boolean; // Singapore citizen or PR
+  mobile: string;
 }
 
 export interface GameConfig {
@@ -65,17 +75,40 @@ export interface TaskCompletion {
   name: string;
   steps: StepCompletion[];
   status: TaskStatus;
-  scheduled?: {
-    year: number;
-    month: number;
-    day: number;
-    hour: number;
-    minute: number;
-  };
+  scheduled:
+    | {
+        year: number;
+        month: number;
+        day: number;
+        hour: number;
+        minute: number;
+      }
+    | undefined;
 }
 export interface IGameSave {
   unitySave: string;
   receivedEmails: EmailMeta[];
   tasks: TaskCompletion[];
   unlockedApps: string[];
+  playerProfile: PlayerProfile;
+}
+
+export const defaultPlayerProfile: PlayerProfile = {
+  firstName: "Abc",
+  lastName: "Xyz",
+  firstNameBefore: true,
+  major: "Computer Engineering",
+  studentID: undefined,
+  studentEmail: undefined,
+  passport: undefined,
+  finOrNric: undefined,
+  isSingaporean: false,
+  mobile: "+6512345678",
+};
+export class GameSave implements IGameSave {
+  unitySave: string = "";
+  receivedEmails: EmailMeta[] = [];
+  tasks: TaskCompletion[] = newGameTaskCompletion();
+  unlockedApps: string[] = [];
+  playerProfile: PlayerProfile = defaultPlayerProfile;
 }

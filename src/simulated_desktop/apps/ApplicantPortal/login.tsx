@@ -1,5 +1,5 @@
 import GuideButton from "../GuideButton";
-
+import "../css/login.css";
 const ApplicantPortalLogin = ({
   setLogin,
 }: {
@@ -52,7 +52,7 @@ const ApplicantPortalLogin = ({
 
         <p>Prospective Students or Returning NSmen can log in with</p>
         <GuideButton
-          id="applicant-portal-login-btn"
+          id="applicant-portal-current-student-login-btn"
           className="login-btn"
           originalTag="button"
           onClick={() => setLogin(true)}

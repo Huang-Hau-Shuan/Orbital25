@@ -1,6 +1,6 @@
 import { useState } from "react";
-import ApplicantPortalHome from "./ApplicantPortalHome";
-import AdmissionPage from "./AdmissionPage";
+import ApplicantPortalHome from "./home";
+import AdmissionPage from "./admission";
 import GuideButton from "../GuideButton";
 enum Page {
   Home,

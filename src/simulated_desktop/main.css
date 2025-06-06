@@ -23,3 +23,6 @@ body {
   padding: 5vh 5vw;
   box-sizing: border-box;
 }
+.debug-dark {
+  color: yellow !important;
+}

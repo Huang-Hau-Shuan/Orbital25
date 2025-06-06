@@ -12,12 +12,13 @@ const StartMenu = ({ position, onClose }: StartMenuProps) => {
     SendToSimuNUS("hideSim", null);
     onClose();
   };
-
   const openAbout = () => {
     window.open("https://github.com/Huang-Hau-Shuan/Orbital25", "_blank");
     onClose();
   };
-
+  const unlockAllApp = () => {
+    SendToSimuNUS("setUnlockedApps", "*");
+  };
   return (
     <div
       id="start-menu"
@@ -29,6 +30,11 @@ const StartMenu = ({ position, onClose }: StartMenuProps) => {
     >
       <button onClick={shutdownDesktop}>Shutdown</button>
       <button onClick={openAbout}>About</button>
+      {window.SimuNUS_API?._DEBUG && (
+        <button onClick={unlockAllApp} className="debug-dark">
+          DEBUG: Unlock all apps
+        </button>
+      )}
     </div>
   );
 };

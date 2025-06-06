@@ -152,9 +152,9 @@ export const taskDetails: TaskDetail[] = [
     guide: false,
     startTime: toTime(0, 0, 0, 0, 0, "newGame"),
     steps: [
-      sendEmailTask("0"),
+      sendEmailTask("offer"),
       unlockApp("Email", "Browser"),
-      ...finishOnLaptopTask(openApp("Email"), openEmail("0")),
+      ...finishOnLaptopTask(openApp("Email"), openEmail("offer")),
     ], //"0" is the id of the offer email
     completedMessage: "offerEmailRead",
     completedResult: [unlockApp("Applicant Portal")],
@@ -167,14 +167,14 @@ export const taskDetails: TaskDetail[] = [
     steps: [
       ...finishOnLaptopTask(
         openApp("Applicant Portal"),
-        click("applicant-portal-login-btn"),
+        click("applicant-portal-current-student-login-btn"),
         click("applicant-portal-admission"),
         click("admission-inquiry"),
         click("applicant-portal-accept")
       ),
     ],
     completedMessage: "offerAccepted",
-    completedResult: [unlockApp("Photo Submission Portal")],
+    completedResult: [unlockApp("Photo Verification")],
     failedMessage: "offerRejected",
     failedResult: [
       gameOverResult(
@@ -193,7 +193,15 @@ one offer from any Singapore's universities to obtain student pass`
     description: "Upload the photo for Student Card",
     guide: true,
     startTime: toTime(0, 0, 0, 0, 0, "offerAccepted"),
-    steps: [...finishOnLaptopTask(/* TODO */)],
+    timeout: toTime(0, 0, 2, 0, 0, "offerAccepted"),
+    steps: [
+      ...finishOnLaptopTask(
+        openApp("Photo Verification"),
+        click("photo-varification-undergraduate-login-btn"),
+        click("upload-photo-input"),
+        click("photo-submit-btn")
+      ),
+    ],
     completedMessage: "photoUploaded",
     failedResult: [
       gameOverResult(

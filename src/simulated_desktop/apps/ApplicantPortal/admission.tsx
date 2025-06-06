@@ -1,6 +1,7 @@
 // apps/AdmissionPage.tsx
 import { useState } from "react";
 import GuideButton from "../GuideButton";
+import { SendToSimuNUS } from "../../MessageBridge";
 
 const AdmissionPage = () => {
   const [showDetails, setShowDetails] = useState(false);
@@ -8,10 +9,12 @@ const AdmissionPage = () => {
 
   const handleAccept = () => {
     setOfferAccepted(true);
+    SendToSimuNUS("offerAccepted");
   };
 
   const handleReject = () => {
     setOfferAccepted(false);
+    SendToSimuNUS("offerRejected");
   };
 
   if (!showDetails) {

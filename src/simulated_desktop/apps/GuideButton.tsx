@@ -4,11 +4,12 @@ import "./css/guide-button.css";
 
 interface GuideButtonProps {
   id: string;
-  children: React.ReactNode;
-  originalTag?: "button" | "div" | "a";
+  children?: React.ReactNode;
+  originalTag?: "button" | "div" | "a"; //put other elements in children
   onClick?: () => void;
   className?: string;
   style?: React.CSSProperties;
+  ref?: React.RefObject<any>;
 }
 
 const GuideButton = ({
@@ -18,6 +19,7 @@ const GuideButton = ({
   onClick,
   className = "",
   style,
+  ref,
 }: GuideButtonProps) => {
   const [highlighted, setHighlighted] = useState(false);
 
@@ -41,17 +43,11 @@ const GuideButton = ({
     SendToSimuNUS("buttonClicked", id);
     setHighlighted(false);
   };
+  const cn = `${className} ${highlighted ? "guide-button-highlight" : ""}`;
   switch (originalTag) {
     case "a":
       return (
-        <a
-          onClick={handleClick}
-          className={`${className} ${
-            highlighted ? "guide-button-highlight" : ""
-          }`}
-          style={style}
-          id={id}
-        >
+        <a onClick={handleClick} className={cn} style={style} id={id} ref={ref}>
           {children}
         </a>
       );
@@ -59,11 +55,10 @@ const GuideButton = ({
       return (
         <button
           onClick={handleClick}
-          className={`${className} ${
-            highlighted ? "guide-button-highlight" : ""
-          }`}
+          className={cn}
           style={style}
           id={id}
+          ref={ref}
         >
           {children}
         </button>
@@ -77,6 +72,7 @@ const GuideButton = ({
           }`}
           style={style}
           id={id}
+          ref={ref}
         >
           {children}
         </div>

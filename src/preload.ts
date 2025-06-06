@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
-import { SERVE_ORIGIN, DEBUG, UNITY_SERVE_PATH } from "./SimuNUS_config.ts";
+import { SERVE_ORIGIN, UNITY_SERVE_PATH } from "./SimuNUS_config.ts";
 contextBridge.exposeInMainWorld("SimuNUS_API", {
-  _DEBUG: DEBUG,
+  _DEBUG: true,
   unity_embedded_mode: "iframe", //how to embed unity webGL build ("iframe", "webview", null)
   origin: SERVE_ORIGIN,
   unity_serve_path: UNITY_SERVE_PATH,

@@ -2,7 +2,11 @@
 import Email from "./Email";
 import NotImplemented from "./NotImplemented";
 import Browser from "./Browser";
-import ApplicantPortal from "./ApplicantPortal/ApplicantPortal";
+import ApplicantPortalLogin from "./ApplicantPortal/login";
+import ApplicantPortalMain from "./ApplicantPortal/main";
+import PhotoVerificationLogin from "./PhotoVerification/login";
+import PhotoVerificationMain from "./PhotoVerification/main";
+import NUSApp from "./NUSApp";
 
 export interface AppMeta {
   name: string;
@@ -41,7 +45,22 @@ export const apps_array: AppMeta[] = [
   {
     name: "Applicant Portal",
     icon: "icon/nus.png",
-    component: ApplicantPortal,
+    component: NUSApp,
+    props: {
+      loginPage: ApplicantPortalLogin,
+      mainPage: ApplicantPortalMain,
+      appName: "Applicant Portal",
+    },
+  },
+  {
+    name: "Photo Verification",
+    icon: "icon/nus.png",
+    component: NUSApp,
+    props: {
+      loginPage: PhotoVerificationLogin,
+      mainPage: PhotoVerificationMain,
+      appName: "Photo Verification",
+    },
   },
 ];
 export const appRegistry: Record<string, AppMeta> = {};

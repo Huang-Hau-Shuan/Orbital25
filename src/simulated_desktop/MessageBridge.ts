@@ -7,6 +7,7 @@ declare global {
       onMessage: (channel: string, callback: CallbackType) => void;
       removeListener: (channel: string, callback: CallbackType) => void;
       removeAllListener: (channel: string) => void;
+      _DEBUG: boolean;
     };
     messageBridgeReady: undefined | boolean;
   }
@@ -17,7 +18,7 @@ interface Message {
 }
 const toSend: Message[] = [];
 const registered: Record<string, CallbackType> = {};
-export const SendToSimuNUS = function (channel: string, data: unknown) {
+export const SendToSimuNUS = function (channel: string, data?: unknown) {
   try {
     const message = {
       channel: channel,
@@ -93,7 +94,7 @@ export const dbgWarn = (data: unknown) => {
     window.SimuNUS_API &&
     typeof window.SimuNUS_API.sendMessage === "function"
   )
-    window.SimuNUS_API.sendMessage("debug", data); //directly send to backend
+    window.SimuNUS_API.sendMessage("warn", data); //directly send to backend
   else SendToSimuNUS("warn", data);
 };
 export const dbgErr = (data: unknown) => {
@@ -101,7 +102,7 @@ export const dbgErr = (data: unknown) => {
     window.SimuNUS_API &&
     typeof window.SimuNUS_API.sendMessage === "function"
   )
-    window.SimuNUS_API.sendMessage("debug", data); //directly send to backend
+    window.SimuNUS_API.sendMessage("error", data); //directly send to backend
   else SendToSimuNUS("error", data);
 };
 onSimuNUSMessage("messageBridgeReady", () => {
