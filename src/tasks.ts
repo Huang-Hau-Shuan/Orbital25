@@ -1,7 +1,11 @@
 import { randomInt } from "crypto";
-import { normalizeTime } from "./utils";
+import { dbgErr, normalizeTime } from "./utils";
 import {
+  defaultPlayerProfile,
   TaskStatus,
+  type EmailMeta,
+  type IGameSave,
+  type PlayerProfile,
   type PlayerStep,
   type TaskCompletion,
   type TaskDetail,
@@ -107,6 +111,25 @@ export const getExactTime = (
     getExactTime1(taskTime.minute, minute, 0, 60)
   );
 };
+export const extractExactTime = (t: Time) => {
+  if (
+    t.day.type === "absolute" &&
+    t.year.type === "absolute" &&
+    t.month.type === "absolute" &&
+    t.hour.type === "absolute" &&
+    t.minute.type === "absolute"
+  ) {
+    return {
+      year: t.year.value,
+      month: t.month.value,
+      day: t.day.value,
+      hour: t.hour.value,
+      minute: t.minute.value,
+    };
+  } else {
+    dbgErr(`extractExactTime: ${t} is not exact time`);
+  }
+};
 const gameOverResult: (message: string, fiy: string) => TaskStep = (
   message,
   fiy
@@ -149,8 +172,8 @@ export const taskDetails: TaskDetail[] = [
   {
     name: "Read Offer Email",
     description: "Open the laptop and read the NUS offer email",
-    guide: false,
-    startTime: toTime(0, 0, 0, 0, 0, "newGame"),
+    guide: true,
+    startTime: toTime(0, 0, 0, 0, 1, "newGame"),
     steps: [
       sendEmailTask("offer"),
       unlockApp("Email", "Browser"),
@@ -215,6 +238,27 @@ so do pick your most satisfying photo`
       ),
     ],
   },
+  {
+    name: "Arrive in NUS",
+    description: "Arrive in NUS",
+    guide: false,
+    startTime: toTime(0, 0, 0, 0, 0, "depart"),
+    steps: [
+      {
+        node: "unity",
+        function: "jumpToScene",
+        params: ["Singapore"],
+      },
+    ],
+    completedMessage: "arriveInNUS",
+    completedResult: [
+      {
+        node: "unity",
+        function: "jumpToScene",
+        params: ["Campus Map"],
+      },
+    ],
+  },
 ];
 
 export const newGameTaskCompletion: () => TaskCompletion[] = () =>
@@ -228,7 +272,8 @@ export const newGameTaskCompletion: () => TaskCompletion[] = () =>
         };
       }),
       status: TaskStatus.NotStarted,
-      scheduled: undefined,
+      scheduled: false,
+      scheduledTime: { year: 0, month: 0, day: 0, hour: 0, minute: 0 },
     };
   });
 export const isImmediate: (t: Time | TimeValue) => boolean = (t) => {
@@ -245,3 +290,10 @@ export const isImmediate: (t: Time | TimeValue) => boolean = (t) => {
     isImmediate(t.minute)
   );
 };
+export class GameSave implements IGameSave {
+  unitySave: string = "";
+  receivedEmails: EmailMeta[] = [];
+  tasks: TaskCompletion[] = newGameTaskCompletion();
+  unlockedApps: string[] = [];
+  playerProfile: PlayerProfile = defaultPlayerProfile;
+}

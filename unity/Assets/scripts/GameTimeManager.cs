@@ -1,6 +1,55 @@
+using System;
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+
+[Serializable]
+public class GameTime { 
+    public int year, month, day, hour, minute;
+    public GameTime(int year, int month, int day, int hour, int minute)
+    {
+        this.year = year;
+        this.month = month;
+        this.day = day;
+        this.hour = hour;
+        this.minute = minute;
+    }
+    public bool IsEqualOrBefore(GameTime other)
+    {
+        if (other == null) return false;
+        if (year > other.year) return false;
+        if (year < other.year) return true;
+        if (month > other.month) return false;
+        if (month < other.month) return true;
+        if (day > other.day) return false;
+        if (day < other.day) return true;
+        if (hour > other.hour) return false;
+        if (hour < other.hour) return true;
+        if (minute > other.minute) return false;
+        return true;
+    }
+    public static bool operator>(GameTime _this, GameTime other)
+    {
+        if (_this == null ||  other == null) return false;
+        return !(_this.IsEqualOrBefore(other));
+    }
+    public static bool operator<(GameTime _this, GameTime other)
+    {
+        if (_this == null ||  other == null) return false;
+        return _this.IsEqualOrBefore(other) && _this != other;
+    }
+
+    public string GetFormattedTime() => $"{hour:00}:{minute:00}";
+    public string GetFormattedDate() => $"{day:00}/{month:00}/{year:0000}";
+    public string GetFormattedFullTime() => GetFormattedDate() + " " + GetFormattedTime();
+}
+[Serializable]
+public class TaskStartSchedule {
+    public int taskID;
+    public GameTime time;
+}
 
 public class GameTimeManager : MonoBehaviour
 {
@@ -11,16 +60,12 @@ public class GameTimeManager : MonoBehaviour
     public Text date_text = null;
     public Text time_text = null;
 
-
-    private int _year = 2025;
-    private int _month = 1;
-    private int _day = 1;
-    private int _hour = 0;
-    private int _minute = 0;
+    private GameTime gameTime = new(2025,1,1,0,0);
 
     private float timer;
     private bool isPaused = true;
     public static GameTimeManager instance;
+    public PQ.PriorityQueue<TaskStartSchedule, GameTime> scheduledEvents = new ();
     private void Start()
     {
         instance = this;
@@ -42,6 +87,7 @@ public class GameTimeManager : MonoBehaviour
             UpdateText();
         }
         MessageBridge.RegisterUnityMessageHandler("getTime", gameObject.name, "OnGetTime", true);
+        MessageBridge.RegisterUnityMessageHandler("scheduleTaskStart", gameObject.name, "ScheduleTime", true);
     }
     void Update()
     {
@@ -53,6 +99,15 @@ public class GameTimeManager : MonoBehaviour
             AdvanceMinutes(minutesPerTick);
         }
         UpdateText();
+        if(scheduledEvents.Count > 0)
+        {
+            var s = scheduledEvents.Peek();
+            if (s!=null&&!(s.time > gameTime))
+            {
+                MessageBridge.SendMessage("startTask", s.taskID.ToString());
+                scheduledEvents.Dequeue();
+            }
+        }
     }
     public void StartTimer() => isPaused = false;
     public void PauseTimer() => isPaused = true;
@@ -64,17 +119,17 @@ public class GameTimeManager : MonoBehaviour
 
     public int Year
     {
-        get => _year;
-        set => _year = value;
+        get => gameTime.year;
+        set => gameTime.year = value;
     }
 
     public int Month
     {
-        get => _month;
+        get => gameTime.month;
         set
         {
             int m = ((value - 1) % 12 + 12) % 12; // Positive remainder: 0-11
-            _month = m + 1;                       // Month: 1-12
+            gameTime.month = m + 1;                       // Month: 1-12
             int yearAdjust = (value - 1 - m) / 12;
             Year += yearAdjust;
         }
@@ -82,36 +137,36 @@ public class GameTimeManager : MonoBehaviour
 
     public int Day
     {
-        get => _day;
+        get => gameTime.day;
         set
         {
             int maxDays = DaysInMonth(Month, Year);
-            _day = value;
-            while (_day > maxDays)
+            gameTime.day = value;
+            while (gameTime.day > maxDays)
             {
-                _day -= maxDays;
+                gameTime.day -= maxDays;
                 Month++;
                 maxDays = DaysInMonth(Month, Year);
             }
-            while (_day < 1) //every month starts from day 1 not 0
+            while (gameTime.day < 1) //every month starts from day 1 not 0
             {
                 Month--;
                 maxDays = DaysInMonth(Month, Year);
-                _day += maxDays;
+                gameTime.day += maxDays;
             }
         }
     }
 
     public int Hour
     {
-        get => _hour;
+        get => gameTime.hour;
         set
         {
-            _hour = value % 24;
+            gameTime.hour = value % 24;
             Day += value / 24;
-            if (_hour < 0)
+            if (gameTime.hour < 0)
             {
-                _hour += 24;
+                gameTime.hour += 24;
                 Day -= 1;
             }
         }
@@ -119,14 +174,14 @@ public class GameTimeManager : MonoBehaviour
 
     public int Minute
     {
-        get => _minute;
+        get => gameTime.minute;
         set
         {
-            _minute = value % 60;
+            gameTime.minute = value % 60;
             Hour += value / 60;
-            if (_minute < 0)
+            if (gameTime.minute < 0)
             {
-                _minute += 60;
+                gameTime.minute += 60;
                 Hour -= 1;
             }
         }
@@ -160,7 +215,7 @@ public class GameTimeManager : MonoBehaviour
         SetTime(h, mi);
         SetDate(y, mo, d);
     }
-    public string GetFormattedTime() => $"{Hour:00}:{_minute:00}";
+    public string GetFormattedTime() => $"{Hour:00}:{Minute:00}";
     public string GetFormattedDate() => $"{Day:00}/{Month:00}/{Year:0000}";
     private void UpdateText()
     {
@@ -174,7 +229,33 @@ public class GameTimeManager : MonoBehaviour
     }
     public void OnGetTime()
     {
-        MessageBridge.SendMessage("setTime",
-            $"{{\"year\":{Year},\"month\":{Month},\"day\":{Day},\"hour\":{Hour},\"minute\":{Minute}}}");
+        MessageBridge.SendMessage("setTime",JsonUtility.ToJson(gameTime));
+    }
+
+    public void ScheduleTime(string time)
+    {
+        TaskStartSchedule t = JsonUtility.FromJson<TaskStartSchedule>(time);
+        if (t != null) {
+            if (gameTime<t.time)
+            {
+                scheduledEvents.Enqueue(t, t.time);
+                Utils.Log("Task " + t.taskID + " Scheduled at: " + t.time.GetFormattedFullTime());
+            }
+            else
+            {
+                //the sheduled time is before current time
+                Utils.LogWarning("Task " + t.taskID + " should already happen, starting it immediately");
+                MessageBridge.SendMessage("startTask", t.taskID.ToString());
+            }
+        }
+        else
+        {
+            Utils.LogError("Invalid time: " + time);
+        }
+    }
+
+    public void ResetSchedule()
+    {
+        scheduledEvents.Clear();
     }
 }

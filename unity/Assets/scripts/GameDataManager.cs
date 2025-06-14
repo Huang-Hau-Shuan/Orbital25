@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class GameConfig
 {
     public bool debug = true;
-    public string gameSaveLocation= null;
+    public string gameSaveLocation = null;
 }
 [Serializable]
 public class PlayerStatus
@@ -40,7 +40,7 @@ public class PlayerStatus
         scale = new(0.2f, 0.2f, 1f);
 
         firstNameBeforeLastName = true;
-        firstName = "";lastName = "";
+        firstName = ""; lastName = "";
         personalEmail = "player@email.com";
         passportNumber = "123456789";
 
@@ -53,7 +53,7 @@ public class PlayerStatus
     {
         if (player == null)
         {
-            isActive=false;
+            isActive = false;
             return;
         }
         location = player.transform.position;
@@ -73,7 +73,7 @@ public class PlayerStatus
         }
         player.SetActive(isActive);
         player.transform.localScale = scale;
-        player.transform.SetPositionAndRotation(location, 
+        player.transform.SetPositionAndRotation(location,
             new Quaternion(rotation.x, rotation.y, rotation.z, rotation.w));
     }
 }
@@ -82,6 +82,7 @@ public class GameSave
 {
     public int year, month, day, hour, minute;
     public int currentScene, previousScene;
+    public string lastBusStop;
     public PlayerStatus playerStatus;
     public List<TaskProgress> tasks;
     public GameSave(List<TaskDetail> taskDetails)
@@ -89,6 +90,7 @@ public class GameSave
         year = 2025; month = 6; day = 10; hour = 9; minute = 0;
         currentScene = 1; previousScene = 0;
         playerStatus = new PlayerStatus();
+        lastBusStop = null;
         if (taskDetails != null)
         {
             tasks = new(capacity: taskDetails.Count);
@@ -199,14 +201,14 @@ public class GameDataManager : MonoBehaviour
     public void ReloadGameBySave()
     {
         SceneManager.sceneLoaded += OnLoadGame_SceneLoaded;
-        SceneManager.LoadScene(gameSave.currentScene);
-        
+        LoadScene(gameSave.currentScene);
+
     }
     public void NewGame()
     {
         gameSave = new GameSave(taskDetails);
-        MessageBridge.SendMessage("newGame","");
         ReloadGameBySave();
+        MessageBridge.SendMessage("newGame", "");
     }
 
     public void OnLoadGame_SceneLoaded(Scene scene, LoadSceneMode mode)
@@ -223,22 +225,50 @@ public class GameDataManager : MonoBehaviour
             player = Instantiate(playerPrefab);
         }
         gameSave.playerStatus.LoadPlayerTransition(player);
+        GameTimeManager.instance.ResetSchedule();
         GameTimeManager.instance.SetTime(gameSave.year, gameSave.month, gameSave.day, gameSave.hour, gameSave.minute);
         GameTimeManager.instance.StartTimer();
+#if UNITY_EDITOR
+        //test the scheduling functionality
+        GameTimeManager.instance.ScheduleTime("{\"taskID\":0, \"time\":{\"year\":2025, \"month\":6,\"day\":10,\"hour\":9,\"minute\":2}}");
+#endif
         SceneManager.sceneLoaded -= OnLoadGame_SceneLoaded;
     }
     //load scene and update currentScene, previous Scene
     public void LoadScene(int sceneId)
     {
+        if (sceneId < 0 || sceneId >= SceneManager.sceneCountInBuildSettings)
+        {
+            Utils.LogError("LoadScene: the scene id to load " + sceneId + " out of range, should be 0 to " + SceneManager.sceneCountInBuildSettings);
+            return;
+        }
+        Utils.Log("LoadScene: Jump to scene " + sceneId.ToString());
         gameSave.previousScene = gameSave.currentScene;
         SceneManager.LoadScene(sceneId);
-        gameSave.currentScene=sceneId;
+        gameSave.currentScene = sceneId;
+        MessageBridge.SendMessage("sceneChanged", Utils.GetSceneName(sceneId));
+    }
+    public void SetLastBusStop(string busStop)
+    {
+        gameSave.lastBusStop = busStop;
     }
     public void LoadScene(string sceneName)
     {
+        if (sceneName == null)
+        {
+            Utils.LogError("LoadScene: the scene name to load is null");
+            return;
+        }
+        if (!Utils.SceneExists(sceneName))
+        {
+            Utils.LogError("LoadScene: the scene to load \"" + sceneName + "\" does not exist");
+            return;
+        }
+        Utils.Log("LoadScene: Jump to scene " + sceneName);
         gameSave.previousScene = gameSave.currentScene;
         SceneManager.LoadScene(sceneName);
         gameSave.currentScene = SceneManager.GetSceneByName(sceneName).buildIndex;
+        MessageBridge.SendMessage("sceneChanged", sceneName);
     }
     public void LoadScene(Scene scene)
     {

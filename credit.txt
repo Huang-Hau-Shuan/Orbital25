@@ -50,3 +50,14 @@ unity/Assets/ToastNotificationMessage
 Toast Notification Message
 https://assetstore.unity.com/packages/tools/gui/toast-notification-message-278006
 Author: Conrado Saud (conradosaud.com.br, conradosaud@gmail.com)
+
+unity\Assets\images\Singapore-map.png
+https://mrt.sg/map
+
+unity\Assets\Sprites\airplane.png
+<a href="https://www.flaticon.com/free-icons/plane" title="plane icons">Plane icons created by Mihimihi - Flaticon</a>
+https://www.flaticon.com/free-icon/airplane_7893979
+
+unity\Assets\Sprites\subway.png
+<a href="https://www.flaticon.com/free-icons/mrt" title="mrt icons">Mrt icons created by icon_small - Flaticon</a>
+https://www.flaticon.com/free-icon/subway_8595872

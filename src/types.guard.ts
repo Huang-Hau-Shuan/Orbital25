@@ -85,10 +85,12 @@ export function isTaskStep(obj: unknown): obj is TaskStep {
       typedObj["node"] === "laptop") &&
     (typedObj["function"] === "showGameOver" ||
       typedObj["function"] === "sendEmail" ||
-      typedObj["function"] === "unlockApp") &&
+      typedObj["function"] === "unlockApp" ||
+      typedObj["function"] === "jumpToScene") &&
     Array.isArray(typedObj["params"]) &&
     Array.isArray(typedObj["playerSteps"]) &&
-    typedObj["playerSteps"].every((e: any) => isPlayerStep(e) as boolean)
+    typedObj["playerSteps"].every((e: any) => isPlayerStep(e) as boolean) &&
+    typeof typedObj["description"] === "string"
   );
 }
 
@@ -182,14 +184,15 @@ export function isTaskCompletion(obj: unknown): obj is TaskCompletion {
     Array.isArray(typedObj["steps"]) &&
     typedObj["steps"].every((e: any) => isStepCompletion(e) as boolean) &&
     (isTaskStatus(typedObj["status"]) as boolean) &&
-    ((typedObj["scheduled"] !== null &&
-      typeof typedObj["scheduled"] === "object") ||
-      typeof typedObj["scheduled"] === "function") &&
-    typeof typedObj["scheduled"]["year"] === "number" &&
-    typeof typedObj["scheduled"]["month"] === "number" &&
-    typeof typedObj["scheduled"]["day"] === "number" &&
-    typeof typedObj["scheduled"]["hour"] === "number" &&
-    typeof typedObj["scheduled"]["minute"] === "number"
+    typeof typedObj["scheduled"] === "boolean" &&
+    ((typedObj["scheduledTime"] !== null &&
+      typeof typedObj["scheduledTime"] === "object") ||
+      typeof typedObj["scheduledTime"] === "function") &&
+    typeof typedObj["scheduledTime"]["year"] === "number" &&
+    typeof typedObj["scheduledTime"]["month"] === "number" &&
+    typeof typedObj["scheduledTime"]["day"] === "number" &&
+    typeof typedObj["scheduledTime"]["hour"] === "number" &&
+    typeof typedObj["scheduledTime"]["minute"] === "number"
   );
 }
 

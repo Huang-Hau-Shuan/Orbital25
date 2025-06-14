@@ -2,10 +2,15 @@ import fs from "fs";
 import { CONFIG_PATH, DATA_PATH, DEBUG, SAVE_PATH } from "./SimuNUS_config";
 import path from "node:path";
 import { dbgErr, dbgLog, dbgWarn, deserializeFromJsonFile } from "./utils.js";
-import { isImmediate, taskDetails, toTime } from "./tasks.js";
+import {
+  isImmediate,
+  taskDetails,
+  getExactTime,
+  extractExactTime,
+  GameSave,
+} from "./tasks.js";
 import { isGameConfig, isIGameSave } from "./types.guard.js";
 import {
-  GameSave,
   TaskStatus,
   type EmailMeta,
   type GameConfig,
@@ -153,6 +158,12 @@ export const handleGameSaveMessage = (
       }
     }
   });
+  onMessage("getTaskCompletion", () => {
+    sendMessage("setTaskCompletion", gameSave.tasks);
+  });
+  onMessage("getTaskDetails", () => {
+    sendMessage("setTaskDetails", taskDetails);
+  });
   //DEAL WITH TASKS
   type CompleteIndex = {
     taskIndex: number;
@@ -163,6 +174,7 @@ export const handleGameSaveMessage = (
   const task_completed_result_shown = gameSave.tasks.map(
     (task) => task.status === TaskStatus.Finished
   );
+  //perform a static taskstep that does not require player engagement nor update gamesave
   const performStaticStep = (step: TaskStep) => {
     switch (step.node) {
       case "main":
@@ -306,6 +318,7 @@ export const handleGameSaveMessage = (
     } else {
       completeTask();
     }
+    sendMessage("setTaskCompletion", gameSave.tasks);
   };
   const listenButtons: Record<string, CompleteIndex> = {};
   const checkOngoing = (index: CompleteIndex, callback: () => void) => {
@@ -490,8 +503,10 @@ export const handleGameSaveMessage = (
       }
     }
   };
-  //perform a static taskstep that does not require player engagement nor update gamesave
-
+  const startTask = (idx: number) => {
+    gameSave.tasks[idx].status = TaskStatus.Ongoing;
+    performStep(idx, 0);
+  };
   onMessage("playerCompletedUnitySteps", (data) => {
     if (typeof data === "string") {
       data = JSON.parse(data);
@@ -534,6 +549,31 @@ export const handleGameSaveMessage = (
       );
     }
   });
+  onMessage("startTask", (taskID) => {
+    if (typeof taskID === "string") {
+      taskID = Number(taskID);
+      if (Number.isNaN(taskID)) {
+        dbgErr("startTask: Invalid task id, should be the index of the task");
+        return;
+      }
+    }
+    if (typeof taskID === "number") {
+      if (taskID < taskDetails.length) {
+        dbgLog(`Task ${taskDetails[taskID].name} starts`);
+        startTask(taskID);
+      } else {
+        dbgErr(
+          `startTask: taskID ${taskID} out of range, there are only ${taskDetails.length} tasks`
+        );
+      }
+    } else {
+      dbgErr(
+        "startTask: Invalid task id:",
+        taskID,
+        "should be the index of the task"
+      );
+    }
+  });
   //register tasks
   taskDetails.forEach((task, idx) => {
     //ignore failed or completed tasks
@@ -542,23 +582,13 @@ export const handleGameSaveMessage = (
       gameSave.tasks[idx].status == TaskStatus.Finished
     )
       return;
-    const startTask = () => {
-      gameSave.tasks[idx].status = TaskStatus.Ongoing;
-      performStep(idx, 0);
-    };
     if (gameSave.tasks[idx].status == TaskStatus.NotStarted) {
       //need to register message and time
       if (gameSave.tasks[idx].scheduled) {
         //already scheduled
         sendMessage("scheduleTaskStart", {
           taskID: idx,
-          time: toTime(
-            gameSave.tasks[idx].scheduled.year,
-            gameSave.tasks[idx].scheduled.month,
-            gameSave.tasks[idx].scheduled.day,
-            gameSave.tasks[idx].scheduled.hour,
-            gameSave.tasks[idx].scheduled.minute
-          ),
+          time: gameSave.tasks[idx].scheduledTime,
         });
       }
       if (task.startTime.relative_to) {
@@ -566,24 +596,56 @@ export const handleGameSaveMessage = (
         onMessage(task.startTime.relative_to, () => {
           if (isImmediate(task.startTime.time)) {
             //immediately happen
-            startTask();
+            startTask(idx);
+            return;
           }
           //ask unity in game time manager to schedule this event
-          sendMessage("scheduleTaskStart", {
-            taskID: idx,
-            time: task.startTime.time,
+          onceMessage("setTime", (time) => {
+            if (typeof time === "string") {
+              const t = JSON.parse(time);
+              if (
+                typeof t === "object" &&
+                t !== null &&
+                "year" in t &&
+                "month" in t &&
+                "day" in t &&
+                "hour" in t &&
+                "minute" in t
+              ) {
+                const et = getExactTime(
+                  task.startTime.time,
+                  t.year,
+                  t.month,
+                  t.day,
+                  t.hour,
+                  t.minute
+                );
+                dbgLog("Received current in game time: ", t);
+                gameSave.tasks[idx].scheduled = true;
+                gameSave.tasks[idx].scheduledTime = et;
+                sendMessage("scheduleTaskStart", {
+                  taskID: idx,
+                  time: et,
+                });
+              }
+            }
           });
+          //wait for scene to load
+          if (task.startTime.relative_to === "newGame") {
+            setTimeout(() => {
+              sendMessage("getTime", "");
+            }, 300);
+          } else {
+            sendMessage("getTime", "");
+          }
         });
       } else {
         //schedule absolute time
         sendMessage("scheduleTaskStart", {
           taskID: idx,
-          time: task.startTime.time,
+          time: extractExactTime(task.startTime.time),
         });
       }
-      onMessage("startTask", (taskid) => {
-        if (taskid === idx) startTask();
-      });
     }
     //register completed message
     onMessage(task.completedMessage, () => {

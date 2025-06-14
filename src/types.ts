@@ -1,5 +1,3 @@
-import { newGameTaskCompletion } from "./tasks";
-
 export type TimeValue =
   | { type: "random"; value: [number, number] }
   | { type: "absolute" | "relative"; value: number };
@@ -20,9 +18,10 @@ export type PlayerStep =
   | { type: "interact"; object: string }; //player needs to interact with the object
 export interface TaskStep {
   node: "main" | "unity" | "laptop";
-  function?: "showGameOver" | "sendEmail" | "unlockApp"; //the step that the system do
+  function?: "showGameOver" | "sendEmail" | "unlockApp" | "jumpToScene"; //the step that the system do
   params?: unknown[];
   playerSteps?: PlayerStep[];
+  description?: string;
 }
 export interface TaskDetail {
   name: string;
@@ -75,15 +74,14 @@ export interface TaskCompletion {
   name: string;
   steps: StepCompletion[];
   status: TaskStatus;
-  scheduled:
-    | {
-        year: number;
-        month: number;
-        day: number;
-        hour: number;
-        minute: number;
-      }
-    | undefined;
+  scheduled: boolean;
+  scheduledTime: {
+    year: number;
+    month: number;
+    day: number;
+    hour: number;
+    minute: number;
+  };
 }
 export interface IGameSave {
   unitySave: string;
@@ -105,10 +103,3 @@ export const defaultPlayerProfile: PlayerProfile = {
   isSingaporean: false,
   mobile: "+6512345678",
 };
-export class GameSave implements IGameSave {
-  unitySave: string = "";
-  receivedEmails: EmailMeta[] = [];
-  tasks: TaskCompletion[] = newGameTaskCompletion();
-  unlockedApps: string[] = [];
-  playerProfile: PlayerProfile = defaultPlayerProfile;
-}

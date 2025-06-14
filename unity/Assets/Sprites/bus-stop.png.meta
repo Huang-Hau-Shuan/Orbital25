@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: e1bf36ad2886bb742a5e899444a8eb25
+guid: 54d8aba3491469f41b208064a4f27fac
 TextureImporter:
   internalIDToNameTable:
   - first:
@@ -116,10 +116,10 @@ TextureImporter:
       name: bus-stop_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 128
-        height: 128
+        x: 13
+        y: 97
+        width: 455
+        height: 254
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 using UnityEngine.Splines;
 using UnityEngine.UI;
@@ -7,19 +8,21 @@ using UnityEngine.UI;
 public class BusStopPair
 {
     public int key; //the index of the point on the spline
-    public GameObject value; // the corresponding BusStop GameObject
+    public BusStop value; // the corresponding BusStop GameObject
 }
 public class BusRoute : MonoBehaviour
 {
+    public bool notify = true;
     public GameObject busObject;
     public Button getOffButton;
+    public Button switchLineButton;
     public SplineContainer splineContainer;
     public string lineName;
     public List<BusStopPair> busStops;
     public float waitTime;
     public float speed = 1;
     private Spline spline;
-    private bool isMoving = false;
+    public bool isMoving = false;
     private int currentStopIndex = 0;
     //use dictionary for faster and more convenient look up
     private Dictionary<string, int> _busStops = new();
@@ -31,10 +34,10 @@ public class BusRoute : MonoBehaviour
         {
             if (busStopPair.value == null)
             {
-                Utils.LogError("Bus Route " + lineName + ": bus stop is null");
+                Utils.LogError("Bus Route " + lineName + ": bus stop "+busStopPair.key+" is null");
                 continue;
             }
-            busStopPair.value.GetComponent<BusStop>().AddAvailableLine(this);
+            busStopPair.value.AddAvailableLine(this);
             _busStops[busStopPair.value.name] = index;
             index++;
         }
@@ -42,6 +45,8 @@ public class BusRoute : MonoBehaviour
     }
     private void Start()
     {
+        getOffButton.gameObject.SetActive(false);
+        switchLineButton.gameObject.SetActive(false);
     }
     private void Update()
     {
@@ -51,12 +56,22 @@ public class BusRoute : MonoBehaviour
     {
         return _busStops.ContainsKey(stopName);
     }
+    public void StopBus()
+    {
+        StopAllCoroutines();
+        busObject.SetActive(false);
+    }
     //Teleport the bus toward a bus stop
     public void MoveImmediatelyToStop(string stopName)
     {
         if (busStops == null)
         {
             Utils.LogError("Bus Route " + lineName + ": busStops is null");
+            return;
+        }
+        if (!_busStops.ContainsKey(stopName))
+        {
+            Utils.LogError("BusRoute " + lineName + ": " + stopName + " not in stored bus stops, valid stop names are " + _busStops.Keys.ToString());
             return;
         }
         int index = _busStops[stopName];
@@ -77,9 +92,25 @@ public class BusRoute : MonoBehaviour
     //let the bus start moving along the spline till the destination
     public void MoveBus(string startStopName, string targetStopName = null, bool nonStop = false)
     {
+        if (!_busStops.ContainsKey(startStopName))
+        {
+            Utils.LogError("BusRoute " + lineName + ": " + startStopName + " not in stored bus stops, valid stop names are " + _busStops.Keys.ToString());
+            return;
+        }
+        if (targetStopName!=null && !_busStops.ContainsKey(targetStopName))
+        {
+            Utils.LogError("BusRoute " + lineName + ": " + targetStopName + " not in stored bus stops, valid stop names are " + _busStops.Keys.ToString());
+            return;
+        }
         int fromIndex = _busStops[startStopName];
+        if (fromIndex == busStops.Count - 1)
+        {
+            //the last stop is also the first stop
+            fromIndex = 0;
+        }
         int toIndex = targetStopName == null ? busStops.Count - 1 : _busStops[targetStopName];
         MoveImmediatelyToStop(startStopName);
+        busObject.SetActive(true);
         StartCoroutine(MoveAndStopAtEach(fromIndex, toIndex, nonStop));
     }
     public void GetOff()
@@ -134,19 +165,51 @@ public class BusRoute : MonoBehaviour
         for (int i = fromIndex; i < toIndex; i++)
         {
             currentStopIndex = i;
-            yield return MoveAlongSpline(busStops[i].key, busStops[i + 1].key);
-            ToastNotification.Show("We are arriving at: " + busStops[i + 1].value.name, 1, "info");
+            int end = busStops[i + 1].key;
+            if (end < busStops[i].key)
+            {
+                //first go to the starting point or ending point
+                yield return MoveAlongSpline(busStops[i].key, splineContainer.Splines[0].Count);
+                if (end > 0)
+                {
+                    yield return MoveAlongSpline(0, end);
+                }
+            }
+            else
+                yield return MoveAlongSpline(busStops[i].key, end);
+            busStops[i].value.SetFocus(false);
+            if (notify && GameDataManager.instance)
+            { 
+                // toastnotification and GameDataManager are only created from main menu,
+                // so if GameDataManager.instance is not null, ToastNotification shouldn't be null either
+                ToastNotification.Show("We are arriving at: " + busStops[i + 1].value.name, 1, "info");
+            }
+            MessageBridge.SendMessage("BusArrive", busStops[i + 1].value.name);
+            GameDataManager.instance.SetLastBusStop(busStops[i + 1].value.name);
+            busStops[i + 1].value.SetFocus(true);
             // Wait at this stop
             if (!nonStop)
             {
-                getOffButton.gameObject.SetActive(true);
+                if (getOffButton != null)
+                { 
+                    getOffButton.gameObject.SetActive(true); 
+                    switchLineButton.gameObject.SetActive(true);
+                }
                 currentStopIndex = i + 1;
                 yield return new WaitForSeconds(waitTime);
-                getOffButton.gameObject.SetActive(false);
+                if (getOffButton != null)
+                {
+                    getOffButton.gameObject.SetActive(false);
+                    switchLineButton.gameObject.SetActive(false);
+                }
             }
+            
         }
-        //Force get off
-        getOffButton.onClick.Invoke();
+        if (getOffButton != null)
+        {
+            getOffButton.gameObject.SetActive(true);
+            switchLineButton.gameObject.SetActive(true);
+        }
     }
     private IEnumerator MoveAlongSpline(int startKnot, int endKnot)
     {
@@ -158,7 +221,11 @@ public class BusRoute : MonoBehaviour
         float travelTime = Mathf.Abs(endT - startT) * spline.GetLength();
         float duration = travelTime / speed;
         float time = 0f;
-
+        if (getOffButton != null)
+        {
+            getOffButton.gameObject.SetActive(false);
+            switchLineButton.gameObject.SetActive(false);
+        }
         while (time < duration)
         {
             float t = Mathf.Lerp(startT, endT, time / duration);
@@ -168,6 +235,7 @@ public class BusRoute : MonoBehaviour
         }
 
         // Final position
+        if (endKnot == splineContainer.Splines[0].Count) { endKnot = 0; }
         busObject.transform.SetPositionAndRotation(
             GetKnotPosition(endKnot), GetKnotDirection(endKnot));
 

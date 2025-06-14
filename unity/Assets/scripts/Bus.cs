@@ -6,12 +6,8 @@ public class Bus : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        //hide the bus until the user decide to take which line
+        gameObject.SetActive(false);
     }
 
     public void SetBusLine(string busline)
