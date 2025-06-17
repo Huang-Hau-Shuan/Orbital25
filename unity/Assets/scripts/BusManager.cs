@@ -17,52 +17,34 @@ public class BusManager : MonoBehaviour
     public BusRoute L_Route;
     public static readonly int TotalLines = 8;
     public static readonly string[] LineNames = {"A1","A2","D1","D2","K","E","BTC","L" }; // a list to look up the name of the line by index
-    public static Dictionary<string, int> LineIndices = null; // a table to look up the index of a line
     public static BusManager Instance = null;
 
-    private BusRoute[] lines;
     private BusRoute currentLine = null;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         Instance = this;
-        //initialize LineIndices
-        if (LineIndices == null)
-        {
-            LineIndices = new Dictionary<string, int>();
-            for (int i = 0; i < TotalLines; i++)
-            {
-                LineIndices.Add(LineNames[i], i);
-            }
-        }
-        //initialize lines
-        lines = new BusRoute[TotalLines];
-        for (int i = 0; i < TotalLines; i++)
-        {
-            var r = GetRoute(i);
-            if (r == null)
-            {
-                lines[i] = null;
-                continue;
-            }
-            lines[i] = r;
-        }
         string from = null;
         //get available bus routes
         if (GameDataManager.instance == null)
         {
-#if UNITY_EDITOR
-            //in editor, debug this scene only
             from = "PGP Foyer";
-            Utils.Log("BusManager: GameDataManager is null, set to default bus stop PGP Foyer");
+#if !UNITY_EDITOR
+            Utils.LogError("BusManager: GameDataManager is null, set to default bus stop PGP Foyer");
 #else
-            Utils.LogError("BusManager: GameDataManager is null");
-            return;
+            //in editor, debug this scene only
+            Utils.Log("BusManager: GameDataManager is null, set to default bus stop PGP Foyer");
 #endif
         }
         else
         {
             from = GameDataManager.instance.gameSave.lastBusStop;
+            var ps = GameDataManager.instance.gameSave.previousScene;
+            if (string.IsNullOrEmpty(from) && ps == 0)
+            {
+                Utils.Log("Directly debug jump to Campus Map from MainMenu, set bus stop to default PGP Foyer");
+                from = "PGP Foyer";
+            }
         }
         if (from == null)
         {
@@ -97,7 +79,8 @@ public class BusManager : MonoBehaviour
     }
     public void GetOnBus(string stopName)
     {
-        var stop = GameObject.Find(stopName).GetComponent<BusStop>();
+        var stops = FindObjectsByType<BusStop>(FindObjectsSortMode.None);
+        var stop = Array.Find(stops, (stop) => stop.name == stopName);
         if (stop == null)
         {
             Utils.LogError("BusManager.GetOnBus: Invalid stopName " + stopName);

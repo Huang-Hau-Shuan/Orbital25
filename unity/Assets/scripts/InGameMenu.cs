@@ -37,7 +37,14 @@ public class InGameMenu : MonoBehaviour
     {
         toggle(false);
         GameTimeManager.instance.PauseTimer();
-        SceneManager.LoadScene(0); //0: MainMenu
+        if (GameDataManager.instance != null)
+        {
+            GameDataManager.instance.LoadScene(0);
+        }
+        else
+        {
+            SceneManager.LoadScene(0); //0: MainMenu
+        }
     }
 
     public void OnExitGameClicked()

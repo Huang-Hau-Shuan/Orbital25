@@ -11,12 +11,18 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Room.unity
     guid: 10d7272dfd01b1a4091f00fe3e8d9a40
-  - enabled: 0
-    path: Assets/Scenes/SampleScene.unity
-    guid: 8c9cfa26abfee488c85f1582747f6a02
   - enabled: 1
     path: Assets/Scenes/Campus Map.unity
     guid: 68ea49d46ff607d4c8f26b9eadf72e9a
+  - enabled: 1
+    path: Assets/Scenes/Singapore.unity
+    guid: 686f0b3a6b7a3c8498cda1acbe82e1dc
+  - enabled: 1
+    path: Assets/Scenes/Hostel Room.unity
+    guid: 70c52d126d9171f41ae174793f41f333
+  - enabled: 1
+    path: Assets/Scenes/PGP Foyer.unity
+    guid: 8c9cfa26abfee488c85f1582747f6a02
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

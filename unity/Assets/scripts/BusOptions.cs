@@ -14,54 +14,76 @@ public class BusOptions : MonoBehaviour
     public Sprite busSprite;
 
     public static BusOptions instance;
-
-    private static Dictionary<string, Color> colors = new();
     private string currentStop = null;
     private DialogueUI ui;
     void Start()
     {
-        gameObject.SetActive(false);
         instance = this;
-        colors["A1"] = Color.red;
-        colors["A2"] = Utils.GetColorFromHex("E3CE0B");
-        colors["D1"] = Utils.GetColorFromHex("C075E1");
-        colors["D2"] = Utils.GetColorFromHex("6F1B6F");
-        colors["K"] = Utils.GetColorFromHex("345A9B");
-        colors["BTC"] = Utils.GetColorFromHex("EF8136");
     }
-    public void DisableButton(string name)
+    public static Color GetColor(string name)
+    {
+        return name switch
+        {
+            "A1" => Color.red,
+            "A2" => Utils.GetColorFromHex("E3CE0B"),
+            "D1" => Utils.GetColorFromHex("C075E1"),
+            "D2" => Utils.GetColorFromHex("6F1B6F"),
+            "K" => Utils.GetColorFromHex("345A9B"),
+            "BTC" => Utils.GetColorFromHex("EF8136"),
+            _ => Color.white,
+        };
+    }
+    private void DisableButton(string name)
     {
         GetButton(name).interactable = false;
         GetButton(name).gameObject.GetComponent<Image>().color = Color.gray;
     }
-    public void EnableButton(string name) {
+    private void EnableButton(string name) {
         GetButton(name).interactable = true;
-        GetButton(name).gameObject.GetComponent<Image>().color = colors[name];
+        GetButton(name).gameObject.GetComponent<Image>().color = GetColor(name);
     }
-    public void DisableAll()
+    private void DisableAll()
     {
-        foreach (string name in colors.Keys) {
-            DisableButton(name);
-        }
+        A1Button.interactable = false;
+        A1Button.gameObject.GetComponent<Image>().color = Color.gray;
+        A2Button.interactable = false;
+        A2Button.gameObject.GetComponent<Image>().color = Color.gray;
+        D1Button.interactable = false;
+        D1Button.gameObject.GetComponent<Image>().color = Color.gray;
+        D2Button.interactable = false;
+        D2Button.gameObject.GetComponent<Image>().color = Color.gray;
+        KButton.interactable = false;
+        KButton.gameObject.GetComponent<Image>().color = Color.gray;
+        BTCButton.interactable = false;
+        BTCButton.gameObject.GetComponent<Image>().color = Color.gray;
     }
-    public void EnableAll()
+    private void EnableAll()
     {
-        foreach (string name in colors.Keys)
+        A1Button.interactable = true;
+        A1Button.gameObject.GetComponent<Image>().color = Color.red;
+        A2Button.interactable = true;
+        A2Button.gameObject.GetComponent<Image>().color = Utils.GetColorFromHex("E3CE0B");
+        D1Button.interactable = true;
+        D1Button.gameObject.GetComponent<Image>().color = Utils.GetColorFromHex("C075E1");
+        D2Button.interactable = true;
+        D2Button.gameObject.GetComponent<Image>().color = Utils.GetColorFromHex("6F1B6F");
+        KButton.interactable = true;
+        KButton.gameObject.GetComponent<Image>().color = Utils.GetColorFromHex("345A9B");
+        BTCButton.interactable = true;
+        BTCButton.gameObject.GetComponent<Image>().color = Utils.GetColorFromHex("EF8136");
+    }
+    private Button GetButton(string name)
+    {
+        return name switch
         {
-            EnableButton(name);
-        }
-    }
-    public Button GetButton(string name)
-    {
-        switch (name) {
-            case "A1": return A1Button;
-            case "A2": return A2Button;
-            case "D1": return D1Button;
-            case "D2": return D2Button;
-            case "K": return KButton;
-            case "BTC": return BTCButton;
-            default: return null;
-        }
+            "A1" => A1Button,
+            "A2" => A2Button,
+            "D1" => D1Button,
+            "D2" => D2Button,
+            "K" => KButton,
+            "BTC" => BTCButton,
+            _ => null,
+        };
     }
     public void ShowOptions(List<BusRoute> busRoutes, string currentStop)
     {
@@ -71,11 +93,13 @@ public class BusOptions : MonoBehaviour
         }
         this.currentStop = currentStop;
         gameObject.SetActive(true);
-        ui = FindFirstObjectByType<DialogueUI>();
-        if (ui != null)
+        ui = DialogueUI.instance;
+        if (ui == null)
         {
-            ui.ShowSentence(busSprite, "", "Please select the bus you want to take at " + currentStop);
+            Utils.LogWarning("BusOptions.ShowOptions: DialogueUI is null");
+            return;
         }
+        ui.ShowSentence(busSprite, "", "Please select the bus you want to take at " + currentStop);
     }
     private void GetOnBus(string lineName)
     {

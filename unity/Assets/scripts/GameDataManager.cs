@@ -1,3 +1,4 @@
+using HeneGames.DialogueSystem;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -263,6 +264,11 @@ public class GameDataManager : MonoBehaviour
         {
             Utils.LogError("LoadScene: the scene to load \"" + sceneName + "\" does not exist");
             return;
+        }
+        var dui = FindFirstObjectByType<DialogueUI>();
+        if (dui != null)
+        {
+            dui.ClearText();
         }
         Utils.Log("LoadScene: Jump to scene " + sceneName);
         gameSave.previousScene = gameSave.currentScene;
