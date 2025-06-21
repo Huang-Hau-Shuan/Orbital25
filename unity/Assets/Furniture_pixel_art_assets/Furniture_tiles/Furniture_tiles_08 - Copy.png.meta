@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Furniture_tiles_08 - Copy_0: -2773240104432949041
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

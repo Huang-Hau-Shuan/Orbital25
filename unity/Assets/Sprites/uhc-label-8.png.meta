@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 74aa8cdc743575749aa9e832b86bc762
+guid: de82d12c544093343841ebe466490f62
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5250146943639576925
-    second: pgp building_0
+      213: 1512560418568201736
+    second: uhc-label-8_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: pgp building_0
+      name: uhc-label-8_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 510
-        height: 1262
+        x: 12
+        y: 60
+        width: 456
+        height: 374
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d516d3a24d44cd840800000000000000
-      internalID: 5250146943639576925
+      spriteID: 806e212dfa1bdf410800000000000000
+      internalID: 1512560418568201736
       vertices: []
       indices: 
       edges: []
@@ -147,8 +147,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      pgp building_0: 5250146943639576925
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

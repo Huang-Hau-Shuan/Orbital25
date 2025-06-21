@@ -1,10 +1,19 @@
 fileFormatVersion: 2
-guid: 74aa8cdc743575749aa9e832b86bc762
+guid: ca9c28cb8fefab5409ca933dc6394fa3
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5250146943639576925
-    second: pgp building_0
+      213: -2631455085168622277
+    second: mc_nus_shirt_0
+  - first:
+      213: -124010622684176861
+    second: mc_nus_shirt_1
+  - first:
+      213: 7936207303135235955
+    second: mc_nus_shirt_2
+  - first:
+      213: -7506429278489600669
+    second: mc_nus_shirt_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,23 +122,89 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: pgp building_0
+      name: mc_nus_shirt_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 510
-        height: 1262
+        x: 172
+        y: 532
+        width: 245
+        height: 423
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d516d3a24d44cd840800000000000000
-      internalID: 5250146943639576925
+      spriteID: b350126ca813b7bd0800000000000000
+      internalID: -2631455085168622277
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mc_nus_shirt_1
+      rect:
+        serializedVersion: 2
+        x: 609
+        y: 519
+        width: 240
+        height: 442
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 32ed886eefc674ef0800000000000000
+      internalID: -124010622684176861
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mc_nus_shirt_2
+      rect:
+        serializedVersion: 2
+        x: 171
+        y: 39
+        width: 236
+        height: 444
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 37f8c3f8e72132e60800000000000000
+      internalID: 7936207303135235955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: mc_nus_shirt_3
+      rect:
+        serializedVersion: 2
+        x: 631
+        y: 40
+        width: 226
+        height: 441
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 36d190c875ec3d790800000000000000
+      internalID: -7506429278489600669
       vertices: []
       indices: 
       edges: []
@@ -138,7 +213,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 32a31ab10fd92cc4db2ef3dd942e402e
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +223,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      pgp building_0: 5250146943639576925
+      mc_nus_shirt_0: -2631455085168622277
+      mc_nus_shirt_1: -124010622684176861
+      mc_nus_shirt_2: 7936207303135235955
+      mc_nus_shirt_3: -7506429278489600669
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
