@@ -78,3 +78,63 @@ export function normalizeTime(
     minute: date.getMinutes(),
   };
 }
+export const calculateNUSMatricNumber = function (id: string) {
+  var matches = id.toUpperCase().match(/^A\d{7}|U\d{6,7}/);
+  if (matches) {
+    var match = matches[0];
+
+    // Discard 3rd digit from U-prefixed NUSNET ID
+    if (match[0] === "U" && match.length === 8) {
+      match = match.slice(0, 3) + match.slice(4);
+    }
+
+    var weights = {
+      U: [0, 1, 3, 1, 2, 7],
+      A: [1, 1, 1, 1, 1, 1],
+    }[match[0]];
+    if (weights === undefined) return;
+
+    for (var i = 0, sum = 0, digits = match.slice(-6); i < 6; i++) {
+      sum += weights[i] * Number(digits[i]);
+    }
+
+    return match + "YXWURNMLJHEAB"[sum % 13];
+  }
+};
+export const generateRandomString = (
+  length: number,
+  characters: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+) => {
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+};
+export const generateRamdomPassword = (length: number = 12) => {
+  const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const lower = "abcdefghijklmnopqrstuvwxyz";
+  const digits = "0123456789";
+  const special = `~!@#$%^&*_+-=\`|\\(){}[]:;\"'<>,.?/`;
+  const allSets = [upper, lower, digits, special];
+  let passwordChars: string[] = [];
+  //pick one char from each set
+  for (let charSet of allSets) {
+    const char = charSet[Math.floor(Math.random() * charSet.length)];
+    passwordChars.push(char);
+  }
+  //select other chars
+  const allChars = allSets.join();
+  while (passwordChars.length < length) {
+    const char = allChars[Math.floor(Math.random() * allChars.length)];
+    passwordChars.push(char);
+  }
+
+  // Shuffle the result
+  for (let i = passwordChars.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [passwordChars[i], passwordChars[j]] = [passwordChars[j], passwordChars[i]];
+  }
+
+  return passwordChars.join("");
+};

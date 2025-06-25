@@ -29,6 +29,8 @@ const GetDescription = (ps: PlayerStep) => {
   switch (ps.type) {
     case "click":
       return `Click ${ps.id}`; //TODO: replace with the name of the button
+    case "input":
+      return `Input ${ps.id}`; //TODO: replace with the name of the input
     case "goScene":
       return `Go to ${ps.scene}`;
     case "interact":

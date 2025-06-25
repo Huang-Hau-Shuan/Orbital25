@@ -271,3 +271,96 @@
   flex: 1;
   overflow: inherit;
 }
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.radio-group label {
+  margin-bottom: 6px;
+}
+
+.note-box.highlight {
+  border: 1px solid #aaa;
+  background-color: #f6f6f6;
+  padding: 10px;
+  margin-top: 20px;
+  font-size: 13px;
+}
+
+.highlight-red {
+  color: #e67c00;
+  font-weight: bold;
+}
+
+.highlight-blue {
+  color: #004080;
+  font-weight: bold;
+}
+.subpage {
+  font-size: 14px;
+}
+.subpage h3 {
+  text-align: center;
+  font-size: 18px;
+  color: #003d7c;
+}
+.ffb-page {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+.ffb-info-box {
+  border: 1px solid #aaa;
+  padding: 12px;
+  margin-bottom: 20px;
+  background-color: #f9f9f9;
+}
+
+.ffb-info-header {
+  background-color: #5565af;
+  color: white;
+  padding: 5px 10px;
+  font-weight: bold;
+  margin: -12px -12px 10px -12px;
+}
+
+.ffb-question {
+  margin-bottom: 20px;
+}
+
+.ffb-radio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+  padding-top: 10px;
+}
+
+.ffb-radio-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: bold;
+  color: #003d7c;
+}
+
+.ffb-radio {
+  margin-right: 4px;
+}
+
+.ffb-text {
+  padding: 5px;
+  width: 120px;
+  font-size: 14px;
+}
+
+.ffb-checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ffb-checkbox {
+  margin-right: 4px;
+}

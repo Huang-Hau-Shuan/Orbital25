@@ -9,19 +9,13 @@ import {
 } from "../MessageBridge";
 import { isTaskCompletion } from "../../types.guard";
 import TaskCard from "./TaskCard";
-import {
-  ChevronLeft,
-  ChevronRight,
-  ExpandMore,
-  Task,
-  TaskOutlined,
-} from "@mui/icons-material";
+import { ChevronRight, TaskOutlined } from "@mui/icons-material";
 
 const TaskPanel = () => {
   const [tasks, setTasks] = useState<TaskCompletion[]>([]);
   const [details, setDetails] = useState<TaskDetail[]>([]);
-  const [panelExpanded, setPanelExpanded] = useState(true);
-  const [isGame, setIsGame] = useState(true);
+  const [panelExpanded, setPanelExpanded] = useState(false);
+  const [isGame, setIsGame] = useState(false);
   useEffect(() => {
     onSimuNUSMessage("setTaskDetails", (tasks) => {
       if (Array.isArray(tasks)) {
@@ -62,7 +56,7 @@ const TaskPanel = () => {
         overflowY: panelExpanded ? "auto" : "hidden",
         zIndex: 1300,
         p: panelExpanded ? 2 : 0,
-        transition: "width 0.3s",
+        transition: "all 0.3s",
         borderRadius: panelExpanded ? 0 : 5,
       }}
     >

@@ -133,14 +133,19 @@ export function isPlayerProfile(obj: unknown): obj is PlayerProfile {
       typeof typedObj === "function") &&
     typeof typedObj["firstName"] === "string" &&
     typeof typedObj["lastName"] === "string" &&
+    typeof typedObj["birthday"] === "string" &&
+    (typedObj["gender"] === "Male" || typedObj["gender"] === "Female") &&
     typeof typedObj["firstNameBefore"] === "boolean" &&
     typeof typedObj["major"] === "string" &&
     typeof typedObj["studentID"] === "string" &&
     typeof typedObj["studentEmail"] === "string" &&
     typeof typedObj["passport"] === "string" &&
+    typeof typedObj["nationality"] === "string" &&
     typeof typedObj["finOrNric"] === "string" &&
     typeof typedObj["isSingaporean"] === "boolean" &&
-    typeof typedObj["mobile"] === "string"
+    typeof typedObj["mobile"] === "string" &&
+    typeof typedObj["personalEmail"] === "string" &&
+    typeof typedObj["emailPassword"] === "string"
   );
 }
 
@@ -208,6 +213,7 @@ export function isIGameSave(obj: unknown): obj is IGameSave {
     typedObj["tasks"].every((e: any) => isTaskCompletion(e) as boolean) &&
     Array.isArray(typedObj["unlockedApps"]) &&
     typedObj["unlockedApps"].every((e: any) => typeof e === "string") &&
-    (isPlayerProfile(typedObj["playerProfile"]) as boolean)
+    (isPlayerProfile(typedObj["playerProfile"]) as boolean) &&
+    typeof typedObj["registrationData"] === "object"
   );
 }

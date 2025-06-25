@@ -15,6 +15,7 @@ export interface TaskTime {
 export type PlayerStep =
   | { type: "goScene"; scene: string } // player needs to go to this scene
   | { type: "click"; id: string } // player needs to click the element with this id
+  | { type: "input"; id: string } // player needs to complete the input with this id
   | { type: "interact"; object: string }; //player needs to interact with the object
 export interface TaskStep {
   node: "main" | "unity" | "laptop";
@@ -44,14 +45,19 @@ export interface EmailMeta {
 export interface PlayerProfile {
   firstName: string;
   lastName: string;
+  birthday: string; //dd/mm/yyyy
+  gender: "Male" | "Female"; // non-binary is not accepted in some forms. To properly simulate those, we only support m and f
   firstNameBefore: boolean; // if first name is before last name
   major: string;
-  studentID: string | undefined;
-  studentEmail: string | undefined;
-  passport: string | undefined;
-  finOrNric: string | undefined;
+  studentID: string; // generates in registration part one task
+  studentEmail: string; // generates after registration part one task
+  emailPassword: string;
+  passport: string; // only needed if not singaporean
+  nationality: string;
+  finOrNric: string; // generates in game after getting STP
   isSingaporean: boolean; // Singapore citizen or PR
-  mobile: string;
+  mobile: string; //including country code
+  personalEmail: string;
 }
 
 export interface GameConfig {
@@ -89,17 +95,28 @@ export interface IGameSave {
   tasks: TaskCompletion[];
   unlockedApps: string[];
   playerProfile: PlayerProfile;
+  registrationData: object;
 }
 
 export const defaultPlayerProfile: PlayerProfile = {
   firstName: "Abc",
   lastName: "Xyz",
+  birthday: "01/01/2000",
+  gender: "Male",
   firstNameBefore: true,
-  major: "Computer Engineering",
-  studentID: undefined,
-  studentEmail: undefined,
-  passport: undefined,
-  finOrNric: undefined,
+  major: "",
+  studentID: "",
+  studentEmail: "",
+  emailPassword: "",
+  passport: "",
+  finOrNric: "",
   isSingaporean: false,
   mobile: "+6512345678",
+  personalEmail: "123456789abc@example.com",
+  nationality: "",
+};
+export const GetOfficialName = (profile: PlayerProfile) => {
+  return profile.firstNameBefore
+    ? `${profile.firstName} ${profile.lastName}`
+    : `${profile.lastName} ${profile.firstName}`;
 };

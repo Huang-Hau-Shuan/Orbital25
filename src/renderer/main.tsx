@@ -4,6 +4,7 @@ import "./main.css";
 import App from "./simdesktop/App.tsx";
 import { AppProvider } from "./simdesktop/context/AppProvider.tsx";
 import TaskPanel from "./task_panel/TaskPanel.tsx";
+import PlayerProfile from "./profile/PlayerProfile.tsx";
 
 createRoot(document.getElementById("simdesk-root")!).render(
   <StrictMode>
@@ -11,5 +12,6 @@ createRoot(document.getElementById("simdesk-root")!).render(
       <App />
     </AppProvider>
     <TaskPanel></TaskPanel>
+    <PlayerProfile />
   </StrictMode>
 );

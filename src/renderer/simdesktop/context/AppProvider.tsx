@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AppContext, type OpenApp } from "./AppContext";
 import type { AppMeta } from "../../apps/appRegistry";
+import { dbgLog } from "../../MessageBridge";
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [openApps, setOpenApps] = useState<OpenApp[]>([]);
   const _getName = (appinfo: string | AppMeta | OpenApp) => {
@@ -11,9 +12,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       : appinfo.appmeta.name;
   };
   const openApp = (appinfo: AppMeta) => {
-    if (!openApps.some((app) => app.appmeta === appinfo)) {
+    if (!openApps.some((app) => app.appmeta.name === appinfo.name)) {
       const maxZ = Math.max(0, ...openApps.map((app) => app.z));
-      //console.log("open", name, "from", path);
+      dbgLog(`Open app: ${appinfo.name}`);
       setOpenApps([...openApps, { appmeta: appinfo, z: maxZ + 1 }]);
     }
   };

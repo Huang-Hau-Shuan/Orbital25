@@ -1,7 +1,15 @@
 import fs from "fs";
 import { CONFIG_PATH, DATA_PATH, DEBUG, SAVE_PATH } from "./SimuNUS_config";
 import path from "node:path";
-import { dbgErr, dbgLog, dbgWarn, deserializeFromJsonFile } from "./utils.js";
+import {
+  calculateNUSMatricNumber,
+  dbgErr,
+  dbgLog,
+  dbgWarn,
+  deserializeFromJsonFile,
+  generateRamdomPassword,
+  generateRandomString,
+} from "./utils.js";
 import {
   isImmediate,
   taskDetails,
@@ -9,7 +17,7 @@ import {
   extractExactTime,
   GameSave,
 } from "./tasks.js";
-import { isGameConfig, isIGameSave } from "./types.guard.js";
+import { isGameConfig, isIGameSave, isPlayerProfile } from "./types.guard.js";
 import {
   TaskStatus,
   type EmailMeta,
@@ -136,6 +144,26 @@ export const handleGameSaveMessage = (
       gameSave.receivedEmails.some((email) => email.unread)
     );
   });
+  onMessage("SetPlayerProfile", (profile) => {
+    if (isPlayerProfile(profile)) {
+      gameSave.playerProfile = profile;
+      dbgLog("Received player profile: ", JSON.stringify(profile));
+      sendMessage("startGame");
+    } else {
+      dbgErr("Invalid player profile: ", JSON.stringify(profile));
+    }
+  });
+  onMessage("resetPassword", (pwd) => {
+    if (typeof pwd === "string" && pwd.length >= 12) {
+      dbgLog("Reset Password:", pwd);
+      gameSave.playerProfile.emailPassword = pwd;
+      sendMessage("resetPasswordSuccess");
+    } else {
+      dbgErr("resetPassword: invalid password", pwd);
+      sendMessage("resetPasswordError", "Invalid Password");
+    }
+    sendMessage("setPlayerProfile", gameSave.playerProfile);
+  });
   onMessage("getHasNewMessage", updateHasNewEmail);
   onMessage("submitPhoto", (data) => {
     if (
@@ -163,6 +191,71 @@ export const handleGameSaveMessage = (
   });
   onMessage("getTaskDetails", () => {
     sendMessage("setTaskDetails", taskDetails);
+  });
+  onMessage("setRegistrationData", (data) => {
+    if (typeof data === "object" && data !== null) {
+      gameSave.registrationData = data;
+      dbgLog("Received registration data");
+    } else {
+      dbgErr("setRegistrationData: Invalid registration data: ", data);
+    }
+  });
+  onMessage("getRegistrationData", () => {
+    if (
+      gameSave.registrationData &&
+      Object.keys(gameSave.registrationData).length > 0
+    ) {
+      sendMessage("returnRegistrationData", gameSave.registrationData);
+    }
+  });
+  onMessage("generateStudentCredentials", () => {
+    if (!gameSave.playerProfile.studentEmail) {
+      gameSave.playerProfile.studentEmail =
+        "E" + generateRandomString(7, "0123456789");
+      dbgLog(
+        "generateStudentCredentials:Generates student email (NUSNET ID):",
+        gameSave.playerProfile.studentEmail
+      );
+    } else {
+      dbgLog(
+        "generateStudentCredentials: student email already generated: ",
+        gameSave.playerProfile.studentEmail
+      );
+    }
+    if (!gameSave.playerProfile.studentID) {
+      const id = calculateNUSMatricNumber(
+        "A" + generateRandomString(7, "0123456789")
+      );
+      if (id) {
+        gameSave.playerProfile.studentID = id;
+        dbgLog(
+          "generateStudentCredentials: Generates student ID",
+          gameSave.playerProfile.studentID
+        );
+      } else {
+        dbgErr(
+          "generateStudentCredentials: Failed to generate student ID, calculateNUSMatricNumber returns undefined"
+        );
+      }
+    } else {
+      dbgLog(
+        "generateStudentCredentials: student ID already generated: ",
+        gameSave.playerProfile.studentID
+      );
+    }
+    if (!gameSave.playerProfile.emailPassword) {
+      gameSave.playerProfile.emailPassword = generateRamdomPassword();
+      dbgLog(
+        "generateStudentCredentials:Generates email password (NUSNET Password):",
+        gameSave.playerProfile.emailPassword
+      );
+    } else {
+      dbgLog(
+        "generateStudentCredentials: email password already generated: ",
+        gameSave.playerProfile.emailPassword
+      );
+    }
+    sendMessage("setPlayerProfile", gameSave.playerProfile);
   });
   //DEAL WITH TASKS
   type CompleteIndex = {
@@ -321,6 +414,7 @@ export const handleGameSaveMessage = (
     sendMessage("setTaskCompletion", gameSave.tasks);
   };
   const listenButtons: Record<string, CompleteIndex> = {};
+  const listenInput: Record<string, CompleteIndex> = {};
   const checkOngoing = (index: CompleteIndex, callback: () => void) => {
     const taskIndex = index.taskIndex;
     const stepIndex = index.stepIndex;
@@ -346,6 +440,17 @@ export const handleGameSaveMessage = (
       //dbgLog("Untracked button mounted:", id);
     }
   });
+  onMessage("inputMounted", (id) => {
+    if (typeof id !== "string") return;
+    if (id in listenInput) {
+      checkOngoing(listenInput[id], () => {
+        dbgLog(`Input #${id} mounted, guiding user to input`);
+        sendMessage("guideInput_" + id);
+      });
+    } else {
+      //dbgLog("Untracked input mounted:", id);
+    }
+  });
   onMessage("buttonClicked", (id) => {
     if (typeof id !== "string") return;
     if (id in listenButtons) {
@@ -358,6 +463,22 @@ export const handleGameSaveMessage = (
         );
       });
     }
+  });
+  onMessage("inputCompleted", (id) => {
+    if (typeof id !== "string") return;
+    if (id in listenInput) {
+      checkOngoing(listenInput[id], () => {
+        dbgLog(`Input #${id} completed, set ${listenInput[id]} complete`);
+        setComplete(
+          listenInput[id].taskIndex,
+          listenInput[id].stepIndex,
+          listenInput[id].playerStepIndex
+        );
+      });
+    }
+  });
+  onMessage("getPlayerProfile", () => {
+    sendMessage("setPlayerProfile", gameSave.playerProfile);
   });
   //perform a certain taskstep that requires player engagement
   const performStep = (taskidx: number, stepidx: number) => {
@@ -430,6 +551,7 @@ export const handleGameSaveMessage = (
                 `Task "${task.name}" step ${stepidx} is an empty Unity task, skipping`
               );
               setComplete(taskidx, stepidx);
+              return;
             }
             const ns = checkPlayerNextSteps();
             if (ns === undefined) {
@@ -475,20 +597,27 @@ export const handleGameSaveMessage = (
             }
             step.playerSteps.forEach((step, index) => {
               if (index < current_step_index) return; // exclude completed tasks
-              if (step.type !== "click") {
+              if (step.type === "click") {
+                dbgLog(
+                  `Task "${task.name}" step ${stepidx}, Listens for button ${step.id} reaction`
+                );
+                listenButtons[step.id] = {
+                  taskIndex: taskidx,
+                  stepIndex: stepidx,
+                  playerStepIndex: index,
+                };
+              } else if (step.type === "input") {
+                dbgLog(
+                  `Task "${task.name}" step ${stepidx}, Listens for input ${step.id} reaction`
+                );
+                listenInput[step.id] = {
+                  taskIndex: taskidx,
+                  stepIndex: stepidx,
+                  playerStepIndex: index,
+                };
+              } else {
                 dbgErr("Invalid laptop task type:", step.type);
-                return;
               }
-              dbgLog(
-                `Task "${task.name}" step ${stepidx}, Listens for button ${step.id} reaction`
-              );
-              //guide user to click all buttons
-              sendMessage("guideClick_" + step.id);
-              listenButtons[step.id] = {
-                taskIndex: taskidx,
-                stepIndex: stepidx,
-                playerStepIndex: index,
-              };
             });
           } else {
             dbgWarn(

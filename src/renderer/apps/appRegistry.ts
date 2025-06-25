@@ -7,6 +7,8 @@ import ApplicantPortalMain from "./ApplicantPortal/main";
 import PhotoVerificationLogin from "./PhotoVerification/login";
 import PhotoVerificationMain from "./PhotoVerification/main";
 import NUSApp from "./NUSApp";
+import MainMenuPage from "./RegistrationPart1/MainMenuPage";
+import MainPage from "./WebMail/MainPage";
 
 export interface AppMeta {
   name: string;
@@ -61,6 +63,16 @@ export const apps_array: AppMeta[] = [
       mainPage: PhotoVerificationMain,
       appName: "Photo Verification",
     },
+  },
+  {
+    name: "Registration Part One",
+    icon: "icon/nus.png",
+    component: MainMenuPage,
+  },
+  {
+    name: "NUS Web Mail",
+    icon: "icon/nus.png",
+    component: MainPage,
   },
 ];
 export const appRegistry: Record<string, AppMeta> = {};

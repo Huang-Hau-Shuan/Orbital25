@@ -28,6 +28,7 @@ const goScene: PlayerStepFactory = (scene: string) => ({
   scene,
 });
 const click: PlayerStepFactory = (id: string) => ({ type: "click", id });
+const input: PlayerStepFactory = (id: string) => ({ type: "input", id });
 const interact: PlayerStepFactory = (object: string) => ({
   type: "interact",
   object,
@@ -173,7 +174,7 @@ export const taskDetails: TaskDetail[] = [
     name: "Read Offer Email",
     description: "Open the laptop and read the NUS offer email",
     guide: true,
-    startTime: toTime(0, 0, 0, 0, 1, "newGame"),
+    startTime: toTime(0, 0, 0, 0, 1, "startGame"),
     steps: [
       sendEmailTask("offer"),
       unlockApp("Email", "Browser"),
@@ -197,7 +198,10 @@ export const taskDetails: TaskDetail[] = [
       ),
     ],
     completedMessage: "offerAccepted",
-    completedResult: [unlockApp("Photo Verification")],
+    completedResult: [
+      unlockApp("Photo Verification"),
+      unlockApp("Registration Part One"),
+    ],
     failedMessage: "offerRejected",
     failedResult: [
       gameOverResult(
@@ -237,6 +241,109 @@ Card, e-student card in the uNivUS app, Canvas, Undergraduate concession card, e
 so do pick your most satisfying photo`
       ),
     ],
+  },
+  {
+    name: "Registration Part One",
+    description:
+      "Register as an official NUS students. You need to fill in several forms and agree some terms to complete this steps",
+    guide: true,
+    startTime: toTime(0, 0, 0, 0, 0, "offerAccepted"),
+    steps: [
+      ...finishOnLaptopTask(
+        openApp("Registration Part One"),
+        click("reg-1-section-1"), //Personal Information
+        input("personal-info-country-of-birth"),
+        click("reg-1-proceed-button-1"), //Jump to Address
+        click("address-1-edit"),
+        input("address-1-edit-line-1"),
+        input("address-1-edit-line-2"),
+        input("address-1-edit-country"),
+        input("address-1-edit-postal-code"),
+        click("address-1-save"),
+        click("address-2-edit"),
+        input("address-2-edit-line-1"),
+        input("address-2-edit-line-2"),
+        input("address-2-edit-country"),
+        input("address-2-edit-postal-code"),
+        click("address-2-save"),
+        click("address-payment-1-edit"),
+        input("address-payment-1-edit-line-1"),
+        input("address-payment-1-edit-line-2"),
+        input("address-payment-1-edit-country"),
+        input("address-payment-1-edit-postal-code"),
+        click("address-payment-1-save"),
+        click("reg-1-proceed-button-2"), //Jumpt to Contact
+        click("add-phone-number"),
+        input("phone-1-number"),
+        input("phone-1-ext"),
+        click("save-phone-numbers"),
+        click("reg-1-proceed-button-3"), //Jumpt to Emergency Contact
+        click("add-emergency-contact"),
+        input("emergency-1-name"),
+        input("emergency-1-relationship"),
+        input("emergency-1-number"),
+        input("emergency-1-ext"),
+        click("emergency-save-1"),
+        click("reg-1-proceed-button-4"), //Jumpt to Acceptance Record
+        click("acceptance-record-policy-1"),
+        click("acceptance-record-policy-2"),
+        click("acceptance-record-policy-3"),
+        click("acceptance-record-policy-4"),
+        click("acceptance-record-policy-5"),
+        click("acceptance-record-policy-6"),
+        click("acceptance-record-policy-7"),
+        click("sexual-misconduct-checkbox-1"),
+        click("sexual-misconduct-checkbox-2"),
+        click("sexual-misconduct-checkbox-3"),
+        click("sexual-misconduct-checkbox-4"),
+        click("reg-1-proceed-button-5"), //Jump to Authorisation Requirements
+        click("authorisation-1"),
+        click("risk-1"),
+        click("risk-2"),
+        click("risk-3"),
+        click("risk-4"),
+        //click("reg-1-proceed-button-6"), //Return to Authorisation Requirements
+        click("authorisation-2"),
+        click("auth-med"),
+        //click("reg-1-proceed-button-6"), //Return to Authorisation Requirements
+        click("authorisation-3"),
+        click("auth-repr"),
+        //click("reg-1-proceed-button-6"), //Return to Authorisation Requirements
+        click("reg-1-proceed-button-6"), //Jump to Family Financial Background
+        click("family-income"),
+        input("family-size"),
+        click("family-checkbox"),
+        click("reg-1-proceed-button-7"), //Jump to Health and Support
+        click("health-conditions"),
+        click("special-arrangements"),
+        click("reg-1-proceed-button-8"), //Jump to Declaration of Past Offences
+        click("declare-past-offence"),
+        click("reg-1-proceed-button-9"), //Jump to Confirmation of Registration (Part One)
+        click("reg-1-proceed-button-10"), //View Student ID / PIN / NUSNET ID / NUSNET Password
+        input("reg-1-view-credential-birthday"),
+        click("reg-1-submit")
+      ),
+    ],
+    completedMessage: "generateStudentCredentials",
+  },
+  {
+    name: "Activate NUS Email",
+    description: "Reset NUS email password to activate it",
+    guide: true,
+    startTime: toTime(0, 0, 1, 0, 0, "generateStudentCredentials"),
+    steps: [
+      unlockApp("NUS Web Mail"),
+      ...finishOnLaptopTask(
+        openApp("NUS Web Mail"),
+        click("webmail-change-password-button"),
+        input("webmail-change-password-userid"),
+        input("change-password-old"),
+        input("change-password-new"),
+        input("change-password-confirm"),
+        click("change-password-submit")
+      ),
+    ],
+    completedMessage: "",
   },
   {
     name: "Arrive in NUS",
@@ -296,4 +403,5 @@ export class GameSave implements IGameSave {
   tasks: TaskCompletion[] = newGameTaskCompletion();
   unlockedApps: string[] = [];
   playerProfile: PlayerProfile = defaultPlayerProfile;
+  registrationData: object = {};
 }

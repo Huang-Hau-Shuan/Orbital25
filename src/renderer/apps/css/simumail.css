@@ -1,0 +1,196 @@
+.simumail-container {
+  font-family: Arial, sans-serif;
+  background-color: white;
+  color: #333;
+  padding: 32px;
+}
+
+.simumail-header {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #ccc;
+}
+
+.simumail-logo {
+  height: 60px;
+  margin-right: 24px;
+}
+
+.simumail-header-title {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.simumail-main {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  padding: 0;
+}
+
+.simumail-banner {
+  flex: 1;
+  background: url("/images/nus-bg.png") no-repeat center center;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 480px;
+}
+
+.simumail-banner img {
+  max-width: 200px;
+  max-height: 80%;
+}
+
+.simumail-panel {
+  flex: 1;
+  background-color: #2ab7e1;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.simumail-panel h2 {
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+
+.simumail-button {
+  background-color: white;
+  color: #006d9d;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 2px;
+  margin: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 240px;
+}
+
+.simumail-links {
+  display: flex;
+  justify-content: space-around;
+  background-color: #fff;
+  height: 100px;
+}
+
+.simumail-links button {
+  border: none;
+  padding: 10px;
+  min-width: 160px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  border-radius: 2px;
+  font-size: 14px;
+  flex: 1;
+  margin: 2px;
+}
+
+.blue {
+  background-color: #2ab7e1;
+}
+
+.red {
+  background-color: #ea6153;
+}
+
+.dark-blue {
+  background-color: #0070c0;
+}
+
+.simumail-footer {
+  font-size: 12px;
+  padding: 10px 20px;
+  border-top: 1px solid #ccc;
+  color: #666;
+  background: #f9f9f9;
+}
+
+.simumail-footer a {
+  color: #0070c0;
+  text-decoration: none;
+  margin-left: 10px;
+}
+.simumail-nav-links {
+  display: flex;
+  height: 32px;
+  background-color: #eee;
+  font-size: 12px;
+  align-items: center;
+  padding: 0 8px;
+  border-radius: 8px;
+  position: absolute;
+  top: 32px;
+  right: 64px;
+  z-index: 10;
+}
+.simumail-nav-links a {
+  padding: 8px;
+  color: #333;
+}
+.pw-container {
+  max-width: 600px;
+  margin: 40px auto;
+  font-family: Arial, sans-serif;
+  color: #111;
+}
+
+.pw-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.pw-guidelines-title {
+  font-size: 20px;
+  margin-top: 24px;
+}
+
+.pw-guidelines {
+  padding-left: 20px;
+  margin-bottom: 24px;
+}
+
+.pw-guidelines li {
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.pw-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pw-form label {
+  font-weight: 600;
+}
+
+.pw-form input {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.pw-submit-btn {
+  background-color: #2e63f4;
+  color: white;
+  padding: 10px 20px;
+  margin-top: 12px;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.pw-submit-btn:hover {
+  background-color: #184dd2;
+}

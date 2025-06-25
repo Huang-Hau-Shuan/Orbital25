@@ -60,7 +60,6 @@ export const onSimuNUSMessage = function (
   }
   if (register_only_once) {
     if (channel in registered) {
-      dbgLog(`Channel ${channel} is already registered`);
       if (
         window.SimuNUS_API &&
         typeof window.SimuNUS_API.removeAllListener === "function"
