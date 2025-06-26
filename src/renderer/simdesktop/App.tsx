@@ -2,7 +2,7 @@ import "./desktop.css";
 import Desktop from "./Desktop";
 import Taskbar from "./Taskbar";
 import AppWindow from "./AppWindow";
-import { useAppManager } from "./context/AppContext";
+import { getSimuNUSContext } from "../context/AppContext";
 import {
   dbgErr,
   dbgLog,
@@ -11,8 +11,8 @@ import {
 } from "../MessageBridge";
 import { useEffect, useState } from "react";
 import { apps_array } from "../apps/appRegistry";
-const App = () => {
-  const { openApps, openApp } = useAppManager();
+const SimDesktopRoot = () => {
+  const { openApps, openApp } = getSimuNUSContext();
   const [showSimDesktop, setShowSimDesktop] = useState(false);
   useEffect(() => {
     if (window.SimuNUS_API === undefined) {
@@ -69,4 +69,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default SimDesktopRoot;

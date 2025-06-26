@@ -1,5 +1,6 @@
 import { randomInt } from "crypto";
-import { dbgErr, normalizeTime } from "./utils";
+import { dbgErr } from "./utils";
+import { normalizeTime } from "./safeUtils";
 import {
   defaultPlayerProfile,
   TaskStatus,
@@ -7,6 +8,7 @@ import {
   type IGameSave,
   type PlayerProfile,
   type PlayerStep,
+  type StaticTime,
   type TaskCompletion,
   type TaskDetail,
   type TaskStep,
@@ -86,14 +88,7 @@ export const toTime = (
     time: time,
   };
 };
-export const getExactTime = (
-  taskTime: Time,
-  year: number,
-  month: number,
-  day: number,
-  hour: number,
-  minute: number
-) => {
+export const getExactTime = (taskTime: Time, currentTime: StaticTime) => {
   const getExactTime1 = (
     time: TimeValue,
     current: number,
@@ -105,11 +100,11 @@ export const getExactTime = (
     return randomInt(min, max);
   };
   return normalizeTime(
-    getExactTime1(taskTime.year, year, 2025, 2029),
-    getExactTime1(taskTime.month, month, 1, 12),
-    getExactTime1(taskTime.day, day, 1, 30),
-    getExactTime1(taskTime.hour, hour, 0, 60),
-    getExactTime1(taskTime.minute, minute, 0, 60)
+    getExactTime1(taskTime.year, currentTime.year, 2025, 2029),
+    getExactTime1(taskTime.month, currentTime.month, 1, 12),
+    getExactTime1(taskTime.day, currentTime.day, 1, 30),
+    getExactTime1(taskTime.hour, currentTime.hour, 0, 60),
+    getExactTime1(taskTime.minute, currentTime.minute, 0, 60)
   );
 };
 export const extractExactTime = (t: Time) => {
@@ -173,7 +168,7 @@ export const taskDetails: TaskDetail[] = [
   {
     name: "Read Offer Email",
     description: "Open the laptop and read the NUS offer email",
-    guide: true,
+    guide: false,
     startTime: toTime(0, 0, 0, 0, 1, "startGame"),
     steps: [
       sendEmailTask("offer"),
@@ -181,7 +176,7 @@ export const taskDetails: TaskDetail[] = [
       ...finishOnLaptopTask(openApp("Email"), openEmail("offer")),
     ], //"0" is the id of the offer email
     completedMessage: "offerEmailRead",
-    completedResult: [unlockApp("Applicant Portal")],
+    completedResult: [],
   },
   {
     name: "Accept Offer",
@@ -189,6 +184,7 @@ export const taskDetails: TaskDetail[] = [
     guide: true,
     startTime: toTime(0, 0, 0, 0, 0, "offerEmailRead"),
     steps: [
+      unlockApp("Applicant Portal"),
       ...finishOnLaptopTask(
         openApp("Applicant Portal"),
         click("applicant-portal-current-student-login-btn"),
@@ -198,10 +194,7 @@ export const taskDetails: TaskDetail[] = [
       ),
     ],
     completedMessage: "offerAccepted",
-    completedResult: [
-      unlockApp("Photo Verification"),
-      unlockApp("Registration Part One"),
-    ],
+    completedResult: [],
     failedMessage: "offerRejected",
     failedResult: [
       gameOverResult(
@@ -222,6 +215,7 @@ one offer from any Singapore's universities to obtain student pass`
     startTime: toTime(0, 0, 0, 0, 0, "offerAccepted"),
     timeout: toTime(0, 0, 2, 0, 0, "offerAccepted"),
     steps: [
+      unlockApp("Photo Verification"),
       ...finishOnLaptopTask(
         openApp("Photo Verification"),
         click("photo-varification-undergraduate-login-btn"),
@@ -247,8 +241,10 @@ so do pick your most satisfying photo`
     description:
       "Register as an official NUS students. You need to fill in several forms and agree some terms to complete this steps",
     guide: true,
-    startTime: toTime(0, 0, 0, 0, 0, "offerAccepted"),
+    startTime: toTime(0, 0, 0, 0, 3, "offerAccepted"),
     steps: [
+      sendEmailTask("welcome"),
+      unlockApp("Registration Part One"),
       ...finishOnLaptopTask(
         openApp("Registration Part One"),
         click("reg-1-section-1"), //Personal Information
@@ -343,28 +339,49 @@ so do pick your most satisfying photo`
         click("change-password-submit")
       ),
     ],
-    completedMessage: "",
+    completedMessage: "resetPasswordSuccess",
   },
+  // {
+  //   name: "Arrive in NUS",
+  //   description: "Arrive in NUS",
+  //   guide: false,
+  //   startTime: toTime(0, 0, 0, 0, 0, "depart"),
+  //   steps: [
+  //     {
+  //       node: "unity",
+  //       function: "jumpToScene",
+  //       params: ["Singapore"],
+  //     },
+  //   ],
+  //   completedMessage: "arriveInNUS",
+  // },
   {
-    name: "Arrive in NUS",
-    description: "Arrive in NUS",
-    guide: false,
-    startTime: toTime(0, 0, 0, 0, 0, "depart"),
+    name: "Pre-Enrollment Medical Examination Appointment",
+    description: "Book pre-enrollment medical examination on UHC website",
+    guide: true,
+    startTime: toTime(0, 0, 0, 0, 0, "resetPasswordSuccess"),
     steps: [
-      {
-        node: "unity",
-        function: "jumpToScene",
-        params: ["Singapore"],
-      },
+      unlockApp("UHC Appointment"),
+      ...finishOnLaptopTask(
+        openApp("UHC Appointment"),
+        click("uhc-login-btn"),
+        click("uhc-book-button"),
+        click("uhc-booking-select-service"),
+        click("uhc-booking-select-subservice"),
+        click("uhc-booking-select-package"),
+        click("uhc-booking-proceed-1"),
+        input("uhc-select-from-date"),
+        input("uhc-select-to-date"),
+        click("uhc-morning-button"),
+        click("uhc-search-time-slot"),
+        click("uhc-slot-date-row"),
+        click("uhc-slot-timetable"),
+        click("uhc-booking-proceed-2"),
+        click("uhc-booking-proceed-3"),
+        click("uhc-complete-go-home")
+      ),
     ],
-    completedMessage: "arriveInNUS",
-    completedResult: [
-      {
-        node: "unity",
-        function: "jumpToScene",
-        params: ["Campus Map"],
-      },
-    ],
+    completedMessage: "medicalExaminationBooked",
   },
 ];
 
@@ -404,4 +421,5 @@ export class GameSave implements IGameSave {
   unlockedApps: string[] = [];
   playerProfile: PlayerProfile = defaultPlayerProfile;
   registrationData: object = {};
+  appointments: unknown[] = [];
 }

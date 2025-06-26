@@ -1,4 +1,4 @@
-import { Box, Button, Alert } from "@mui/material";
+import { Box, Button, Alert, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import NameFields from "./NameFields";
 import BirthdayMajorFields from "./BirthdayMajorFields";
@@ -6,6 +6,7 @@ import ContactFields from "./ContactFields";
 import PassportCitizenFields from "./PassportCitizenFields";
 import { dbgErr, onSimuNUSMessage, SendToSimuNUS } from "../MessageBridge";
 import { defaultPlayerProfile, type PlayerProfile } from "../../types";
+import { checkInvalidProfile } from "../../safeUtils";
 
 type ChangeCallback = (field: string, value: any) => void;
 export interface FieldsProps {
@@ -15,6 +16,7 @@ export interface FieldsProps {
 export default function PlayerProfileForm() {
   const [show, setShow] = useState(false);
   const [form, setForm] = useState(defaultPlayerProfile);
+  const [err, setErr] = useState<null | string>(null);
   useEffect(() => {
     onSimuNUSMessage("newGame", () => {
       setShow(true);
@@ -26,8 +28,13 @@ export default function PlayerProfileForm() {
   };
 
   const handleSubmit = () => {
-    SendToSimuNUS("SetPlayerProfile", form);
-    setShow(false);
+    const invalid = checkInvalidProfile(form);
+    setErr(invalid);
+    if (invalid === null) {
+      SendToSimuNUS("initializePlayerProfile", form);
+      SendToSimuNUS("setPlayerProfile", form);
+      setShow(false);
+    }
   };
 
   return show ? (
@@ -51,7 +58,7 @@ export default function PlayerProfileForm() {
       <BirthdayMajorFields form={form} onChange={handleChange} />
       <ContactFields form={form} onChange={handleChange} />
       <PassportCitizenFields form={form} onChange={handleChange} />
-
+      {err && <Typography color="error">{`Invalid ${err}`}</Typography>}
       <Button
         variant="contained"
         onClick={handleSubmit}

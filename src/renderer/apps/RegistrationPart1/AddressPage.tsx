@@ -1,6 +1,8 @@
 import type { RegistrationProps } from "./MainMenuPage";
-import AddressSection, { type AddressEntry } from "./AddressSection";
 import { useEffect, useState } from "react";
+import type { AddressEntry } from "../../../types";
+import AddressSection from "./AddressSection";
+import { verifyAddress } from "../../../safeUtils";
 
 export const emptyAddress: (type: string) => AddressEntry = (type) => ({
   type,
@@ -21,12 +23,6 @@ const AddressesPage: React.FC<RegistrationProps> = ({
     null
   );
   useEffect(() => {
-    const verifyAddress = (addr: AddressEntry) =>
-      addr.country &&
-      addr.lines.length > 0 &&
-      addr.lines.every(Boolean) &&
-      addr.postal.length > 0 &&
-      addr.country.length > 0;
     const hasHome = data.addresses.some((add) => add.type === "Home");
     const hasMail = data.addresses.some((add) => add.type === "Mail");
     const hasPayment = data.paymentAddresses.length > 0;

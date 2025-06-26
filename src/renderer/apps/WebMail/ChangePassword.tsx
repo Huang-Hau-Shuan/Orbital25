@@ -1,23 +1,18 @@
 import { useEffect, useState } from "react";
-import { defaultPlayerProfile, type PlayerProfile } from "../../../types";
 import { onSimuNUSMessage, SendToSimuNUS } from "../../MessageBridge";
-import { isPlayerProfile } from "../../../types.guard";
 import GuideInput from "../GuideInput";
 import GuideButton from "../GuideButton";
+import { isPasswordValid } from "../../../safeUtils";
+import { getSimuNUSContext } from "../../context/AppContext";
 
 const ChangePasswordPage = () => {
-  const [profile, setProfile] = useState<PlayerProfile>(defaultPlayerProfile);
+  const { playerProfile } = getSimuNUSContext();
   const [id, setId] = useState("");
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   useEffect(() => {
-    onSimuNUSMessage("setPlayerProfile", (data) => {
-      if (isPlayerProfile(data)) {
-        setProfile(data);
-      }
-    });
     onSimuNUSMessage("resetPasswordSuccess", () => {
       setError("Successfully reset password");
     });
@@ -26,22 +21,7 @@ const ChangePasswordPage = () => {
     });
     SendToSimuNUS("getPlayerProfile");
   });
-  function isPasswordValid(password: string) {
-    if (password.length < 12) {
-      return false;
-    }
 
-    let hasUpper = /[A-Z]/.test(password);
-    let hasLower = /[a-z]/.test(password);
-    let hasDigit = /\d/.test(password);
-    let hasSpecial = /[^A-Za-z0-9]/.test(password);
-
-    let complexityCount = [hasUpper, hasLower, hasDigit, hasSpecial].filter(
-      Boolean
-    ).length;
-
-    return complexityCount >= 3;
-  }
   return (
     <div className="pw-container">
       <h2 className="pw-title">Change NUS-ID Password</h2>
@@ -84,7 +64,7 @@ const ChangePasswordPage = () => {
         <GuideInput
           id="webmail-change-password-userid"
           type="text"
-          guidePrompt={profile.studentEmail}
+          guidePrompt={playerProfile.NUSNETID}
           onContentChange={setId}
         />
 
@@ -94,7 +74,7 @@ const ChangePasswordPage = () => {
           type="password"
           placeholder="Current Password"
           onContentChange={setOldPassword}
-          guidePrompt={profile.emailPassword}
+          guidePrompt={playerProfile.emailPassword}
         />
 
         <label>New Password</label>
@@ -122,11 +102,11 @@ const ChangePasswordPage = () => {
           onClick={() => {
             if (
               !(
-                id.toLowerCase() === profile.studentEmail.toLowerCase() ||
+                id.toLowerCase() === playerProfile.NUSNETID.toLowerCase() ||
                 id.toLowerCase() !==
-                  profile.studentEmail.toLowerCase() + "@u.nus.edu"
+                  playerProfile.NUSNETID.toLowerCase() + "@u.nus.edu"
               ) ||
-              oldPassword !== profile.emailPassword
+              oldPassword !== playerProfile.emailPassword
             ) {
               setError("Incorrect email or password");
               return;

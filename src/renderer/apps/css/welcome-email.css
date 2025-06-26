@@ -1,0 +1,35 @@
+.welcome-email-container {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f8fb;
+  line-height: 1.6;
+  max-width: 680px;
+  background: #fff;
+}
+
+.welcome-email-container h1 {
+  color: #002d62; /* NUS Blue */
+}
+
+.welcome-highlight {
+  color: #e87722; /* NUS Orange */
+  font-weight: bold;
+}
+
+.welcome-note {
+  font-size: 0.95em;
+  color: #666;
+  margin-top: 20px;
+  border-left: 4px solid #e0e0e0;
+  padding-left: 12px;
+}
+
+.welcome-image-preview {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.welcome-image-preview img {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}

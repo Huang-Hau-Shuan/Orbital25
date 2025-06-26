@@ -1,15 +1,7 @@
+import type { PhoneEntry, PhoneType } from "../../../types";
 import GuideButton from "../GuideButton";
 import GuideInput from "../GuideInput";
 import type { RegistrationProps } from "./MainMenuPage";
-
-type PhoneType = "Home" | "Mobile (Singapore)" | "Mobile (Overseas)" | "Office";
-
-export interface PhoneEntry {
-  type: PhoneType;
-  number: string;
-  ext: string;
-  preferred: boolean;
-}
 
 const phoneTypeOptions: PhoneType[] = [
   "Home",

@@ -8,6 +8,8 @@ import {
   SendToSimuNUS,
 } from "../../MessageBridge";
 import GuideButton from "../GuideButton";
+import { getSimuNUSContext } from "../../context/AppContext";
+import { GetOfficialName } from "../../../types";
 interface ImageInfo {
   type: string;
   width: number;
@@ -29,6 +31,7 @@ const PhotoVerificationMain = () => {
       alert("Successfully uploaded image");
     });
   }, []);
+  const { playerProfile } = getSimuNUSContext();
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -141,9 +144,9 @@ const PhotoVerificationMain = () => {
       <div className="photo-info">
         <h1>Online Photo Verification</h1>
         <p>
-          Name: XXX
+          Name: {GetOfficialName(playerProfile)}
           <br />
-          Matriculation/Registration number: A********
+          Matriculation/Registration number: {playerProfile.studentID}
         </p>
         <p>
           Please note that the photo submitted must conform to the following

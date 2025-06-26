@@ -1,14 +1,7 @@
 import React from "react";
 import GuideInput from "../GuideInput";
-import type { PlayerProfile } from "../../../types";
+import type { AddressEntry, PlayerProfile } from "../../../types";
 import GuideButton from "../GuideButton";
-
-export interface AddressEntry {
-  type: string;
-  lines: string[];
-  country: string;
-  postal: string;
-}
 
 interface AddressSectionProps {
   addresses: AddressEntry[];

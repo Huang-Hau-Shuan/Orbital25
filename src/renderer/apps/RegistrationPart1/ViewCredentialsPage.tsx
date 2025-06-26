@@ -36,7 +36,7 @@ const ViewCredentialsPage: React.FC<RegistrationProps> = ({
           <strong>PIN:</strong> 1234567
         </p>
         <p>
-          <strong>NUS-ID:</strong> {profile.studentEmail?.split("@")[0]}
+          <strong>NUS-ID:</strong> {profile.NUSNETID?.split("@")[0]}
         </p>
         <p>
           <strong>NUS-ID Password:</strong> {profile.emailPassword}

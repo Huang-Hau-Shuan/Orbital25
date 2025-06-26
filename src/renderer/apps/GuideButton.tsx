@@ -7,6 +7,7 @@ interface GuideButtonProps extends React.HTMLAttributes<HTMLElement> {
   originalTag?: "button" | "div" | "a"; //put other elements in children
   onClick?: () => void;
   ref?: React.RefObject<any>;
+  disabled?: boolean;
 }
 
 const GuideButton = ({
@@ -16,6 +17,7 @@ const GuideButton = ({
   onClick,
   className = "",
   ref,
+  disabled,
   ...props
 }: GuideButtonProps) => {
   const [highlighted, setHighlighted] = useState(false);
@@ -35,6 +37,7 @@ const GuideButton = ({
   }, [id]);
 
   const handleClick = () => {
+    if (disabled === true) return;
     dbgLog("Player clicked button #" + id);
     if (onClick) onClick();
     SendToSimuNUS("buttonClicked", id);
@@ -55,6 +58,7 @@ const GuideButton = ({
           className={cn}
           id={id}
           ref={ref}
+          disabled={disabled}
           {...props}
         >
           {children}

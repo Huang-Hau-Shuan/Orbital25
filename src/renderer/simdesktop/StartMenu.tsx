@@ -1,12 +1,12 @@
 // components/StartMenu.tsx
 import { SendToSimuNUS } from "../MessageBridge";
-import { useAppManager } from "./context/AppContext";
+import { getSimuNUSContext } from "../context/AppContext";
 interface StartMenuProps {
   position: { bottom: number; left: number };
   onClose: () => void;
 }
 const StartMenu = ({ position, onClose }: StartMenuProps) => {
-  const { closeApp } = useAppManager();
+  const { closeApp } = getSimuNUSContext();
   const shutdownDesktop = () => {
     closeApp("*");
     SendToSimuNUS("hideSim", null);

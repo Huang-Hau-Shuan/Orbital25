@@ -19,6 +19,7 @@ import { dbgWarn } from "../MessageBridge";
 interface TaskProgressProps {
   steps: StepCompletion[];
   stepDetails: TaskStep[];
+  completed: boolean;
 }
 interface PlayerProgress {
   step: PlayerStep;
@@ -46,7 +47,7 @@ const GetDescription = (ps: PlayerStep) => {
     }
   }
 };
-const TaskProgress = ({ steps, stepDetails }: TaskProgressProps) => {
+const TaskProgress = ({ completed, steps, stepDetails }: TaskProgressProps) => {
   const [expanded, setExpanded] = useState(false);
   const playerSteps: PlayerProgress[] = stepDetails
     .map((step, idx) => {
@@ -63,7 +64,9 @@ const TaskProgress = ({ steps, stepDetails }: TaskProgressProps) => {
       steps[s.stepID].status === TaskStatus.Finished ||
       steps[s.stepID].playerCurrentStep > s.playerStepID
   );
-  const completedStepCount = current.filter((c) => c).length;
+  const completedStepCount = completed
+    ? playerSteps.length
+    : current.filter((c) => c).length;
   const total = playerSteps.length;
   return (
     <Box sx={{ width: "100%", mt: 1 }}>

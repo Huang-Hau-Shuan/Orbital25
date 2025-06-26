@@ -2,15 +2,7 @@ import { useEffect } from "react";
 import type { RegistrationProps } from "./MainMenuPage";
 import GuideInput from "../GuideInput";
 import GuideButton from "../GuideButton";
-
-export interface EmergencyContact {
-  name: string;
-  relationship: string;
-  phone: string;
-  ext: string;
-  isPrimary: boolean;
-  editing?: boolean;
-}
+import type { EmergencyContact } from "../../../types";
 
 const EmergencyContactsPage: React.FC<RegistrationProps> = ({
   markComplete,

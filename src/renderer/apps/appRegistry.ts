@@ -9,6 +9,8 @@ import PhotoVerificationMain from "./PhotoVerification/main";
 import NUSApp from "./NUSApp";
 import MainMenuPage from "./RegistrationPart1/MainMenuPage";
 import MainPage from "./WebMail/MainPage";
+import UHCLogin from "./UHC/login";
+import UHCMain from "./UHC/main";
 
 export interface AppMeta {
   name: string;
@@ -73,6 +75,16 @@ export const apps_array: AppMeta[] = [
     name: "NUS Web Mail",
     icon: "icon/nus.png",
     component: MainPage,
+  },
+  {
+    name: "UHC Appointment",
+    icon: "icon/nus.png",
+    component: NUSApp,
+    props: {
+      loginPage: UHCLogin,
+      mainPage: UHCMain,
+      appName: "UHC Appointment",
+    },
   },
 ];
 export const appRegistry: Record<string, AppMeta> = {};

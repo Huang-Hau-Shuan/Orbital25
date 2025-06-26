@@ -46,9 +46,7 @@ export const onSimuNUSMessage = function (
   register_only_once: boolean = true
 ) {
   if (typeof callback !== "function") {
-    console.error(
-      `MessageBridge.ts, in onMessage(): ${callback} is not callable`
-    );
+    dbgErr(`MessageBridge.ts, in onMessage(): ${callback} is not callable`);
     return;
   }
   if (window.parent && window.parent !== window) {

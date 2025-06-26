@@ -5,23 +5,22 @@ import "../css/registration-part-one.css";
 import PersonalInformationPage from "./PersonalInformationPage";
 import AddressesPage, { emptyAddress } from "./AddressPage";
 import {
-  defaultPlayerProfile,
   GetOfficialName,
+  type AddressEntry,
   type PlayerProfile,
+  type PhoneEntry,
+  type EmergencyContact,
 } from "../../../types";
 import { dbgLog, onSimuNUSMessage, SendToSimuNUS } from "../../MessageBridge";
-import { isPlayerProfile } from "../../../types.guard";
-import ContactPage, { type PhoneEntry } from "./ContactPage";
-import EmergencyContactsPage, {
-  type EmergencyContact,
-} from "./EmergencyContactsPage";
+import ContactPage from "./ContactPage";
+import EmergencyContactsPage from "./EmergencyContactsPage";
 import AcceptanceRecordPage from "./AcceptanceRecord";
 import AuthorisationRequirementsPage from "./AuthorisationRequirementsPage";
 import FamilyFinancialPage from "./FamilyFinancialPage";
 import HealthSupportPage from "./HealthSupportPage";
 import PastOffencesPage from "./PastOffencesPage";
 import ViewCredentialsPage from "./ViewCredentialsPage";
-import type { AddressEntry } from "./AddressSection";
+import { getSimuNUSContext } from "../../context/AppContext";
 export interface RegistrationData {
   countryBirth: string; //3 digit code of country of birth
   addresses: AddressEntry[];
@@ -83,8 +82,6 @@ const MainMenuPage = () => {
   const [completedPages, setCompletedPages] = useState<boolean[]>(
     Array(pageOrder.length).fill(false)
   );
-  const [playerProfile, setPlayerProfile] =
-    useState<PlayerProfile>(defaultPlayerProfile);
   const [registrationData, setRegistrationData] = useState<RegistrationData>(
     defaultRegistrationData
   );
@@ -93,14 +90,10 @@ const MainMenuPage = () => {
     setRegistrationData(data);
   };
   useEffect(() => {
-    onSimuNUSMessage("setPlayerProfile", (p) => {
-      if (isPlayerProfile(p)) setPlayerProfile(p);
-    });
     onSimuNUSMessage("returnRegistrationData", (d) => {
       dbgLog("MainMenuPage: received registration data " + JSON.stringify(d));
       setRegistrationData(d as RegistrationData); //ts auto guard doesn't handle null fields properly
     });
-    SendToSimuNUS("getPlayerProfile");
     SendToSimuNUS("getRegistrationData");
   }, []);
   const markComplete = (index: number, complete: boolean) => {
@@ -111,6 +104,7 @@ const MainMenuPage = () => {
   const markCurrentComplete = (complete: boolean) => {
     if (currentPageIndex !== null) markComplete(currentPageIndex, complete);
   };
+  const { playerProfile } = getSimuNUSContext();
   const pageComponent = (
     Page: React.FC<RegistrationProps>,
     isStatic?: boolean
@@ -216,7 +210,9 @@ const MainMenuPage = () => {
       return (
         <div className="main-container">
           <h3 className="title-text">NUS Student Registration (Part One)</h3>
-          <h4 className="title-text">Welcome NNNNNNNNN NNNNNNNN NNNNN</h4>
+          <h4 className="title-text">
+            Welcome {GetOfficialName(playerProfile)}
+          </h4>
           <h4 style={{ marginBottom: 0, color: "#5565af" }}>
             Information for Students
           </h4>
@@ -304,6 +300,21 @@ const MainMenuPage = () => {
               International Students Only]
             </p>
           </div>
+          {window.SimuNUS_API?._DEBUG && (
+            <button
+              className="reg-button"
+              style={{
+                backgroundColor: "yellow",
+                marginTop: 20,
+                color: "black",
+              }}
+              onClick={() => {
+                setCompletedPages(completedPages.map(() => true));
+              }}
+            >
+              DEBUG: COMPLETE EVERYTHING
+            </button>
+          )}
         </div>
       );
     case 0:
