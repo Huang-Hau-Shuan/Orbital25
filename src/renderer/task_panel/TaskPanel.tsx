@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Typography, Box, IconButton, Tooltip } from "@mui/material";
-import { type TaskCompletion, type TaskDetail } from "../../types";
+import { Typography, Box, IconButton, Tooltip, Button } from "@mui/material";
+import { TaskStatus, type TaskCompletion, type TaskDetail } from "../../types";
 import {
   dbgErr,
   dbgWarn,
@@ -9,19 +9,14 @@ import {
 } from "../MessageBridge";
 import { isTaskCompletion } from "../../types.guard";
 import TaskCard from "./TaskCard";
-import {
-  ChevronLeft,
-  ChevronRight,
-  ExpandMore,
-  Task,
-  TaskOutlined,
-} from "@mui/icons-material";
+import { ChevronRight, TaskOutlined } from "@mui/icons-material";
 
 const TaskPanel = () => {
   const [tasks, setTasks] = useState<TaskCompletion[]>([]);
   const [details, setDetails] = useState<TaskDetail[]>([]);
-  const [panelExpanded, setPanelExpanded] = useState(true);
-  const [isGame, setIsGame] = useState(true);
+  const [panelExpanded, setPanelExpanded] = useState(false);
+  const [isGame, setIsGame] = useState(false);
+  const [showAll, setShowAll] = useState(false); // In Debug we can set to show all tasks
   useEffect(() => {
     onSimuNUSMessage("setTaskDetails", (tasks) => {
       if (Array.isArray(tasks)) {
@@ -62,7 +57,7 @@ const TaskPanel = () => {
         overflowY: panelExpanded ? "auto" : "hidden",
         zIndex: 1300,
         p: panelExpanded ? 2 : 0,
-        transition: "width 0.3s",
+        transition: "all 0.3s",
         borderRadius: panelExpanded ? 0 : 5,
       }}
     >
@@ -82,9 +77,23 @@ const TaskPanel = () => {
               </IconButton>
             </Tooltip>
           </Box>
-          {tasks.map((task, idx) => (
-            <TaskCard key={task.name} task={task} detail={details[idx]} />
-          ))}
+          <Button
+            sx={{
+              backgroundColor: "yellow",
+              border: "solid 2px black",
+              margin: 1,
+            }}
+            onClick={() => setShowAll(!showAll)}
+          >
+            DEBUG: Show {showAll ? "Guided" : "All"} Tasks
+          </Button>
+          {tasks.map(
+            (task, idx) =>
+              ((details[idx].guide && task.status !== TaskStatus.NotStarted) ||
+                showAll) && (
+                <TaskCard key={task.name} task={task} detail={details[idx]} />
+              )
+          )}
         </>
       ) : (
         <Tooltip title="Expand Task Panel">

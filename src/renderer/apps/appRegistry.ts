@@ -7,6 +7,10 @@ import ApplicantPortalMain from "./ApplicantPortal/main";
 import PhotoVerificationLogin from "./PhotoVerification/login";
 import PhotoVerificationMain from "./PhotoVerification/main";
 import NUSApp from "./NUSApp";
+import MainMenuPage from "./RegistrationPart1/MainMenuPage";
+import MainPage from "./WebMail/MainPage";
+import UHCLogin from "./UHC/login";
+import UHCMain from "./UHC/main";
 
 export interface AppMeta {
   name: string;
@@ -60,6 +64,26 @@ export const apps_array: AppMeta[] = [
       loginPage: PhotoVerificationLogin,
       mainPage: PhotoVerificationMain,
       appName: "Photo Verification",
+    },
+  },
+  {
+    name: "Registration Part One",
+    icon: "icon/nus.png",
+    component: MainMenuPage,
+  },
+  {
+    name: "NUS Web Mail",
+    icon: "icon/nus.png",
+    component: MainPage,
+  },
+  {
+    name: "UHC Appointment",
+    icon: "icon/nus.png",
+    component: NUSApp,
+    props: {
+      loginPage: UHCLogin,
+      mainPage: UHCMain,
+      appName: "UHC Appointment",
     },
   },
 ];

@@ -1,0 +1,739 @@
+.uhc-container {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  height: calc(100% - 40px);
+}
+.uhc-header {
+  display: flex;
+  flex-direction: row;
+  border-bottom: 5px solid #097598;
+}
+.uhc-logo {
+  height: 60px;
+  margin: 10px;
+}
+.uhc-user-name {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  flex: 1;
+  font-size: 20px;
+}
+.uhc-main {
+  display: flex;
+  flex-direction: row;
+}
+.uhc-sidebar {
+  background: #eeeeee;
+  padding: 20px;
+  margin-right: 30px;
+  width: 240px;
+  border-right: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+}
+
+.uhc-sidebar label {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.uhc-sidebar input,
+.uhc-sidebar select {
+  padding: 8px 10px;
+  font-size: 14px;
+  background-color: #e9ecef;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.uhc-sidebar select {
+  appearance: none;
+  background-color: #e9ecef;
+}
+
+.uhc-note {
+  font-size: 12px;
+  color: #446de2;
+  margin-top: 6px;
+}
+
+.uhc-main {
+  flex: 1;
+  padding: 20px;
+  background-color: white;
+}
+
+.uhc-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.uhc-tab {
+  padding: 6px 16px;
+  border: 2px solid #296dfc;
+  cursor: pointer;
+  background-color: white;
+  color: #296dfc;
+  height: 36px;
+}
+
+.uhc-tab.active {
+  background-color: #296dfc;
+  color: white;
+  font-weight: 600;
+}
+
+.uhc-appointments {
+  border-top: 4px solid #02738d;
+  margin-top: 8px;
+}
+.uhc-appointments-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: overlay;
+}
+.uhc-table-title {
+  font-size: 22px;
+  font-weight: 600;
+  background-color: #02738d;
+  color: white;
+  text-align: center;
+  padding: 12px;
+  font-size: 20px;
+  margin: 10px 0 0 0;
+}
+
+.uhc-table {
+  width: 700px;
+  border-collapse: collapse;
+  background: #fefefe;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+.uhc-table thead {
+  border: 1px solid #ccc;
+  background-color: #f8f8f8;
+  height: 50px;
+}
+.uhc-table th,
+.uhc-table td {
+  padding: 10px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.uhc-empty {
+  text-align: center;
+  padding: 40px;
+  font-size: 16px;
+  color: #666;
+}
+
+.uhc-book-button {
+  padding: 10px 20px;
+  background-color: #294986;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+.uhc-top {
+  display: flex;
+  flex-direction: row;
+}
+.uhc-user-type {
+  background-color: #097598;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  padding: 10px 20px;
+  color: white;
+  margin-left: 20px;
+  margin-bottom: 20px;
+}
+.uhc-phone-row {
+  display: flex;
+  flex-direction: row;
+}
+.uhc-tabl-wrapper {
+  flex: 1;
+  overflow: overlay;
+  max-width: 100%;
+}
+.uhc-action-button {
+  background-color: #43459c;
+  border: none;
+  padding: 6px 16px;
+  color: white;
+  font-size: 14px;
+  border-radius: 5px;
+}
+.uhc-booking-container {
+  max-width: 1000px;
+  margin: 0;
+  padding: 20px 16px;
+  text-align: center;
+}
+
+.uhc-booking-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.uhc-booking-box {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 30px;
+}
+
+.uhc-booking-instruction {
+  color: #a0a8b8;
+  font-weight: bold;
+  font-size: 1.6rem;
+  margin-bottom: 30px;
+}
+
+.uhc-field-row {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  gap: 30px;
+  margin-bottom: 10px;
+}
+
+.uhc-booking-label {
+  font-size: 16px;
+  color: black;
+  width: 40%;
+}
+
+.uhc-booking-select {
+  padding: 12px 16px;
+  font-size: 1rem;
+  border: 2px solid #d0d0e0;
+  border-radius: 10px;
+  min-width: 300px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.uhc-booking-select:focus {
+  outline: none;
+  border-color: #9e8ce5;
+  box-shadow: 0 0 0 3px rgba(158, 140, 229, 0.3);
+}
+
+.uhc-booking-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  padding-right: 10px;
+}
+
+.uhc-booking-button {
+  padding: 16px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.uhc-booking-button.back {
+  background-color: #94d3b2;
+  color: white;
+}
+
+.uhc-booking-button.proceed {
+  background-color: #c8e6cb;
+  color: #888;
+}
+
+.uhc-booking-button.proceed.enabled {
+  background-color: #70ba9a;
+  color: white;
+}
+.uhc-terms {
+  font-size: 0.95rem;
+  margin-top: 30px;
+  display: block;
+  color: rgb(44, 56, 74);
+}
+
+.uhc-terms h2 {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.uhc-terms ul {
+  list-style: disc;
+  padding-left: 20px;
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.uhc-terms a {
+  color: #3343d8;
+  text-decoration: underline;
+}
+.uhc-progress-bar {
+  display: flex;
+  justify-content: space-between;
+  background: #f3f3f3;
+  padding: 16px 24px;
+  border-radius: 10px;
+  margin-bottom: 24px;
+}
+
+.uhc-step {
+  flex: 1;
+  text-align: center;
+  position: relative;
+}
+
+.uhc-step-circle {
+  width: 24px;
+  height: 24px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: #ccc;
+  color: #fff;
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.uhc-step.completed .uhc-step-circle {
+  background-color: #097598;
+}
+.uhc-step.active .uhc-step-circle {
+  background: #5bb297;
+}
+
+.uhc-step-label {
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.uhc-date-input {
+  margin: 10px 8px 10px 0;
+  padding: 6px 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.uhc-date-input.error {
+  border: 1.5px solid #e22;
+}
+
+.uhc-time-buttons {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.uhc-time-option {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 15px;
+  background: #fff;
+  transition: 0.2s;
+}
+
+.uhc-time-option.selected {
+  background-color: #2f9fec;
+  color: white;
+  border-color: #2f9fec;
+}
+
+.uhc-time-desc {
+  font-size: 12px;
+  color: #5c768d;
+  margin-top: 4px;
+}
+.uhc-slot-container {
+  background: #f8f8f8;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 20px;
+}
+.uhc-slot-container h3 {
+  text-align: left;
+  padding-bottom: 20px;
+  border-bottom: solid 1px black;
+}
+
+.uhc-slot-date-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.uhc-date-card {
+  background: #e0e0e0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  text-align: center;
+  cursor: pointer;
+  min-width: 80px;
+  /* width: 30%; */
+}
+
+.uhc-date-card.selected {
+  background-color: #d9f3f8;
+}
+
+.uhc-date-card.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.uhc-date-label {
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.uhc-date-day {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.uhc-date-week {
+  font-size: 12px;
+  color: #001c55;
+  font-weight: 600;
+}
+
+.uhc-slot-timetable {
+  display: flex;
+  justify-content: center;
+  border: solid 1px #5c768d;
+  padding: 20px;
+}
+
+.uhc-period-column {
+  text-align: center;
+}
+
+.uhc-period-label {
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.uhc-time-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-content: flex-start;
+}
+
+.uhc-slot {
+  padding: 10px 16px;
+  border-radius: 4px;
+  background: white;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  min-width: 60px;
+  text-align: center;
+}
+
+.uhc-slot.selected {
+  background-color: #001c55;
+  color: white;
+  border-color: #001c55;
+}
+
+.uhc-slot-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 30px;
+  font-size: 14px;
+  justify-content: center;
+}
+
+.legend {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  margin-right: 4px;
+  border: 1px solid #999;
+  vertical-align: middle;
+}
+
+.legend.available {
+  background: white;
+}
+
+.legend.selected {
+  background: #001c55;
+  border-color: #001c55;
+}
+
+.legend.unavailable {
+  background: #ccc;
+  border-color: #ccc;
+}
+
+.uhc-booking-buttons {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.uhc-booking-button {
+  padding: 10px 24px;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 0 8px;
+}
+.uhc-confirm-page {
+  padding: 24px;
+  font-family: "Arial", sans-serif;
+}
+
+.uhc-section {
+  margin-top: 30px;
+  background: #f7f7f7;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.uhc-section h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.uhc-detail-box {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.uhc-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.uhc-detail-row > div:first-child {
+  width: 140px;
+  font-weight: bold;
+}
+
+.uhc-grey-box {
+  background: #e2e4e7;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+.uhc-edit-button {
+  background: none;
+  border: none;
+  margin-left: 10px;
+  cursor: pointer;
+  color: #001c55;
+}
+
+.uhc-edit-button img {
+  width: 16px;
+  height: 16px;
+}
+
+.uhc-footer-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 30px;
+}
+
+.uhc-button {
+  padding: 10px 24px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.uhc-button.primary {
+  background: #8cc6ad;
+  color: white;
+}
+
+.uhc-button.secondary {
+  background: #2d4a78;
+  color: white;
+}
+
+.uhc-stepbar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 25%;
+  position: relative;
+  font-size: 14px;
+}
+
+.step::before {
+  content: "";
+  position: absolute;
+  height: 4px;
+  background: #ccc;
+  width: 100%;
+  top: 12px;
+  left: -50%;
+  z-index: -1;
+}
+
+.step:first-child::before {
+  display: none;
+}
+
+.step.done > div:first-child {
+  background-color: #005f7f;
+  color: white;
+}
+
+.step.active > div:first-child {
+  background-color: #8cc6ad;
+  color: white;
+}
+
+.step > div:first-child {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 24px;
+  margin-bottom: 6px;
+}
+.uhc-complete-form {
+  padding: 8px;
+  border: solid 2px #005f7f;
+}
+.uhc-action-select {
+  display: flex;
+  flex-direction: column;
+  border: solid 2px #ccc;
+}
+.uhc-action-select button {
+  background: none;
+  border: none;
+  font-size: 14px;
+  text-align: left;
+  padding: 8px;
+}
+.uhc-checkin-container {
+  text-align: center;
+  font-family: "Arial", sans-serif;
+  max-width: 400px;
+  padding: 24px;
+  box-shadow: grey 0px 0px 20px;
+}
+
+.uhc-checkin-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.uhc-checkin-desc {
+  font-size: 16px;
+  color: #444;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.uhc-queue-box {
+  font-size: 24px;
+  font-weight: bold;
+  background-color: #f0f0f5;
+  padding: 14px 24px;
+  border: 2px solid #888;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.uhc-queue-icon {
+  font-size: 28px;
+}
+
+#uhc-checkin-back {
+  background-color: #c0c7d0;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 20px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+}
+.uhc-checkin-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+.uhc-queue-info-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+
+.uhc-queue-info-field {
+  background-color: #f6f6f9;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 320px;
+}
+
+.uhc-bold-link {
+  font-weight: bold;
+  color: #1a3a71;
+  text-decoration: none;
+}
+
+.uhc-checkin-back {
+  background-color: #c0c7d0;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-weight: bold;
+  font-size: 14px;
+  margin-top: 20px;
+  cursor: pointer;
+}

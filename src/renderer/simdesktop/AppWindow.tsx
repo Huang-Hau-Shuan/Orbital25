@@ -1,9 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useAppManager, type OpenApp } from "./context/AppContext";
+import { getSimuNUSContext, type OpenApp } from "../context/AppContext";
 import Overlay from "./Overlay";
 
 const AppWindow = ({ app }: { app: OpenApp }) => {
-  const { closeApp, bringToFront } = useAppManager();
+  const { closeApp, bringToFront } = getSimuNUSContext();
   const [position, setPosition] = useState({
     top: 100,
     left: 100,

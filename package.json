@@ -22,8 +22,11 @@
     "chalk": "5.4.1",
     "electron-squirrel-startup": "^1.0.1",
     "express": "^5.1.0",
+    "i18n-iso-countries": "^7.14.0",
+    "libphonenumber-js": "^1.12.9",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "singapore-nric": "^2.0.0"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.8.1",

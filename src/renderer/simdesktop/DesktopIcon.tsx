@@ -1,9 +1,9 @@
 import type { AppMeta } from "../apps/appRegistry";
 import GuideButton from "../apps/GuideButton";
-import { useAppManager } from "./context/AppContext";
+import { getSimuNUSContext } from "../context/AppContext";
 
-const DesktopIcon = ({ app, index }: { app: AppMeta; index: number }) => {
-  const { openApp } = useAppManager();
+const DesktopIcon = ({ app }: { app: AppMeta; index: number }) => {
+  const { openApp } = getSimuNUSContext();
   return (
     <GuideButton
       id={"simdesktop-app-" + app.name.replace(" ", "-")}

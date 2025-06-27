@@ -46,9 +46,7 @@ export const onSimuNUSMessage = function (
   register_only_once: boolean = true
 ) {
   if (typeof callback !== "function") {
-    console.error(
-      `MessageBridge.ts, in onMessage(): ${callback} is not callable`
-    );
+    dbgErr(`MessageBridge.ts, in onMessage(): ${callback} is not callable`);
     return;
   }
   if (window.parent && window.parent !== window) {
@@ -60,7 +58,6 @@ export const onSimuNUSMessage = function (
   }
   if (register_only_once) {
     if (channel in registered) {
-      dbgLog(`Channel ${channel} is already registered`);
       if (
         window.SimuNUS_API &&
         typeof window.SimuNUS_API.removeAllListener === "function"

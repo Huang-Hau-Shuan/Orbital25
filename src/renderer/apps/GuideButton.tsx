@@ -2,14 +2,12 @@ import { useEffect, useState } from "react";
 import { SendToSimuNUS, dbgLog, onSimuNUSMessage } from "../MessageBridge";
 import "./css/guide-button.css";
 
-interface GuideButtonProps {
+interface GuideButtonProps extends React.HTMLAttributes<HTMLElement> {
   id: string;
-  children?: React.ReactNode;
   originalTag?: "button" | "div" | "a"; //put other elements in children
   onClick?: () => void;
-  className?: string;
-  style?: React.CSSProperties;
   ref?: React.RefObject<any>;
+  disabled?: boolean;
 }
 
 const GuideButton = ({
@@ -18,8 +16,9 @@ const GuideButton = ({
   originalTag,
   onClick,
   className = "",
-  style,
   ref,
+  disabled,
+  ...props
 }: GuideButtonProps) => {
   const [highlighted, setHighlighted] = useState(false);
 
@@ -38,16 +37,17 @@ const GuideButton = ({
   }, [id]);
 
   const handleClick = () => {
+    if (disabled === true) return;
     dbgLog("Player clicked button #" + id);
     if (onClick) onClick();
     SendToSimuNUS("buttonClicked", id);
     setHighlighted(false);
   };
-  const cn = `${className} ${highlighted ? "guide-button-highlight" : ""}`;
+  const cn = `${className} ${highlighted ? "guide-highlight" : ""}`;
   switch (originalTag) {
     case "a":
       return (
-        <a onClick={handleClick} className={cn} style={style} id={id} ref={ref}>
+        <a onClick={handleClick} className={cn} id={id} ref={ref} {...props}>
           {children}
         </a>
       );
@@ -56,24 +56,17 @@ const GuideButton = ({
         <button
           onClick={handleClick}
           className={cn}
-          style={style}
           id={id}
           ref={ref}
+          disabled={disabled}
+          {...props}
         >
           {children}
         </button>
       );
     default:
       return (
-        <div
-          onClick={handleClick}
-          className={`${className} ${
-            highlighted ? "guide-button-highlight" : ""
-          }`}
-          style={style}
-          id={id}
-          ref={ref}
-        >
+        <div onClick={handleClick} className={cn} id={id} ref={ref} {...props}>
           {children}
         </div>
       );

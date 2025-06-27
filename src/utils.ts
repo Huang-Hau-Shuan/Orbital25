@@ -19,7 +19,12 @@ export const dbgWarn = (...args: unknown[]) => {
 };
 export const dbgErr = (...args: unknown[]) => {
   if (DEBUG) {
-    console.error(chalk.red(...args));
+    console.error(chalk.bold.red(...args));
+  }
+};
+export const dbgLogProgress = (...args: unknown[]) => {
+  if (DEBUG) {
+    console.log(chalk.bold.green(...args));
   }
 };
 export const deserializeFromJsonFile = <T>(
@@ -56,25 +61,3 @@ export const deserializeFromJsonFile = <T>(
     }
   });
 };
-
-export function clamp(number: number, min: number, max: number) {
-  return Math.min(Math.max(number, min), max);
-}
-export function normalizeTime(
-  year: number,
-  month: number,
-  day: number,
-  hour: number,
-  minute: number
-) {
-  // JavaScript months are 0-based (0 = Jan, 11 = Dec)
-  const date = new Date(year, month - 1, day, hour, minute);
-
-  return {
-    year: date.getFullYear(),
-    month: date.getMonth() + 1, // convert back to 1-based
-    day: date.getDate(),
-    hour: date.getHours(),
-    minute: date.getMinutes(),
-  };
-}

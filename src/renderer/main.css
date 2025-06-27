@@ -5,8 +5,8 @@ body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  font-family: sans-serif;
 }
-
 #unity-container,
 #desktop-container {
   position: absolute;

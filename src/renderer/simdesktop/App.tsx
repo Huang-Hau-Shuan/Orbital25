@@ -2,11 +2,17 @@ import "./desktop.css";
 import Desktop from "./Desktop";
 import Taskbar from "./Taskbar";
 import AppWindow from "./AppWindow";
-import { useAppManager } from "./context/AppContext";
-import { dbgLog, onSimuNUSMessage, SendToSimuNUS } from "../MessageBridge";
+import { getSimuNUSContext } from "../context/AppContext";
+import {
+  dbgErr,
+  dbgLog,
+  onSimuNUSMessage,
+  SendToSimuNUS,
+} from "../MessageBridge";
 import { useEffect, useState } from "react";
-const App = () => {
-  const { openApps } = useAppManager();
+import { apps_array } from "../apps/appRegistry";
+const SimDesktopRoot = () => {
+  const { openApps, openApp } = getSimuNUSContext();
   const [showSimDesktop, setShowSimDesktop] = useState(false);
   useEffect(() => {
     if (window.SimuNUS_API === undefined) {
@@ -17,6 +23,19 @@ const App = () => {
     onSimuNUSMessage("showSim", () => setShowSimDesktop(true));
     onSimuNUSMessage("hideSim", () => setShowSimDesktop(false));
   }, []);
+  useEffect(() => {
+    onSimuNUSMessage("openBrowser", (data) => {
+      if (typeof data === "string" && data.length > 0) {
+        const browserApp = apps_array.find((app) => app.name === "Browser");
+        if (browserApp) openApp({ ...browserApp, props: { path: data } });
+        else {
+          dbgErr("openBrowser: Cannot find Browser app");
+        }
+      } else {
+        dbgErr("openBrowser: Invalid param " + data);
+      }
+    });
+  }, [openApps, openApp]);
   useEffect(() => {
     onSimuNUSMessage("getSimStatus", () =>
       SendToSimuNUS("simStatus", showSimDesktop)
@@ -50,4 +69,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default SimDesktopRoot;

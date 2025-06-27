@@ -61,9 +61,14 @@
           const channel = msg.channel;
           if (source in msg_forward_channels) {
             msg_forward_channels[source].push(channel);
-            window.SimuNUS_API.onMessage(channel, (data) =>
-              msg_forward_functions[source](channel, data)
-            );
+            window.SimuNUS_API.onMessage(channel, (data) => {
+              msg_forward_functions[source](channel, data);
+              if (source === "main") {
+                console.log(
+                  "Receive message from main that it is also listening"
+                );
+              }
+            });
           } else {
             console.warn("Invalid source:", source);
             return;

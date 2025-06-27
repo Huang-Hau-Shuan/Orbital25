@@ -1,8 +1,12 @@
+import { GetOfficialName } from "../../../types";
+import { getSimuNUSContext } from "../../context/AppContext";
+
 const Offer = () => {
+  const { playerProfile } = getSimuNUSContext();
   return (
     <>
       <p>01 June 2025</p>
-      <p>Dear XXX,</p>
+      <p>Dear {GetOfficialName(playerProfile)},</p>
       <h2>
         Offer of Admission to the National University of Singapore as a Full Fee
         Paying Undergraduate
@@ -12,7 +16,7 @@ const Offer = () => {
         University of Singapore for the following undergraduate degree
         programme(s) in Academic Year 2025:
       </p>
-      <strong>Computer Engineering</strong>
+      <strong>{playerProfile.major}</strong>
       <p>
         With your scholastic and personal accomplishments, alongside your
         potential for future academic success, we are confident that you will

@@ -2,12 +2,12 @@
 import { useRef, useState } from "react";
 import StartMenu from "./StartMenu";
 import Clock from "./Clock";
-import { useAppManager } from "./context/AppContext";
+import { getSimuNUSContext } from "../context/AppContext";
 
 const Taskbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPos, setMenuPos] = useState({ bottom: 0, left: 0 });
-  const { openApps, bringToFront } = useAppManager();
+  const { openApps, bringToFront } = getSimuNUSContext();
   const taskbarRef = useRef<HTMLDivElement>(null);
   const toggleMenu = () => {
     if (!menuOpen && taskbarRef.current) {

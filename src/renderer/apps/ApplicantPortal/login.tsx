@@ -1,10 +1,7 @@
 import GuideButton from "../GuideButton";
+import type { LoginProps } from "../NUSApp";
 import "../css/login.css";
-const ApplicantPortalLogin = ({
-  setLogin,
-}: {
-  setLogin: (_: boolean) => void;
-}) => {
+const ApplicantPortalLogin = ({ setLogin }: LoginProps) => {
   return (
     <div className="applicant-login">
       <div className="login-left">

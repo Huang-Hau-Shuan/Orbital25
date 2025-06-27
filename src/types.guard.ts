@@ -5,17 +5,23 @@
 import {
   type TimeValue,
   type Time,
+  type StaticTime,
   type TaskTime,
   type PlayerStep,
   type TaskStep,
   type TaskDetail,
   type EmailMeta,
+  type AddressEntry,
+  type PhoneType,
+  type PhoneEntry,
+  type EmergencyContact,
   type PlayerProfile,
   type GameConfig,
   TaskStatus,
   type StepCompletion,
   type TaskCompletion,
   type IGameSave,
+  type CompleteIndex,
 } from "./types";
 
 export function isTimeValue(obj: unknown): obj is TimeValue {
@@ -47,6 +53,19 @@ export function isTime(obj: unknown): obj is Time {
   );
 }
 
+export function isStaticTime(obj: unknown): obj is StaticTime {
+  const typedObj = obj as StaticTime;
+  return (
+    ((typedObj !== null && typeof typedObj === "object") ||
+      typeof typedObj === "function") &&
+    typeof typedObj["year"] === "number" &&
+    typeof typedObj["month"] === "number" &&
+    typeof typedObj["day"] === "number" &&
+    typeof typedObj["hour"] === "number" &&
+    typeof typedObj["minute"] === "number"
+  );
+}
+
 export function isTaskTime(obj: unknown): obj is TaskTime {
   const typedObj = obj as TaskTime;
   return (
@@ -67,6 +86,10 @@ export function isPlayerStep(obj: unknown): obj is PlayerStep {
     (((typedObj !== null && typeof typedObj === "object") ||
       typeof typedObj === "function") &&
       typedObj["type"] === "click" &&
+      typeof typedObj["id"] === "string") ||
+    (((typedObj !== null && typeof typedObj === "object") ||
+      typeof typedObj === "function") &&
+      typedObj["type"] === "input" &&
       typeof typedObj["id"] === "string") ||
     (((typedObj !== null && typeof typedObj === "object") ||
       typeof typedObj === "function") &&
@@ -126,6 +149,55 @@ export function isEmailMeta(obj: unknown): obj is EmailMeta {
   );
 }
 
+export function isAddressEntry(obj: unknown): obj is AddressEntry {
+  const typedObj = obj as AddressEntry;
+  return (
+    ((typedObj !== null && typeof typedObj === "object") ||
+      typeof typedObj === "function") &&
+    typeof typedObj["type"] === "string" &&
+    Array.isArray(typedObj["lines"]) &&
+    typedObj["lines"].every((e: any) => typeof e === "string") &&
+    typeof typedObj["country"] === "string" &&
+    typeof typedObj["postal"] === "string"
+  );
+}
+
+export function isPhoneType(obj: unknown): obj is PhoneType {
+  const typedObj = obj as PhoneType;
+  return (
+    typedObj === "Home" ||
+    typedObj === "Mobile (Singapore)" ||
+    typedObj === "Mobile (Overseas)" ||
+    typedObj === "Office"
+  );
+}
+
+export function isPhoneEntry(obj: unknown): obj is PhoneEntry {
+  const typedObj = obj as PhoneEntry;
+  return (
+    ((typedObj !== null && typeof typedObj === "object") ||
+      typeof typedObj === "function") &&
+    (isPhoneType(typedObj["type"]) as boolean) &&
+    typeof typedObj["number"] === "string" &&
+    typeof typedObj["ext"] === "string" &&
+    typeof typedObj["preferred"] === "boolean"
+  );
+}
+
+export function isEmergencyContact(obj: unknown): obj is EmergencyContact {
+  const typedObj = obj as EmergencyContact;
+  return (
+    ((typedObj !== null && typeof typedObj === "object") ||
+      typeof typedObj === "function") &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["relationship"] === "string" &&
+    typeof typedObj["phone"] === "string" &&
+    typeof typedObj["ext"] === "string" &&
+    typeof typedObj["isPrimary"] === "boolean" &&
+    typeof typedObj["editing"] === "boolean"
+  );
+}
+
 export function isPlayerProfile(obj: unknown): obj is PlayerProfile {
   const typedObj = obj as PlayerProfile;
   return (
@@ -133,14 +205,20 @@ export function isPlayerProfile(obj: unknown): obj is PlayerProfile {
       typeof typedObj === "function") &&
     typeof typedObj["firstName"] === "string" &&
     typeof typedObj["lastName"] === "string" &&
+    typeof typedObj["birthday"] === "string" &&
+    (typedObj["gender"] === "Male" || typedObj["gender"] === "Female") &&
     typeof typedObj["firstNameBefore"] === "boolean" &&
     typeof typedObj["major"] === "string" &&
     typeof typedObj["studentID"] === "string" &&
-    typeof typedObj["studentEmail"] === "string" &&
+    typeof typedObj["NUSNETID"] === "string" &&
+    typeof typedObj["emailPassword"] === "string" &&
     typeof typedObj["passport"] === "string" &&
+    typeof typedObj["nationality"] === "string" &&
     typeof typedObj["finOrNric"] === "string" &&
     typeof typedObj["isSingaporean"] === "boolean" &&
-    typeof typedObj["mobile"] === "string"
+    typeof typedObj["mobile"] === "string" &&
+    typeof typedObj["mobileExt"] === "string" &&
+    typeof typedObj["personalEmail"] === "string"
   );
 }
 
@@ -161,6 +239,7 @@ export function isTaskStatus(obj: unknown): obj is TaskStatus {
     typedObj === TaskStatus.NotStarted ||
     typedObj === TaskStatus.Ongoing ||
     typedObj === TaskStatus.Finished ||
+    typedObj === TaskStatus.Waiting ||
     typedObj === TaskStatus.Failed
   );
 }
@@ -185,14 +264,7 @@ export function isTaskCompletion(obj: unknown): obj is TaskCompletion {
     typedObj["steps"].every((e: any) => isStepCompletion(e) as boolean) &&
     (isTaskStatus(typedObj["status"]) as boolean) &&
     typeof typedObj["scheduled"] === "boolean" &&
-    ((typedObj["scheduledTime"] !== null &&
-      typeof typedObj["scheduledTime"] === "object") ||
-      typeof typedObj["scheduledTime"] === "function") &&
-    typeof typedObj["scheduledTime"]["year"] === "number" &&
-    typeof typedObj["scheduledTime"]["month"] === "number" &&
-    typeof typedObj["scheduledTime"]["day"] === "number" &&
-    typeof typedObj["scheduledTime"]["hour"] === "number" &&
-    typeof typedObj["scheduledTime"]["minute"] === "number"
+    (isStaticTime(typedObj["scheduledTime"]) as boolean)
   );
 }
 
@@ -208,6 +280,19 @@ export function isIGameSave(obj: unknown): obj is IGameSave {
     typedObj["tasks"].every((e: any) => isTaskCompletion(e) as boolean) &&
     Array.isArray(typedObj["unlockedApps"]) &&
     typedObj["unlockedApps"].every((e: any) => typeof e === "string") &&
-    (isPlayerProfile(typedObj["playerProfile"]) as boolean)
+    (isPlayerProfile(typedObj["playerProfile"]) as boolean) &&
+    typeof typedObj["registrationData"] === "object" &&
+    Array.isArray(typedObj["appointments"])
+  );
+}
+
+export function isCompleteIndex(obj: unknown): obj is CompleteIndex {
+  const typedObj = obj as CompleteIndex;
+  return (
+    ((typedObj !== null && typeof typedObj === "object") ||
+      typeof typedObj === "function") &&
+    typeof typedObj["taskIndex"] === "number" &&
+    typeof typedObj["stepIndex"] === "number" &&
+    typeof typedObj["playerStepIndex"] === "number"
   );
 }

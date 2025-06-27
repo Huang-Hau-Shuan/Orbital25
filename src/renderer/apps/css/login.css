@@ -89,3 +89,21 @@
   background: #ef7c00 !important;
   border-color: #f60 !important;
 }
+.login-btn-outline {
+  color: #039;
+  background-color: white;
+  padding: 10px 24px;
+  margin: 8px 0;
+  border: solid 2px #039;
+  border-radius: 20px;
+  width: 80%;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease 0s;
+  box-shadow: 0.1875rem 0.1875rem 0.3125rem #0006;
+  text-align: center;
+}
+.login-btn-outline:hover {
+  background-color: #6fa3cf;
+  border-color: #f60;
+}

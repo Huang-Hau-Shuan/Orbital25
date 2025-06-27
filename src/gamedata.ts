@@ -1,7 +1,18 @@
 import fs from "fs";
 import { CONFIG_PATH, DATA_PATH, DEBUG, SAVE_PATH } from "./SimuNUS_config";
 import path from "node:path";
-import { dbgErr, dbgLog, dbgWarn, deserializeFromJsonFile } from "./utils.js";
+import {
+  dbgErr,
+  dbgLog,
+  dbgLogProgress,
+  dbgWarn,
+  deserializeFromJsonFile,
+} from "./utils.js";
+import {
+  generateRandomString,
+  generateRamdomPassword,
+  calculateNUSMatricNumber,
+} from "./safeUtils.js";
 import {
   isImmediate,
   taskDetails,
@@ -9,11 +20,19 @@ import {
   extractExactTime,
   GameSave,
 } from "./tasks.js";
-import { isGameConfig, isIGameSave } from "./types.guard.js";
 import {
+  isGameConfig,
+  isIGameSave,
+  isPlayerProfile,
+  isStaticTime,
+} from "./types.guard.js";
+import {
+  formatDateTime,
   TaskStatus,
+  type CompleteIndex,
   type EmailMeta,
   type GameConfig,
+  type StaticTime,
   type TaskStep,
 } from "./types.js";
 
@@ -23,6 +42,11 @@ const emailMeta: EmailMeta[] = [
     subject: "[NUS] Offer of Admission",
     unread: true,
   },
+  {
+    id: "welcome",
+    subject: "Welcome to NUS!",
+    unread: true,
+  },
 ];
 let gameSave: GameSave = new GameSave();
 let gameConfig: GameConfig = {
@@ -30,6 +54,8 @@ let gameConfig: GameConfig = {
   gameSavePath: SAVE_PATH,
   unityGameConfig: "",
 };
+let listenButtons: Record<string, CompleteIndex> = {};
+let listenInput: Record<string, CompleteIndex> = {};
 deserializeFromJsonFile(CONFIG_PATH, isGameConfig, (data) => {
   gameConfig = data;
   gameConfig.gameSavePath = fs.existsSync(gameConfig.gameSavePath)
@@ -67,6 +93,7 @@ export const handleGameSaveMessage = (
     updateHasNewEmail();
     sendMessage("setEmailList", gameSave.receivedEmails);
     sendMessage("newEmail", email.id); //notify unity that there's a new email
+    dbgLog("Send Email: ", id);
   };
   const unlockApp = (...name: string[]) => {
     dbgLog("unlockApp:", ...name);
@@ -97,14 +124,23 @@ export const handleGameSaveMessage = (
       sendMessage("setGameData", gameSave.unitySave);
       sendMessage("setUnlockedApps", gameSave.unlockedApps);
       sendMessage("setEmailList", gameSave.receivedEmails);
+      sendMessage("setPlayerProfile", gameSave.playerProfile);
+      sendMessage("setTaskCompletion", gameSave.tasks);
+
+      sendMessage("returnAppointments", gameSave.appointments);
+      if (
+        gameSave.registrationData &&
+        Object.keys(gameSave.registrationData).length > 0
+      ) {
+        sendMessage("returnRegistrationData", gameSave.registrationData);
+      }
     });
   });
   onMessage("newGame", () => {
     dbgLog("new game");
     gameSave = new GameSave();
-    // if (gameConfig.debug) {
-    //   unlockApp("*"); //unlock all apps to debug
-    // }
+    listenButtons = {};
+    listenInput = {};
   });
   onMessage("getGameConfig", () => {
     dbgLog("Unity Loaded");
@@ -136,6 +172,37 @@ export const handleGameSaveMessage = (
       gameSave.receivedEmails.some((email) => email.unread)
     );
   });
+  onMessage("initializePlayerProfile", (profile) => {
+    if (isPlayerProfile(profile)) {
+      gameSave.playerProfile = profile;
+      dbgLog("Received player profile: ", JSON.stringify(profile));
+      sendMessage("startGame");
+    } else {
+      dbgErr("Invalid player profile: ", JSON.stringify(profile));
+    }
+  });
+  onMessage("resetPassword", (pwd) => {
+    if (typeof pwd === "string" && pwd.length >= 12) {
+      dbgLog("Reset Password:", pwd);
+      gameSave.playerProfile.emailPassword = pwd;
+      sendMessage("resetPasswordSuccess");
+      // Theoretically sending reset password success should activate the the next tasks already
+      // but for some unknown reason they may not
+      // temporary fix
+      taskDetails.forEach((task, i) => {
+        if (
+          task.startTime.relative_to === "resetPasswordSuccess" &&
+          gameSave.tasks[i].status === TaskStatus.NotStarted
+        ) {
+          startTask(i);
+        }
+      });
+    } else {
+      dbgErr("resetPassword: invalid password", pwd);
+      sendMessage("resetPasswordError", "Invalid Password");
+    }
+    sendMessage("setPlayerProfile", gameSave.playerProfile);
+  });
   onMessage("getHasNewMessage", updateHasNewEmail);
   onMessage("submitPhoto", (data) => {
     if (
@@ -164,16 +231,81 @@ export const handleGameSaveMessage = (
   onMessage("getTaskDetails", () => {
     sendMessage("setTaskDetails", taskDetails);
   });
+  onMessage("setRegistrationData", (data) => {
+    if (typeof data === "object" && data !== null) {
+      gameSave.registrationData = data;
+      dbgLog("Received registration data");
+    } else {
+      dbgErr("setRegistrationData: Invalid registration data: ", data);
+    }
+  });
+  onMessage("getRegistrationData", () => {
+    if (
+      gameSave.registrationData &&
+      Object.keys(gameSave.registrationData).length > 0
+    ) {
+      sendMessage("returnRegistrationData", gameSave.registrationData);
+    }
+  });
+  onMessage("generateStudentCredentials", () => {
+    if (!gameSave.playerProfile.NUSNETID) {
+      gameSave.playerProfile.NUSNETID =
+        "E" + generateRandomString(7, "0123456789");
+      dbgLog(
+        "generateStudentCredentials:Generates student email (NUSNET ID):",
+        gameSave.playerProfile.NUSNETID
+      );
+    } else {
+      dbgLog(
+        "generateStudentCredentials: student email already generated: ",
+        gameSave.playerProfile.NUSNETID
+      );
+    }
+    if (!gameSave.playerProfile.studentID) {
+      const id = calculateNUSMatricNumber(
+        "A" + generateRandomString(7, "0123456789")
+      );
+      if (id) {
+        gameSave.playerProfile.studentID = id;
+        dbgLog(
+          "generateStudentCredentials: Generates student ID",
+          gameSave.playerProfile.studentID
+        );
+      } else {
+        dbgErr(
+          "generateStudentCredentials: Failed to generate student ID, calculateNUSMatricNumber returns undefined"
+        );
+      }
+    } else {
+      dbgLog(
+        "generateStudentCredentials: student ID already generated: ",
+        gameSave.playerProfile.studentID
+      );
+    }
+    if (!gameSave.playerProfile.emailPassword) {
+      gameSave.playerProfile.emailPassword = generateRamdomPassword();
+      dbgLog(
+        "generateStudentCredentials:Generates email password (NUSNET Password):",
+        gameSave.playerProfile.emailPassword
+      );
+    } else {
+      dbgLog(
+        "generateStudentCredentials: email password already generated: ",
+        gameSave.playerProfile.emailPassword
+      );
+    }
+    sendMessage("setPlayerProfile", gameSave.playerProfile);
+  });
+  onMessage("getPlayerProfile", () => {
+    sendMessage("", gameSave.playerProfile);
+  });
+  onMessage("getAppointments", () => {
+    sendMessage("returnAppointments", gameSave.appointments);
+  });
+  onMessage("setAppointments", (apps) => {
+    if (Array.isArray(apps)) gameSave.appointments = apps;
+  });
   //DEAL WITH TASKS
-  type CompleteIndex = {
-    taskIndex: number;
-    stepIndex: number;
-    playerStepIndex: number;
-  };
-  //whether the result of completing a task has already shown
-  const task_completed_result_shown = gameSave.tasks.map(
-    (task) => task.status === TaskStatus.Finished
-  );
   //perform a static taskstep that does not require player engagement nor update gamesave
   const performStaticStep = (step: TaskStep) => {
     switch (step.node) {
@@ -243,6 +375,7 @@ export const handleGameSaveMessage = (
         "out of range, total task number is",
         taskDetails.length
       );
+      return;
     }
     const completeTask = () => {
       //set a task to be completed
@@ -250,10 +383,8 @@ export const handleGameSaveMessage = (
         dbgLog(`Task ${taskDetails[taskIndex].name} is already completed`);
         return;
       }
-      dbgLog(`Task ${taskDetails[taskIndex].name} completed!`);
-      if (task_completed_result_shown[taskIndex] === false) {
-        taskDetails[taskIndex].completedResult?.forEach(performStaticStep);
-      }
+      dbgLogProgress(`Task ${taskDetails[taskIndex].name} completed!`);
+      taskDetails[taskIndex].completedResult?.forEach(performStaticStep);
       gameSave.tasks[taskIndex].status = TaskStatus.Finished;
       sendMessage("taskComplete", taskDetails[taskIndex].name); //notify unity the task is completed
     };
@@ -271,7 +402,7 @@ export const handleGameSaveMessage = (
       }
       const completeStep = () => {
         //set a step to be completed
-        dbgLog(
+        dbgLogProgress(
           `Task ${taskDetails[taskIndex].name}, step ${stepIndex} completed!`
         );
         gameSave.tasks[taskIndex].steps[stepIndex].status = TaskStatus.Finished;
@@ -320,7 +451,6 @@ export const handleGameSaveMessage = (
     }
     sendMessage("setTaskCompletion", gameSave.tasks);
   };
-  const listenButtons: Record<string, CompleteIndex> = {};
   const checkOngoing = (index: CompleteIndex, callback: () => void) => {
     const taskIndex = index.taskIndex;
     const stepIndex = index.stepIndex;
@@ -335,30 +465,6 @@ export const handleGameSaveMessage = (
       }
     }
   };
-  onMessage("buttonMounted", (id) => {
-    if (typeof id !== "string") return;
-    if (id in listenButtons) {
-      checkOngoing(listenButtons[id], () => {
-        dbgLog(`Button #${id} mounted, guiding user to click it`);
-        sendMessage("guideClick_" + id);
-      });
-    } else {
-      //dbgLog("Untracked button mounted:", id);
-    }
-  });
-  onMessage("buttonClicked", (id) => {
-    if (typeof id !== "string") return;
-    if (id in listenButtons) {
-      checkOngoing(listenButtons[id], () => {
-        dbgLog(`Button #${id} clicked, set ${listenButtons[id]} complete`);
-        setComplete(
-          listenButtons[id].taskIndex,
-          listenButtons[id].stepIndex,
-          listenButtons[id].playerStepIndex
-        );
-      });
-    }
-  });
   //perform a certain taskstep that requires player engagement
   const performStep = (taskidx: number, stepidx: number) => {
     if (taskidx >= taskDetails.length) {
@@ -371,19 +477,23 @@ export const handleGameSaveMessage = (
       return;
     }
     const step = task.steps[stepidx];
-    if (gameSave.tasks[taskidx].status !== TaskStatus.Ongoing) {
+    if (
+      gameSave.tasks[taskidx].status === TaskStatus.Failed ||
+      gameSave.tasks[taskidx].status === TaskStatus.Finished
+    ) {
       dbgWarn(
-        `performStep is called for not ongoing task "${task.name}", return`
+        `performStep: Cannot perform step on completed or failed task "${task.name}", return`
       );
       return;
     }
     if (
-      gameSave.tasks[taskidx].steps[stepidx].status === TaskStatus.NotStarted
+      gameSave.tasks[taskidx].steps[stepidx].status === TaskStatus.NotStarted ||
+      gameSave.tasks[taskidx].steps[stepidx].status === TaskStatus.Waiting
     ) {
       if (stepidx === 0) {
         dbgLog(`task "${task.name}" has a total of ${task.steps.length} steps`);
       }
-      dbgLog(`Start on task "${task.name}", step ${stepidx}`);
+      dbgLogProgress(`Start on task "${task.name}", step ${stepidx}`);
       gameSave.tasks[taskidx].steps[stepidx].status = TaskStatus.Ongoing;
     } else if (
       gameSave.tasks[taskidx].steps[stepidx].status === TaskStatus.Failed
@@ -430,6 +540,7 @@ export const handleGameSaveMessage = (
                 `Task "${task.name}" step ${stepidx} is an empty Unity task, skipping`
               );
               setComplete(taskidx, stepidx);
+              return;
             }
             const ns = checkPlayerNextSteps();
             if (ns === undefined) {
@@ -468,27 +579,38 @@ export const handleGameSaveMessage = (
               gameSave.tasks[taskidx].steps[stepidx].playerCurrentStep;
             if (current_step_index >= step.playerSteps.length) {
               //already completed all steps
-              dbgLog(
+              dbgWarn(
                 `Task "${task.name}" step ${stepidx}, player already all ${step.playerSteps.length} steps, skipping`
               );
               setComplete(taskidx, stepidx);
             }
             step.playerSteps.forEach((step, index) => {
               if (index < current_step_index) return; // exclude completed tasks
-              if (step.type !== "click") {
+              if (step.type === "click") {
+                dbgLog(
+                  `Task "${task.name}" step ${stepidx}, Listens for button ${step.id} reaction`
+                );
+                listenButtons[step.id] = {
+                  taskIndex: taskidx,
+                  stepIndex: stepidx,
+                  playerStepIndex: index,
+                };
+                //Send messages to buttons mounted before this step starts.
+                sendMessage("guideClick_" + step.id);
+              } else if (step.type === "input") {
+                dbgLog(
+                  `Task "${task.name}" step ${stepidx}, Listens for input ${step.id} reaction`
+                );
+                listenInput[step.id] = {
+                  taskIndex: taskidx,
+                  stepIndex: stepidx,
+                  playerStepIndex: index,
+                };
+                //Send messages to inputs mounted before this step starts
+                sendMessage("guideInput_" + step.id);
+              } else {
                 dbgErr("Invalid laptop task type:", step.type);
-                return;
               }
-              dbgLog(
-                `Task "${task.name}" step ${stepidx}, Listens for button ${step.id} reaction`
-              );
-              //guide user to click all buttons
-              sendMessage("guideClick_" + step.id);
-              listenButtons[step.id] = {
-                taskIndex: taskidx,
-                stepIndex: stepidx,
-                playerStepIndex: index,
-              };
             });
           } else {
             dbgWarn(
@@ -506,7 +628,74 @@ export const handleGameSaveMessage = (
   const startTask = (idx: number) => {
     gameSave.tasks[idx].status = TaskStatus.Ongoing;
     performStep(idx, 0);
+    sendMessage("setTaskCompletion", gameSave.tasks);
   };
+  const scheduleTask = (idx: number, time: StaticTime) => {
+    if (gameSave.tasks[idx].status !== TaskStatus.NotStarted) {
+      dbgWarn(
+        "ScheduleTask: Cannot schedule task - Task status not NotStarted"
+      );
+    }
+    gameSave.tasks[idx].status = TaskStatus.Waiting;
+    gameSave.tasks[idx].scheduled = true;
+    gameSave.tasks[idx].scheduledTime = time;
+    sendMessage("scheduleTaskStart", {
+      taskID: idx,
+      time: time,
+    });
+    dbgLogProgress(
+      `Task ${taskDetails[idx].name} scheduled at ${formatDateTime(time)}`
+    );
+    sendMessage("setTaskCompletion", gameSave.tasks);
+  };
+  onMessage("buttonMounted", (id) => {
+    if (typeof id !== "string") return;
+    if (id in listenButtons) {
+      checkOngoing(listenButtons[id], () => {
+        dbgLog(`Button #${id} mounted, guiding user to click it`);
+        sendMessage("guideClick_" + id);
+      });
+    } else {
+      //dbgLog("Untracked button mounted:", id);
+    }
+  });
+  onMessage("inputMounted", (id) => {
+    if (typeof id !== "string") return;
+    if (id in listenInput) {
+      checkOngoing(listenInput[id], () => {
+        dbgLog(`Input #${id} mounted, guiding user to input`);
+        sendMessage("guideInput_" + id);
+      });
+    } else {
+      //dbgLog("Untracked input mounted:", id);
+    }
+  });
+  onMessage("buttonClicked", (id) => {
+    if (typeof id !== "string") return;
+    if (id in listenButtons) {
+      checkOngoing(listenButtons[id], () => {
+        dbgLog(`Button #${id} clicked, set ${listenButtons[id]} complete`);
+        setComplete(
+          listenButtons[id].taskIndex,
+          listenButtons[id].stepIndex,
+          listenButtons[id].playerStepIndex
+        );
+      });
+    }
+  });
+  onMessage("inputCompleted", (id) => {
+    if (typeof id !== "string") return;
+    if (id in listenInput) {
+      checkOngoing(listenInput[id], () => {
+        dbgLog(`Input #${id} completed, set ${listenInput[id]} complete`);
+        setComplete(
+          listenInput[id].taskIndex,
+          listenInput[id].stepIndex,
+          listenInput[id].playerStepIndex
+        );
+      });
+    }
+  });
   onMessage("playerCompletedUnitySteps", (data) => {
     if (typeof data === "string") {
       data = JSON.parse(data);
@@ -574,6 +763,15 @@ export const handleGameSaveMessage = (
       );
     }
   });
+  onMessage("debugStartTask", (taskName) => {
+    const taskID = taskDetails.findIndex((task) => task.name === taskName);
+    if (taskID === -1) {
+      dbgErr("debugStartTask: Cannot find task", taskName);
+      return;
+    }
+    dbgWarn("DEBUG Start Task", taskName);
+    startTask(taskID);
+  });
   //register tasks
   taskDetails.forEach((task, idx) => {
     //ignore failed or completed tasks
@@ -582,16 +780,15 @@ export const handleGameSaveMessage = (
       gameSave.tasks[idx].status == TaskStatus.Finished
     )
       return;
-    if (gameSave.tasks[idx].status == TaskStatus.NotStarted) {
+    if (
+      gameSave.tasks[idx].status == TaskStatus.NotStarted ||
+      gameSave.tasks[idx].status == TaskStatus.Waiting
+    ) {
       //need to register message and time
       if (gameSave.tasks[idx].scheduled) {
         //already scheduled
-        sendMessage("scheduleTaskStart", {
-          taskID: idx,
-          time: gameSave.tasks[idx].scheduledTime,
-        });
-      }
-      if (task.startTime.relative_to) {
+        scheduleTask(idx, gameSave.tasks[idx].scheduledTime);
+      } else if (task.startTime.relative_to) {
         //relative to the time receiving a certain message
         onMessage(task.startTime.relative_to, () => {
           if (isImmediate(task.startTime.time)) {
@@ -603,30 +800,10 @@ export const handleGameSaveMessage = (
           onceMessage("setTime", (time) => {
             if (typeof time === "string") {
               const t = JSON.parse(time);
-              if (
-                typeof t === "object" &&
-                t !== null &&
-                "year" in t &&
-                "month" in t &&
-                "day" in t &&
-                "hour" in t &&
-                "minute" in t
-              ) {
-                const et = getExactTime(
-                  task.startTime.time,
-                  t.year,
-                  t.month,
-                  t.day,
-                  t.hour,
-                  t.minute
-                );
+              if (isStaticTime(t)) {
+                const et = getExactTime(task.startTime.time, t);
                 dbgLog("Received current in game time: ", t);
-                gameSave.tasks[idx].scheduled = true;
-                gameSave.tasks[idx].scheduledTime = et;
-                sendMessage("scheduleTaskStart", {
-                  taskID: idx,
-                  time: et,
-                });
+                scheduleTask(idx, et);
               }
             }
           });
@@ -641,10 +818,14 @@ export const handleGameSaveMessage = (
         });
       } else {
         //schedule absolute time
-        sendMessage("scheduleTaskStart", {
-          taskID: idx,
-          time: extractExactTime(task.startTime.time),
-        });
+        const t = extractExactTime(task.startTime.time);
+        if (t === undefined) {
+          dbgErr(
+            `Failed to schedule task ${task.name}: cannot get its starting time`
+          );
+          return;
+        }
+        scheduleTask(idx, t);
       }
     }
     //register completed message

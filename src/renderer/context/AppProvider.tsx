@@ -1,8 +1,25 @@
-import { useState } from "react";
-import { AppContext, type OpenApp } from "./AppContext";
-import type { AppMeta } from "../../apps/appRegistry";
+import { useEffect, useState } from "react";
+import { SimuNUSContext, type OpenApp } from "./AppContext";
+import type { AppMeta } from "../apps/appRegistry";
+import {
+  dbgErr,
+  dbgLog,
+  onSimuNUSMessage,
+  SendToSimuNUS,
+} from "../MessageBridge";
+import { defaultPlayerProfile, type PlayerProfile } from "../../types";
+import { isPlayerProfile } from "../../types.guard";
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [openApps, setOpenApps] = useState<OpenApp[]>([]);
+  const [playerProfile, setPlayerProfile] =
+    useState<PlayerProfile>(defaultPlayerProfile);
+  useEffect(() => {
+    onSimuNUSMessage("setPlayerProfile", (p) => {
+      if (isPlayerProfile(p)) setPlayerProfile(p);
+      else dbgErr(`setPlayerProfile: Received invalid player profile ${p}`);
+    });
+    SendToSimuNUS("getPlayerProfile");
+  }, []);
   const _getName = (appinfo: string | AppMeta | OpenApp) => {
     return typeof appinfo === "string"
       ? appinfo
@@ -11,9 +28,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       : appinfo.appmeta.name;
   };
   const openApp = (appinfo: AppMeta) => {
-    if (!openApps.some((app) => app.appmeta === appinfo)) {
+    if (!openApps.some((app) => app.appmeta.name === appinfo.name)) {
       const maxZ = Math.max(0, ...openApps.map((app) => app.z));
-      //console.log("open", name, "from", path);
+      dbgLog(`Open app: ${appinfo.name}`);
       setOpenApps([...openApps, { appmeta: appinfo, z: maxZ + 1 }]);
     }
   };
@@ -39,8 +56,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
   return (
-    <AppContext.Provider value={{ openApps, openApp, closeApp, bringToFront }}>
+    <SimuNUSContext.Provider
+      value={{ openApps, openApp, closeApp, bringToFront, playerProfile }}
+    >
       {children}
-    </AppContext.Provider>
+    </SimuNUSContext.Provider>
   );
 };

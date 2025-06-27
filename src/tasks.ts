@@ -1,5 +1,6 @@
 import { randomInt } from "crypto";
-import { dbgErr, normalizeTime } from "./utils";
+import { dbgErr } from "./utils";
+import { normalizeTime } from "./safeUtils";
 import {
   defaultPlayerProfile,
   TaskStatus,
@@ -7,6 +8,7 @@ import {
   type IGameSave,
   type PlayerProfile,
   type PlayerStep,
+  type StaticTime,
   type TaskCompletion,
   type TaskDetail,
   type TaskStep,
@@ -28,6 +30,7 @@ const goScene: PlayerStepFactory = (scene: string) => ({
   scene,
 });
 const click: PlayerStepFactory = (id: string) => ({ type: "click", id });
+const input: PlayerStepFactory = (id: string) => ({ type: "input", id });
 const interact: PlayerStepFactory = (object: string) => ({
   type: "interact",
   object,
@@ -85,14 +88,7 @@ export const toTime = (
     time: time,
   };
 };
-export const getExactTime = (
-  taskTime: Time,
-  year: number,
-  month: number,
-  day: number,
-  hour: number,
-  minute: number
-) => {
+export const getExactTime = (taskTime: Time, currentTime: StaticTime) => {
   const getExactTime1 = (
     time: TimeValue,
     current: number,
@@ -104,11 +100,11 @@ export const getExactTime = (
     return randomInt(min, max);
   };
   return normalizeTime(
-    getExactTime1(taskTime.year, year, 2025, 2029),
-    getExactTime1(taskTime.month, month, 1, 12),
-    getExactTime1(taskTime.day, day, 1, 30),
-    getExactTime1(taskTime.hour, hour, 0, 60),
-    getExactTime1(taskTime.minute, minute, 0, 60)
+    getExactTime1(taskTime.year, currentTime.year, 2025, 2029),
+    getExactTime1(taskTime.month, currentTime.month, 1, 12),
+    getExactTime1(taskTime.day, currentTime.day, 1, 30),
+    getExactTime1(taskTime.hour, currentTime.hour, 0, 60),
+    getExactTime1(taskTime.minute, currentTime.minute, 0, 60)
   );
 };
 export const extractExactTime = (t: Time) => {
@@ -172,15 +168,15 @@ export const taskDetails: TaskDetail[] = [
   {
     name: "Read Offer Email",
     description: "Open the laptop and read the NUS offer email",
-    guide: true,
-    startTime: toTime(0, 0, 0, 0, 1, "newGame"),
+    guide: false,
+    startTime: toTime(0, 0, 0, 0, 1, "startGame"),
     steps: [
       sendEmailTask("offer"),
       unlockApp("Email", "Browser"),
       ...finishOnLaptopTask(openApp("Email"), openEmail("offer")),
     ], //"0" is the id of the offer email
     completedMessage: "offerEmailRead",
-    completedResult: [unlockApp("Applicant Portal")],
+    completedResult: [],
   },
   {
     name: "Accept Offer",
@@ -188,6 +184,7 @@ export const taskDetails: TaskDetail[] = [
     guide: true,
     startTime: toTime(0, 0, 0, 0, 0, "offerEmailRead"),
     steps: [
+      unlockApp("Applicant Portal"),
       ...finishOnLaptopTask(
         openApp("Applicant Portal"),
         click("applicant-portal-current-student-login-btn"),
@@ -197,7 +194,7 @@ export const taskDetails: TaskDetail[] = [
       ),
     ],
     completedMessage: "offerAccepted",
-    completedResult: [unlockApp("Photo Verification")],
+    completedResult: [],
     failedMessage: "offerRejected",
     failedResult: [
       gameOverResult(
@@ -218,6 +215,7 @@ one offer from any Singapore's universities to obtain student pass`
     startTime: toTime(0, 0, 0, 0, 0, "offerAccepted"),
     timeout: toTime(0, 0, 2, 0, 0, "offerAccepted"),
     steps: [
+      unlockApp("Photo Verification"),
       ...finishOnLaptopTask(
         openApp("Photo Verification"),
         click("photo-varification-undergraduate-login-btn"),
@@ -239,25 +237,151 @@ so do pick your most satisfying photo`
     ],
   },
   {
-    name: "Arrive in NUS",
-    description: "Arrive in NUS",
-    guide: false,
-    startTime: toTime(0, 0, 0, 0, 0, "depart"),
+    name: "Registration Part One",
+    description:
+      "Register as an official NUS students. You need to fill in several forms and agree some terms to complete this steps",
+    guide: true,
+    startTime: toTime(0, 0, 0, 0, 3, "offerAccepted"),
     steps: [
-      {
-        node: "unity",
-        function: "jumpToScene",
-        params: ["Singapore"],
-      },
+      sendEmailTask("welcome"),
+      unlockApp("Registration Part One"),
+      ...finishOnLaptopTask(
+        openApp("Registration Part One"),
+        click("reg-1-section-1"), //Personal Information
+        input("personal-info-country-of-birth"),
+        click("reg-1-proceed-button-1"), //Jump to Address
+        click("address-1-edit"),
+        input("address-1-edit-line-1"),
+        input("address-1-edit-line-2"),
+        input("address-1-edit-country"),
+        input("address-1-edit-postal-code"),
+        click("address-1-save"),
+        click("address-2-edit"),
+        input("address-2-edit-line-1"),
+        input("address-2-edit-line-2"),
+        input("address-2-edit-country"),
+        input("address-2-edit-postal-code"),
+        click("address-2-save"),
+        click("address-payment-1-edit"),
+        input("address-payment-1-edit-line-1"),
+        input("address-payment-1-edit-line-2"),
+        input("address-payment-1-edit-country"),
+        input("address-payment-1-edit-postal-code"),
+        click("address-payment-1-save"),
+        click("reg-1-proceed-button-2"), //Jumpt to Contact
+        click("add-phone-number"),
+        input("phone-1-number"),
+        input("phone-1-ext"),
+        click("save-phone-numbers"),
+        click("reg-1-proceed-button-3"), //Jumpt to Emergency Contact
+        click("add-emergency-contact"),
+        input("emergency-1-name"),
+        input("emergency-1-relationship"),
+        input("emergency-1-number"),
+        input("emergency-1-ext"),
+        click("emergency-save-1"),
+        click("reg-1-proceed-button-4"), //Jumpt to Acceptance Record
+        click("acceptance-record-policy-1"),
+        click("acceptance-record-policy-2"),
+        click("acceptance-record-policy-3"),
+        click("acceptance-record-policy-4"),
+        click("acceptance-record-policy-5"),
+        click("acceptance-record-policy-6"),
+        click("acceptance-record-policy-7"),
+        click("sexual-misconduct-checkbox-1"),
+        click("sexual-misconduct-checkbox-2"),
+        click("sexual-misconduct-checkbox-3"),
+        click("sexual-misconduct-checkbox-4"),
+        click("reg-1-proceed-button-5"), //Jump to Authorisation Requirements
+        click("authorisation-1"),
+        click("risk-1"),
+        click("risk-2"),
+        click("risk-3"),
+        click("risk-4"),
+        //click("reg-1-proceed-button-6"), //Return to Authorisation Requirements
+        click("authorisation-2"),
+        click("auth-med"),
+        //click("reg-1-proceed-button-6"), //Return to Authorisation Requirements
+        click("authorisation-3"),
+        click("auth-repr"),
+        //click("reg-1-proceed-button-6"), //Return to Authorisation Requirements
+        click("reg-1-proceed-button-6"), //Jump to Family Financial Background
+        click("family-income"),
+        input("family-size"),
+        click("family-checkbox"),
+        click("reg-1-proceed-button-7"), //Jump to Health and Support
+        click("health-conditions"),
+        click("special-arrangements"),
+        click("reg-1-proceed-button-8"), //Jump to Declaration of Past Offences
+        click("declare-past-offence"),
+        click("reg-1-proceed-button-9"), //Jump to Confirmation of Registration (Part One)
+        click("reg-1-proceed-button-10"), //View Student ID / PIN / NUSNET ID / NUSNET Password
+        input("reg-1-view-credential-birthday"),
+        click("reg-1-submit")
+      ),
     ],
-    completedMessage: "arriveInNUS",
-    completedResult: [
-      {
-        node: "unity",
-        function: "jumpToScene",
-        params: ["Campus Map"],
-      },
+    completedMessage: "generateStudentCredentials",
+  },
+  {
+    name: "Activate NUS Email",
+    description: "Reset NUS email password to activate it",
+    guide: true,
+    startTime: toTime(0, 0, 1, 0, 0, "generateStudentCredentials"),
+    steps: [
+      unlockApp("NUS Web Mail"),
+      ...finishOnLaptopTask(
+        openApp("NUS Web Mail"),
+        click("webmail-change-password-button"),
+        input("webmail-change-password-userid"),
+        input("change-password-old"),
+        input("change-password-new"),
+        input("change-password-confirm"),
+        click("change-password-submit")
+      ),
     ],
+    completedMessage: "resetPasswordSuccess",
+  },
+  // {
+  //   name: "Arrive in NUS",
+  //   description: "Arrive in NUS",
+  //   guide: false,
+  //   startTime: toTime(0, 0, 0, 0, 0, "depart"),
+  //   steps: [
+  //     {
+  //       node: "unity",
+  //       function: "jumpToScene",
+  //       params: ["Singapore"],
+  //     },
+  //   ],
+  //   completedMessage: "arriveInNUS",
+  // },
+  {
+    name: "Pre-Enrollment Medical Examination Appointment",
+    description: "Book pre-enrollment medical examination on UHC website",
+    guide: true,
+    startTime: toTime(0, 0, 0, 0, 0, "resetPasswordSuccess"),
+    steps: [
+      unlockApp("UHC Appointment"),
+      ...finishOnLaptopTask(
+        openApp("UHC Appointment"),
+        click("uhc-login-btn"),
+        click("uhc-book-button"),
+        click("uhc-booking-select-service"),
+        click("uhc-booking-select-subservice"),
+        click("uhc-booking-select-package"),
+        click("uhc-booking-proceed-1"),
+        input("uhc-select-from-date"),
+        input("uhc-select-to-date"),
+        click("uhc-morning-button"),
+        click("uhc-search-time-slot"),
+        click("uhc-slot-date-row"),
+        click("uhc-slot-timetable"),
+        click("uhc-booking-proceed-2"),
+        click("uhc-booking-proceed-3"),
+        click("uhc-complete-go-home")
+      ),
+    ],
+    completedMessage: "medicalExaminationBooked",
   },
 ];
 
@@ -296,4 +420,6 @@ export class GameSave implements IGameSave {
   tasks: TaskCompletion[] = newGameTaskCompletion();
   unlockedApps: string[] = [];
   playerProfile: PlayerProfile = defaultPlayerProfile;
+  registrationData: object = {};
+  appointments: unknown[] = [];
 }
