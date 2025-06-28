@@ -51,6 +51,11 @@ Toast Notification Message
 https://assetstore.unity.com/packages/tools/gui/toast-notification-message-278006
 Author: Conrado Saud (conradosaud.com.br, conradosaud@gmail.com)
 
+unity/Assets/HeneGames/Dialogue System
+Dialogue System
+https://assetstore.unity.com/packages/tools/gui/dialogue-system-248969
+Author: HeneGames (henegames.itch.io/, rento.henegames@gmail.com)
+
 unity\Assets\images\Singapore-map.png
 https://mrt.sg/map
 

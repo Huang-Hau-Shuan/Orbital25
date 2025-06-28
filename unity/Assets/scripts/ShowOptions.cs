@@ -2,7 +2,7 @@ using HeneGames.DialogueSystem;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ShowOptions:MonoBehaviour
+public class ShowOptions : MonoBehaviour
 {
     [Header("Assign buttons")]
     public Text option2_1;
@@ -10,7 +10,7 @@ public class ShowOptions:MonoBehaviour
     public Text option3_1;
     public Text option3_2;
     public Text option3_3;
-    
+
     [Header("Assign Containers")]
     public GameObject option2;
     public GameObject option3;
@@ -19,13 +19,13 @@ public class ShowOptions:MonoBehaviour
 
     private string[] currentTexts = { "Yes", "No", "Yes", "No", "Cancel" };
     private string[] currentParams = { null, null, null, null, null };
-    private ButtonCallback[] currentCallbacks = {null, null, null, null, null };
+    private ButtonCallback[] currentCallbacks = { null, null, null, null, null };
 
     static public ShowOptions instance = null;
     private void Start()
     {
         instance = this;
-        if(option2_1 == null || option2_2 == null || option3_1 == null || option3_2 == null || option3_3 == null)
+        if (option2_1 == null || option2_2 == null || option3_1 == null || option3_2 == null || option3_3 == null)
         {
             Utils.LogError("ShowOptions: button ref is null");
             return;
@@ -43,8 +43,8 @@ public class ShowOptions:MonoBehaviour
         //Test3Options();
     }
 
-    public void Show2Options(Sprite senderImage, string prompt, 
-        ButtonCallback callback1, ButtonCallback callback2, 
+    public void Show2Options(Sprite senderImage, string prompt,
+        ButtonCallback callback1, ButtonCallback callback2,
         string text1 = "Yes", string text2 = "No", string param1 = null, string param2 = null)
     {
         option2_1.text = text1;
@@ -58,8 +58,9 @@ public class ShowOptions:MonoBehaviour
 
 
         var dui = FindFirstObjectByType<DialogueUI>();
-        if (dui != null) {
-            dui.ShowSentence(senderImage, "",prompt);
+        if (dui != null)
+        {
+            dui.ShowSentence(senderImage, "", prompt);
         }
         else
         {
@@ -68,7 +69,7 @@ public class ShowOptions:MonoBehaviour
         option2.SetActive(true);
         gameObject.SetActive(true);
     }
-    public void Show3Options(Sprite senderImage, string prompt, 
+    public void Show3Options(Sprite senderImage, string prompt,
         ButtonCallback callback1, ButtonCallback callback2, ButtonCallback callback3,
         string text1 = "Yes", string text2 = "No", string text3 = "Cancel",
         string param1 = null, string param2 = null, string param3 = null)
@@ -103,8 +104,8 @@ public class ShowOptions:MonoBehaviour
         option2.SetActive(false);
         option3.SetActive(false);
         gameObject.SetActive(false);
-        if(DialogueUI.instance) DialogueUI.instance.ClearText();
-        currentCallbacks[id](currentTexts[id], currentParams[id]);
+        if (DialogueUI.instance) DialogueUI.instance.ClearText();
+        currentCallbacks[id]?.Invoke(currentTexts[id], currentParams[id]);
     }
 
     //public callbacks assigned to the buttons' OnClick

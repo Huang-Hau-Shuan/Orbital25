@@ -30,7 +30,7 @@ const StartMenu = ({ position, onClose }: StartMenuProps) => {
     >
       <button onClick={shutdownDesktop}>Shutdown</button>
       <button onClick={openAbout}>About</button>
-      {window.SimuNUS_API?._DEBUG && (
+      {window.SimuNUS_API?._DEBUG !== false && (
         <button onClick={unlockAllApp} className="debug-dark">
           DEBUG: Unlock all apps
         </button>

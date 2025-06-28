@@ -1,0 +1,92 @@
+using UnityEngine;
+
+public class Bed : MonoBehaviour
+{
+    private bool isPlayerNear = false;
+    public KeyCode interactKey = KeyCode.Space;
+    public Sprite bedSprite;
+    public AudioClip newDayClip;
+    private AudioSource audioSource;
+    void Start()
+    {
+        isPlayerNear = false;
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            Utils.LogWarning("Bed: Cannot play sound, audio source is null");
+            return;
+        }
+        audioSource.clip = newDayClip;
+        audioSource.loop = false;
+    }
+    public void SleepNextMorning(string _, string _1)
+    {
+        if (GameTimeManager.instance != null)
+        {
+            GameTimeManager.instance.Minute = 0;
+            GameTimeManager.instance.Hour = 8;
+            GameTimeManager.instance.Day += 1;
+            Utils.Log("Bed: sleep until the next morning");
+            ToastNotification.Show("Good morning! A new day starts");
+            if (audioSource) audioSource.Play();
+        }
+        else
+        {
+            Utils.LogError("Bed: game time manager is null");
+        }
+    }
+    public void SleepTillTaskStart(string _, string _1)
+    {
+        if (GameTimeManager.instance != null)
+        {
+            if (GameTimeManager.instance.scheduledEvents.Count > 0)
+            {
+                var s = GameTimeManager.instance.scheduledEvents.Peek();
+                if (s != null && s.time != null)
+                {
+                    GameTimeManager.instance.SetTime(s.time.year, s.time.month, s.time.day, s.time.hour, s.time.minute - 2);
+                    ToastNotification.Show("You sleeped till the next task starts");
+                    if (audioSource) audioSource.Play();
+                }
+                else
+                {
+                    ToastNotification.Show("You don't have any scheduled tasks", "alert");
+                }
+            }
+            else
+            {
+                ToastNotification.Show("You don't have any scheduled tasks", "alert");
+            }
+        }
+        else
+        {
+            Utils.LogError("Bed: game time manager is null");
+        }
+    }
+    // Update is called once per frame
+    void Update()
+    {
+        if (isPlayerNear && (Input.GetKeyDown(interactKey) || interactKey == KeyCode.None))
+        {
+            ShowOptions.instance.Show3Options(bedSprite, "Go to bed?",
+            SleepNextMorning, SleepTillTaskStart, null,
+            "Sleep until the next morning", "Sleep until the next task starts");
+        }
+    }
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            isPlayerNear = true;
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            isPlayerNear = false;
+            MessageBridge.HideSimulatedDesktop();
+        }
+    }
+}
