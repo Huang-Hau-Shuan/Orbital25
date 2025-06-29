@@ -19,6 +19,7 @@ export default function PassportCitizenFields({ form, onChange }: FieldsProps) {
             const name = countries.getName(e, "en");
             if (name) {
               onChange("nationality", name);
+              if (name == "Singapore") onChange("isSingaporean", true);
               return;
             }
           }
@@ -30,7 +31,7 @@ export default function PassportCitizenFields({ form, onChange }: FieldsProps) {
         <FormControlLabel
           control={
             <Checkbox
-              checked={form.nationality == "Singapore" || form.isSingaporean}
+              checked={form.isSingaporean}
               onChange={(e) => {
                 if (form.nationality != "Singapore")
                   onChange("isSingaporean", e.target.checked);

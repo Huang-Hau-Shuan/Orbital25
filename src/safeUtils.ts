@@ -204,7 +204,7 @@ export const checkInvalidProfile = (profile: unknown) => {
     return "Mobile Number or Extension";
   if (!validateEmail(profile.personalEmail)) return "Personal Email";
   if (!profile.nationality) return "Nationality"; // importing countries here crash the program
-  if (profile.nationality === "Singapore" && profile.isSingaporean)
+  if (profile.nationality === "Singapore" && !profile.isSingaporean)
     return "???";
   if (profile.passport.length !== 9) return "Passport";
   return null;

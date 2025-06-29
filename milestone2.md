@@ -31,7 +31,7 @@
   1. Added notification display
   1. Added guide input
   1. Added UI to select starting character & personal information
-  1. Added in game UI to select what to do / where to go
+  1. Added in game UI to select what to do / where to go / which bus to take
   1. Added sleep (now you can sleep until the next task starts)
   1. Now simulated apps and websites can save and load data from backend
 - New Maps
@@ -392,22 +392,28 @@ We are implementing the enrollment tasks according to the actual enrollment proc
 - Manages tasks defined in `src/tasks.ts`
 - Handles tasks and their respective steps' status (`NotStarted`, `Ongoing`, `Finished`, `Failed`)
 - Task Scheduling
+
   - When the prerequisite of a task it met, backend send message to unity in game timer to schedule the task. Once a task is registered, the sceduled time will be stored in game save, thus reloading won't change the date and status of a task
   - At startup, tasks are registered based on status:
     1. Immediately happen
     1. Absolute start time → schedule directly
     1. Relative time → listen for trigger message, then schedule
+
 - Task Excution
+
   - Tasks consist of **steps** (`TaskStep`), and some steps have **playerSteps** (`PlayerStep[]`) while others are solely the instructions of what the system do: send email, unlock app, etc.
   - Each step is assigned to one of: `"main"`, `"unity"`, `"laptop"`
   - Different implementations for static steps (no player action required) from interactive ones
   - Tasks on unity are implemented in unity, here it sends the instructions to `setUnityPlayerNextSteps` and listens `playerCompletedUnitySteps` for completion. However, if the prequisite for the next task is already satified, it may skip this task.
+
 - Task Completion
+
   - There are 2 ways of completing a task
     1. All of its steps are done
     2. Receives the completion message
   - Upon completing a task, it sends `taskComplete` and perform all the static tasks in `completedResult`
   - The completion message will triggers notification and a cheerful sound in unity. It may also unlock the next tasks
+
 - Task Failure
   - The players may fail a task if they
     1. Interact with the wrong components ~~(e.g. click the button to reject the NUS offer)~~
@@ -420,6 +426,9 @@ We are implementing the enrollment tasks according to the actual enrollment proc
 
 - The guide for on-screen or on-site tasks
 - For each on-screen step the player needs to do, it sends message to simulated desktop, which will then highlight the components that the player needs to interact with. For example, to guide a user to click a button, it sends out `guideClick_<id>`.
+
+  ![](pictures/guide-highlight.png)
+
 - on-site task guide system not implemented as of milestone 2
 
 ### 2. Navigation system
@@ -523,22 +532,6 @@ The entry point of the simulated desktop. It adds the simulated desktop, task pa
    1. Export the `AppContext` via `AppContext.ts` (in vite, and tsx/jsx file should only contains one component in order to hot reload)
    1. Load playerProfile when mounted. Listens from backend for any updates
 
-1. `src/renderer/apps/appRegistry.ts`: registers all apps that in simulated desktop
-
-   1. Centralized definition of all apps as an `AppMeta` object
-
-   ```ts
-   interface AppMeta {
-     name: string; // Display name and unique id
-     icon: string; // Path to icon image. the icons are stored in public/icons
-     component: React.FC<any>; // React component to render in AppWindow
-     props?: Record<string, any>; // Optional props to pass to the component
-   }
-   ```
-
-   - This design enables creating window for all different types. It also helps the desktop and taskbar component to render the name and icon of the app.
-   - It also makes our life easier by making adding apps as simple as putting it to apps_array without changing the rest of the code.
-
 1. `src/renderer/simdesktop/AppWindow.tsx`: App Window Component
 
    ![](pictures/app-window.png)
@@ -591,6 +584,25 @@ The entry point of the simulated desktop. It adds the simulated desktop, task pa
 
       - Three functions (`dbgLog`, `dbgWarn`, `dbgErr`) to directly send the debug messages to backend to log them to stdout. The backend ignores them if in release build
 
+#### 3. `src/renderer/task_panel`: Task panel
+
+![](pictures/task-panel-dev-screenshot.png)
+
+1. Display task info and progresses
+
+   - Task name and description
+   - Task status (Not Started, Waiting, In Progress, Completed)
+   - For task steps it only tracks sub steps that require player actions.
+     It creates a progress bar of completed steps / total steps
+   - Ignore locked (not started) tasks be default. However in debug mode there will be a button to enable showing all tasks
+
+2. Get `taskDetail` and `taskProgress` from backend
+
+   - Register over channel `setTaskProgress` and `setTaskDetail` when mounted and send message to get them.
+   - Whenever the task progresses are updated, new game starts or loads game, the backend will send `setTaskProgress` so inform this component
+
+3. In debug mode, it also creates buttons to show all tasks and start a task immediately.
+
 ### 3.Unity
 
 1. MainMenu: The starting point of the whole game. It creates
@@ -598,12 +610,15 @@ The entry point of the simulated desktop. It adds the simulated desktop, task pa
    <img src="pictures/unity-main-menu.png" width="250px"/>
 
    1. The main menu UI (`unity/Assets/scripts/MainMenu.cs`), including buttons for
+
       - `New Game`: Creates a new game. It also sends `newGame` message to the main renderer which redirects the message to backend
       - `Load`: Sends `load` message and listens for game data
       - `Settings`: Open settings panel (Not implemented as of milestone 2)
       - `Exit`: Sends `Exit` to main to exit game
       - Buttons to debug the a specific scene
+
    1. In game menu (`unity/Assets/scripts/InGameMenu.cs`). the menu will appears when the user press ESC. However, even through it is created here, it won't show up until the game starts
+
       - `Save`: ask the gameDataManager to send the game data to main
       - `Load`: ask game data of the previous save from main
       - `Return to game`
@@ -611,7 +626,9 @@ The entry point of the simulated desktop. It adds the simulated desktop, task pa
       - `Exit to main menu`
       - `Exit`
       - This menu will be added to DontDestroyOnLoad (`unity/Assets/scripts/PersistentObject.cs`) to make sure it exists in all scenes
+
    1. Timer (`unity/Assets/scripts/GameTimeManager.cs`): the object that manager in game time. In game time speed can be set in inspector window for now, or settings panel once it is implemented.
+
       - updates in game time every time `update()` is called and `isPaused` is `false`
         - If not paused, accumulates Time.deltaTime
         - Once it reaches realSecondsPerTick, calls AdvanceMinutes
@@ -619,6 +636,7 @@ The entry point of the simulated desktop. It adds the simulated desktop, task pa
       - schedule tasks
         - Responds to schedule message in backend
         - When the time come, send message to activate the task
+
    1. GameDataManageer (`unity/Assets/scripts/GameDataManager.cs`): The object to manage all game data
       1. Defines data structures for game save and config
          - `GameConfig`: global config like debug mode and save path, after milestone 2 we will add more configurations
@@ -648,14 +666,17 @@ The entry point of the simulated desktop. It adds the simulated desktop, task pa
       - Exclamation Mark to indicate if there are new emails.
 
    1. Door (`unity\Assets\scripts\TeleportPoint.cs`): the door object is just a sprite with a TeleportPoint component. All the bus stops, doors and any object that triggers teleporting has this component
+
       - Go outside or jump to a bus stop.
       - Show a option for the user to choose or cancel
+
    1. Other decorations
       - furnitures
    1. Player (`unity\Assets\scripts\PlayerControl.cs`)
       - WASD control movement and sprites
    1. Bed
-      - Sleep until the next morning or to next schedule task
+      - The player can walk a close to the bed and press the interaction key to select whether and how long to sleep
+      - Sleep until the next morning or to the next scheduled task.
 
 1. Campus Map
 
@@ -704,11 +725,114 @@ The entry point of the simulated desktop. It adds the simulated desktop, task pa
      1. Buildings. When moving close to the buildings the user can press the interaction key to enter the building (jump to the inner map for that building)
 
 1. Message Bridge (defined in `unity/Assets/scripts/bridge.jslib`, imported to C# in `unity/Assets/scripts/MessageBridge.cs`)
+
    - `SendMessage (string channel, string data)`: send any string message to main renderer, which will then redirects the message to intended listener.
    - `RegisterUnityMessageHandler(channelName, gameObjectName, methodName, stringify)`
      - Call gameObject.methodName in Unity via Unity's build in function `SendMessage`. This is not the same as the previous `SendMessage` and is only available in `.jslib`
      - Each channel can only be registered once. This is because even if the GameObject is destroyed and recreated, unity can still forward message to it
      - Add event listener to listen from the main renderer
+
+### 4. Simulated Apps
+
+1. `src/renderer/apps/appRegistry.ts`: registers all apps in simulated desktop
+
+   1. Centralized definition of all apps as an `AppMeta` object
+
+   ```ts
+   interface AppMeta {
+     name: string; // Display name and unique id
+     icon: string; // Path to icon image. the icons are stored in public/icons
+     component: React.FC<any>; // React component to render in AppWindow
+     props?: Record<string, any>; // Optional props to pass to the component
+   }
+   ```
+
+   - This design enables creating window for all different types. It also helps the desktop and taskbar component to render the name and icon of the app.
+   - It also makes our life easier by making adding apps as simple as putting it to apps_array without changing the rest of the code.
+
+1. `src/renderer/apps/NUSApp.tsx` - A template for most of the NUS apps.
+
+   - We found that most of NUS apps contains a similar login page which then jump to a main page.
+   - NUSApp is a tamplate to simulate this universal login process to reuse code and unify the login process
+   - It create a state `login` to track whether the user has login to the system. When login is false, it displays the login component. Otherwise it displays the main component.
+   - `setLogin` is passed to login page and main page as props
+
+1. `src/renderer/apps/ApplicantPortal` - NUS Applicant Portal
+
+   ![](pictures/applicant-portal.png)
+
+   - A simulated version of [NUS Applicant Portal](https://myaces.nus.edu.sg/applicantPortal/app/).
+   - We created the simulated page for login, main page, home page and admission page
+   - A fully functional navigation bar to switch pages
+   - The player needs to accept offer on this platform. Alghough in real like they actually accept the offer on another platform like JAP
+
+1. `src/renderer/apps/PhotoVerification`
+
+   ![](pictures/photo-verification.png)
+
+   - Simulated version of [Online Photo Verification](https://myaces.nus.edu.sg/photoVerification/)
+   - Implemented the photo submission functionality as well as the online photo resizing functions
+   - The photo will be converted to base64 text and submitted to main on `submitPhoto` channel. A message on `photoSubmitted` will be sent if the photo is saved successfully
+   - Backend then converts it back to jpg and stores it locally. In the future this photo will become the avator of the player on Canvas, EduRec, Student Card, etc.
+
+1. `src/renderer/apps/Email.tsx`
+
+   ![](pictures/email.png)
+
+   - An email app to receive and view in game emails the player receive
+   - It loads unlocked emails and whether the player has read them by sending over `getEmailList` and listening from `setEmailList`
+   - When the player read any email, it sends `markEmailRead` to backend to mark the email as read
+   - The email body is a component defined under `src/renderer/apps/emails`
+   - `src/renderer/apps/emails/registry.tsx` records the email id to components mapping, and loads the corresponding component as `EmailBody` according to email id
+
+1. `src/renderer/apps/Browser.tsx`
+
+   - An app to open external websites like NUSMods. It can also open external pdf like `NUS Code of Student Conduct`
+   - It uses `<webview>` tag provided by electron since most websites like google does not work in an `<iframe>`
+   - Any other app or any part of SimuNUS can simply sends `openBrowser` with the link as message payload. The simulated desktop listens this channel and will then open browser app with the link.
+   - As of milestone 2, it can only one extertal website. In the future we plan to add support for multiple tabs.
+
+1. `src/renderer/apps/RegistrationPart1`
+
+   - _main menu_
+
+   ![](pictures/registration-part-one-main.png)
+
+   - _example sub pages_
+
+   ![](pictures/registration-part-one-health.png)
+   ![](pictures/registration-part-one-acceptance-record.png)
+   ![](pictures/registration-part-one-emergency-contact.png)
+
+   - A simulated version of [Registration (Part One) for New Students](https://myregistration.nus.edu.sg/)
+   - Contains a total of 14 pages (excluding login page): `AcceptanceRecord`, `AddressPage`, `AuthorisationMedicalPage`,`AuthorisationRepresentativePage`, `AuthorisationRequirementsPage`, `AuthorisationRequirementsPage`, `ContactPage`, `EmergencyContactsPage`, `FamilyFinancialPage`, `HealthSupportPage`, `MainMenuPage`, `PastOffencesPage`, `PersonalInformationPage`, `ViewCredentialsPage`
+   - And 3 sub components: `RegistrationPageWrapper`, `StepSection`, `AddressSection`,
+   - Implemented detailed guide for each of the input and button. There's a total of 71 player steps in this single task.
+   - When all pages are completed, the player can confirm registration part one and proceed to view student credentials (NUSNET email, password, student ID).
+   - All components can get player profile from context
+   - To simulate the real website, all components accepts a prop `static`. When it is `true`, all `<input>`, `<select>` button becomes normal elements like `<div>`. This happens in confirmation page.
+   - In debug mode, there will be buttons to complete each page immediately and complete all pages immediately to test each page, confirmation page and view student credentials page.
+   - In real life this is a critical enrollment procedure as it unlocks the student account. However the university just put wait for an email for detailed information.
+
+1. `src/renderer/apps/UHC`
+
+   - Main Page
+
+   ![](pictures/uhc-main.png)
+
+   - Appointment Booking Page Example (Step 2)
+
+   ![](pictures/uhc-page-2.png)
+
+   - Check-in Page
+
+   ![](pictures/uhc-checkin.png)
+
+   - A simulated version of [Appointment Booking System for UHC](https://nusaqs.aisoft.sg/eappt/userappointmentslist)
+   - Contains one main page to display the appintments and personal information, and 4 sub pages for the four steps to book an appointment, and additionally one check-in page which will be used in medical examination task.
+   - 2 Sub components to display the available slots and the progress bar
+   - Provides debug button to add an appointment with default settings to test check-in page and its functions
+   - It syncs with the backend of the appointments and queue number after check-in.
 
 ## Credits
 
@@ -804,3 +928,30 @@ From the official [NUS Brand Guidelines](https://www.nus.edu.sg/identity/guideli
 - E: `#16B050`
 - BTC: `#EF8136`
 - L: `#BFBFBF`
+
+### Reference Materials & Design Sources
+
+Some layouts and flow of our simulated apps are directly inspired by actual NUS portals, websites, and official PDF guides. The following resources were referenced to make our simulations as realistic as possible:
+
+- **Applicant Portal**  
+  Layout based on [NUS Applicant Portal demo](https://www.youtube.com/watch?v=1bt8qKldkKM)
+
+- **UHC Appointment System**  
+  Based on official guide: [UHC Student User Guide (PDF)](https://www.nus.edu.sg/uhc/docs/default-source/myuhc/student_userguide.pdf)
+
+- **Registration Part I**  
+  Simulated using layout and instructions from: [User Guide for Registration Part One (UG)](https://nus.edu.sg/registrar/docs/info/academic-activities/registration/user-guide-for-reg-%28part-one%29-%28ug%29.pdf)
+
+- **Student’s Pass (STP) Application**  
+  Modeled after: [STP Application Guide – SCALE](https://scale.nus.edu.sg/docs/default-source/admissions/STP-guide-I4-MEM.pdf)
+
+- **Photo Submission Requirements**  
+  Referenced from: [Photograph Submission Guide (PDF)](https://nus.edu.sg/registrar/docs/default-source/academic-activities/registration/requirements-of-photograph-for-online-submission.pdf)
+
+---
+
+#### Note & Suggestion
+
+Many of these official resources were difficult (or impossible) to find on official guidelines — they are often buried under `please refer to…` links or scattered across different department sites. To my surprise, I only found several of these most useful and practical guide pdfs via Google Images while searching for screenshots of their layout to design the simulated apps.
+
+**IT WOULD BE OF GREAT HELP FOR future students if NUS could integrate these valuable guides into its guide and time table, instead of empty `please refer to`s**. Even if these documents are created and maintained by different departments, unifying them under a single onboarding resource would be far more helpful for incoming freshmen.

@@ -139,7 +139,7 @@ export const defaultPlayerProfile: PlayerProfile = {
   passport: "",
   finOrNric: "",
   isSingaporean: false,
-  mobile: "12345678",
+  mobile: "87654321",
   personalEmail: "123456789abc@example.com",
   nationality: "",
   mobileExt: "+65",

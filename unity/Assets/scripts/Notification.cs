@@ -16,14 +16,14 @@ public class Notification : MonoBehaviour
     public void NewEmail(string message = null)
     {
         Utils.Log("Notifying the user that a new email has arrived");
-        ToastNotification.Show("You received a new email",2.5f,"info");
+        //ToastNotification.Show("You received a new email",2.5f,"info");
         audioSource.clip = emailNotificationClip;
         audioSource.Play();
     }
     public void TaskComplete(string message)
     {
         Utils.Log("Notifying the user that a task has completed");
-        ToastNotification.Show("Task " + message + " completed!", 5, "success");
+        //ToastNotification.Show("Task " + message + " completed!", 5, "success");
         audioSource.clip = taskCompleteNotificationClip;
         audioSource.Play();
     }

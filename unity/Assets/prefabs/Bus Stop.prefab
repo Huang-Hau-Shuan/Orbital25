@@ -141,7 +141,7 @@ MonoBehaviour:
   - Cancel
   jumpOption: PGP Foyer
   prompt: Go to bus stop?
-  showOptionImage: {fileID: 0}
+  showOptionImage: {fileID: -7199805282079000582, guid: ef1f2248da20f51499cc28ecd2092ea2, type: 3}
   interactionKey: 0
 --- !u!50 &3407360702582622619
 Rigidbody2D:
@@ -224,13 +224,29 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8961159154381647349}
     m_Modifications:
-    - target: {fileID: 1047709603472130628, guid: 5d4b5c6cc3215924fa3105fb468108e8, type: 3}
-      propertyPath: m_Sprite
+    - target: {fileID: 838340169804245396, guid: 5d4b5c6cc3215924fa3105fb468108e8, type: 3}
+      propertyPath: sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 838340169804245396, guid: 5d4b5c6cc3215924fa3105fb468108e8, type: 3}
+      propertyPath: spriteFocused
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 1047709603472130628, guid: 5d4b5c6cc3215924fa3105fb468108e8, type: 3}
+      propertyPath: m_Size.x
+      value: 0.16
+      objectReference: {fileID: 0}
+    - target: {fileID: 1047709603472130628, guid: 5d4b5c6cc3215924fa3105fb468108e8, type: 3}
+      propertyPath: m_Size.y
+      value: 0.16
+      objectReference: {fileID: 0}
+    - target: {fileID: 1047709603472130628, guid: 5d4b5c6cc3215924fa3105fb468108e8, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 7f0335412a0044a149f71aeb77ff61b3, type: 3}
+    - target: {fileID: 1047709603472130628, guid: 5d4b5c6cc3215924fa3105fb468108e8, type: 3}
       propertyPath: m_WasSpriteAssigned
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5053443024683154315, guid: 5d4b5c6cc3215924fa3105fb468108e8, type: 3}
       propertyPath: m_fontSize
@@ -244,13 +260,17 @@ PrefabInstance:
       propertyPath: m_enableAutoSizing
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6514536290710754214, guid: 5d4b5c6cc3215924fa3105fb468108e8, type: 3}
-      propertyPath: m_LocalPosition.x
+    - target: {fileID: 5659125936330130138, guid: 5d4b5c6cc3215924fa3105fb468108e8, type: 3}
+      propertyPath: offset.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6514536290710754214, guid: 5d4b5c6cc3215924fa3105fb468108e8, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.007
+      objectReference: {fileID: 0}
+    - target: {fileID: 6514536290710754214, guid: 5d4b5c6cc3215924fa3105fb468108e8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.531
       objectReference: {fileID: 0}
     - target: {fileID: 6514536290710754214, guid: 5d4b5c6cc3215924fa3105fb468108e8, type: 3}
       propertyPath: m_LocalPosition.z

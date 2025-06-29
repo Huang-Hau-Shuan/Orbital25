@@ -176,9 +176,10 @@ MonoBehaviour:
   notify: 1
   busObject: {fileID: 0}
   getOffButton: {fileID: 0}
+  switchLineButton: {fileID: 0}
   splineContainer: {fileID: 2124238847434937865}
   lineName: A1
   busStops: []
-  waitTime: 1
-  speed: 1
+  waitTime: 3
+  speed: 3
   isMoving: 0

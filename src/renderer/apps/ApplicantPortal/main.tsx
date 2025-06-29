@@ -2,6 +2,8 @@ import { useState } from "react";
 import ApplicantPortalHome from "./home";
 import AdmissionPage from "./admission";
 import GuideButton from "../GuideButton";
+import { getSimuNUSContext } from "../../context/AppContext";
+import { GetOfficialName } from "../../../types";
 enum Page {
   Home,
   Admission,
@@ -14,7 +16,7 @@ const ApplicantPortalMain = ({
   setLogin: (_: boolean) => void;
 }) => {
   const [page, setPage] = useState(Page.Home);
-
+  const { playerProfile } = getSimuNUSContext();
   return (
     <div className="applicant-main">
       <header className="app-header">
@@ -63,7 +65,7 @@ const ApplicantPortalMain = ({
         </a>
         <div className="flex-space"></div>
         <div className="user-section">
-          XXX{" "}
+          {GetOfficialName(playerProfile)}
           <button className="logout-btn" onClick={() => setLogin(false)}>
             Logout
           </button>

@@ -4,7 +4,7 @@ import GridInput from "./GridInput";
 import { filterNumber, randomDigits, validateEmail } from "../../safeUtils";
 
 const randomEmail = () => `${randomDigits(10)}@example.com`;
-const randomMobile = () => randomDigits(8);
+const randomMobile = () => "8" + randomDigits(7);
 
 export default function ContactFields({ form, onChange }: FieldsProps) {
   return (

@@ -29,6 +29,10 @@ public class BusRoute : MonoBehaviour
     //initializing bus stops must come before BusManager.start
     public delegate void OnBusArrive(string stop);
     public OnBusArrive onBusArrive = null;
+    static public readonly Dictionary<string, string> GetOffTable = new Dictionary<string, string>{
+        {"PGP","PGP Foyer"},
+        {"Opp UHC", "UHC"}
+    };
     private void Awake()
     {
         int index = 0;
@@ -36,14 +40,14 @@ public class BusRoute : MonoBehaviour
         {
             if (busStopPair.value == null)
             {
-                Utils.LogError("Bus Route " + lineName + ": bus stop "+busStopPair.key+" is null");
+                Utils.LogError("Bus Route " + lineName + ": bus stop " + busStopPair.key + " is null");
                 continue;
             }
-            if (index!=busStops.Count-1)
-            { 
+            if (index != busStops.Count - 1)
+            {
                 // add this bus route to the available lines of the bus stop if it is not the last stop
                 // for the buses that the first stop is also the last stop the player can still get on because the bus route is added at the begining
-                busStopPair.value.AddAvailableLine(this); 
+                busStopPair.value.AddAvailableLine(this);
             }
             _busStops[busStopPair.value.name] = index;
             index++;
@@ -102,7 +106,7 @@ public class BusRoute : MonoBehaviour
     //let the bus start moving along the spline till the destination
     public void MoveBus(string startStopName, string targetStopName = null, bool nonStop = false)
     {
-        if(string.IsNullOrEmpty(startStopName))
+        if (string.IsNullOrEmpty(startStopName))
         {
             Utils.LogError("BusRoute.MoveBus: failed to move bus. StartStopName is null");
         }
@@ -111,7 +115,7 @@ public class BusRoute : MonoBehaviour
             Utils.LogError("BusRoute " + lineName + ": " + startStopName + " not in stored bus stops, valid stop names are " + _busStops.Keys.ToString());
             return;
         }
-        if (targetStopName!=null && !_busStops.ContainsKey(targetStopName))
+        if (targetStopName != null && !_busStops.ContainsKey(targetStopName))
         {
             Utils.LogError("BusRoute " + lineName + ": " + targetStopName + " not in stored bus stops, valid stop names are " + _busStops.Keys.ToString());
             return;
@@ -139,13 +143,21 @@ public class BusRoute : MonoBehaviour
         }
         else if (_busStops.ContainsKey(stopName))
         {
-            if (stopName == "PGP" || stopName == "PGP Foyer")
-            {
-                stopName = "Hostel Room";
-            }
             if (Utils.SceneExists(stopName))
             {
                 GameDataManager.instance.LoadScene(stopName);
+            }
+            else if (GetOffTable.ContainsKey(stopName))
+            {
+                var sceneName = GetOffTable[stopName];
+                if (Utils.SceneExists(sceneName))
+                {
+                    GameDataManager.instance.LoadScene(sceneName);
+                }
+                else
+                {
+                    Utils.LogError($"ButRouts.GetOff: GetOffTable[\"{stopName}\"] = \"{sceneName}\", but this sceneName does not exist");
+                }
             }
             else
             {
@@ -193,24 +205,24 @@ public class BusRoute : MonoBehaviour
                 yield return MoveAlongSpline(busStops[i].key, end);
             busStops[i].value.SetFocus(false);
             if (notify && GameDataManager.instance)
-            { 
+            {
                 // toastnotification and GameDataManager are only created from main menu,
                 // so if GameDataManager.instance is not null, ToastNotification shouldn't be null either
                 ToastNotification.Show("We are arriving at: " + busStops[i + 1].value.name, 1, "info");
             }
             MessageBridge.SendMessage("BusArrive", busStops[i + 1].value.name);
             if (GameDataManager.instance)
-            { 
-                GameDataManager.instance.SetLastBusStop(busStops[i + 1].value.name); 
+            {
+                GameDataManager.instance.SetLastBusStop(busStops[i + 1].value.name);
             }
             busStops[i + 1].value.SetFocus(true);
             onBusArrive?.Invoke(busStops[i + 1].value.name);
             // Wait at this stop
             if (!nonStop)
             {
-                if (getOffButton != null && switchLineButton!=null)
-                { 
-                    getOffButton.gameObject.SetActive(true); 
+                if (getOffButton != null && switchLineButton != null)
+                {
+                    getOffButton.gameObject.SetActive(true);
                     switchLineButton.gameObject.SetActive(true);
                 }
                 currentStopIndex = i + 1;
@@ -221,7 +233,7 @@ public class BusRoute : MonoBehaviour
                     switchLineButton.gameObject.SetActive(false);
                 }
             }
-            
+
         }
         if (getOffButton != null && switchLineButton != null)
         {
