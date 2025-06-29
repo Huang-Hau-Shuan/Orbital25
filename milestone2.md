@@ -317,7 +317,7 @@ SimuNUS contains two major tech stacks, one for unity and the other for [nodeJS]
 - Open SimuNUS.exe and try it out yourself
 - Although the packages SimuNUS uses are all cross-platfrom, we have not yet built for Mac and Linux in milestone 2. You may read next part and build yourself for different platforms
 
-### 2. Build SimuNUS yourself from [Source Code](https://drive.google.com/file/d/1zfAj83E7Si0K9xFmT5eKFs76-IR7B_ik/view?usp=sharing)
+### 2. Build SimuNUS yourself from [Source Code](https://drive.google.com/file/d/1obVgEntK8fxKXA5GbwphRGmTxRtQnwP0/view?usp=drive_link)
 
 #### 1. Repository Structure (As of milestone 2)
 
