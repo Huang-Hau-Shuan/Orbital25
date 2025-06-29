@@ -26,7 +26,7 @@
 
 - New Features
   1. Implemented campus map navigation
-  1. Implemented and completed NUS Internal Shuttle Bus (ISB) transpotation
+  1. Implemented and completed NUS Internal Shuttle Bus (ISB) transportation
   1. Added a task panel that displays all ongoing, completed and pending tasks
   1. Added notification display
   1. Added guide input
@@ -40,7 +40,7 @@
   1. NUS Campus Bus Map
   1. Refactored Hostel Map
   1. Singapore MRT Map
-  1. Implemented all bus routes that runs in Kent Ridge Campus (A1, A2, D1, D2, K, BTC)
+  1. Implemented all bus routes that run in Kent Ridge Campus (A1, A2, D1, D2, K, BTC)
 - New Tasks
   1. Registration Part One
   1. Activate NUS Email
@@ -59,8 +59,8 @@
   1. Fixed duplicated / missing event system in unity
   1. Fixed incorrect teleportation when getting on / off bus
   1. Fixed an incorrect bus stop position on K line
-  1. Fixed sometimes player can open the same app when it was already openned
-  1. Fixed on some cases task completion updates does not sync with every components
+  1. Fixed sometimes player can open the same app when it was already opened
+  1. Fixed on some cases task completion updates does not sync with every component
   1. Temporarily patched some task might not starting when it should
   1. Fixed bugs on dragging app window, though it is still buggy when two external websites are open
   1. Fixed when renderer components failed to import utility functions and types. Now we separate a `safeUtils.ts` for them
@@ -70,7 +70,7 @@
   1. Moved `playerProfile` to context. Now all components can share it directly
 
 - Testing
-  1. Added more and more distingushable debug output (progress, default, warning, error)
+  1. Added more and more distinguishable debug output (progress, default, warning, error)
   1. Added debug jump to scene to directly jump to a scene
   1. Added debug unlock task immediately
   1. Added debug complete certain steps
@@ -107,7 +107,7 @@ I seek to channel my past struggle into making a possible solution. My team and 
 
 In SimuNUS, players engage in an **RPG-style experience** where they complete realistic enrollment procedures, explore NUS campus and its buildings, and interact with simulated systems such as EduRec, Canvas, and many other registration systems through a **simulated desktop**.
 
-The base game is built with Unity and deployed as a WebGL application. To simulate various online tasks, we also integrate a simulated desktop in which the player interacts with the simulated websites we created. Players can toggle between campus navigation and on-screen tasks by interacting (press the interact key) when they are next to the laptop in the game. This mimicks actual university tasks. For example, to complete Pre-Admission Medical Examination, the player needs to
+The base game is built with Unity and deployed as a WebGL application. To simulate various online tasks, we also integrate a simulated desktop in which the player interacts with the simulated websites we created. Players can toggle between campus navigation and on-screen tasks by interacting (press the interact key) when they are next to the laptop in the game. This mimics actual university tasks. For example, to complete Pre-Admission Medical Examination, the player needs to
 
 1. register in simulated UHC website
 2. complete part 1 of (simulated) NUS Medical form
@@ -132,10 +132,10 @@ The following features / systems form the core of the application:
   A desktop built on react where player can open different applications that simulated real NUS systems like EduRec, Canvas. Tasks like registration or document uploads are completed through this interface.
   ![](pictures/simdesktop-empty.png)
 - **Tasks and Time System:**
-  All the enrollment procedures and academic events are wrapped as different tasks. Players receive tasks based on real onboarding steps. A in-game time systems keep tracks of the dates to trigger tasks and record deadlines. Every task has its own "rewards" upon completing, including some visual and sound effects, receiving comfirmation emails, unlock new apps on simulated desktop, etc.
+  All the enrollment procedures and academic events are wrapped as different tasks. Players receive tasks based on real onboarding steps. An in-game time systems keep tracks of the dates to trigger tasks and record deadlines. Every task has its own "rewards" upon completing, including some visual and sound effects, receiving comfirmation emails, unlock new apps on simulated desktop, etc.
   The Detailed tasks can be found at [here](#1-main), under section `3. src/tasks.ts`
 - **Guide systems:**
-  We plan to add a friendly virtual guide appears throughout scenes and all applications, as well as NPCs offering advice on some spots. They will offer navigation tips, detailed tutorial on how to complete the tasks, advice from seniors and other contextual help. For tasks, there are even more detail guide, highlighting the next buttons to click, input to fill in, etc.
+  We plan to add a friendly virtual guide after milestone 2 who appears throughout scenes and all applications, as well as NPCs offering advice on some spots. They will offer navigation tips, detailed tutorial on how to complete the tasks, advice from seniors and other contextual help. For tasks, there are even more detail guide, highlighting the next buttons to click, input to fill in, etc.
 - **Save / Load System**
   Game states - including all tasks states and schedules - can be stored and reloaded.
 - **Game Settings**
@@ -182,7 +182,7 @@ SimuNUS is composed of three several components
 
 - A panel to display the current task progress
 - Shows the detailed steps the player needs to complete
-- Provides funcionalities to debug and test each task
+- Provides functionalities to debug and test each task
   <img src="pictures/task-panel.png" width="250"/>
 
 ### 5. Main Renderer (Central Message Broker)
@@ -232,14 +232,14 @@ The updated, detailed and complete table can be found at [Time Table.xlsx](https
 |      |                  |                            | In game time system                |                                         |
 |      |                  |                            | Basic frontpage, menu UI           |                                         |
 |      |                  |                            | Selecting starting character UI    |                                         |
-|      |                  |                            | Bus transpotation prototype        |                                         |
+|      |                  |                            | Bus transportation prototype       |                                         |
 |      |                  |                            | Design hostel room                 |                                         |
 |      |                  |                            | generate Milestone 1 README        |                                         |
 | 4    | 2 - 8 June       |                            | Expand UI framework                | 2 June 2pm - Milestone 1 - Ideation     |
 |      |                  |                            | Browser app simulation             |                                         |
 |      |                  |                            | Begin housing/visa simulation UI   |                                         |
 |      |                  |                            | Pre-arrival flow logic             |                                         |
-|      |                  |                            | Implement Bus transpotation        |                                         |
+|      |                  |                            | Implement Bus transportation       |                                         |
 |      |                  |                            | expand hostel map                  |                                         |
 |      |                  |                            | Campus navigation prototype        |                                         |
 | 5    | 9 - 15 June      |                            | Arriving at Singapore              | Mission Control #4 (9 June)             |
@@ -311,8 +311,8 @@ SimuNUS contains two major tech stacks, one for unity and the other for [nodeJS]
 ### 1. Release
 
 - Download the release zip file from
-  1. **Milestone 1**: download it from [here]()
-  1. **Milestone 2**: download it from [here]()
+  1. **Milestone 1**: download it from [here](https://drive.google.com/file/d/1T1JRNDccxuTMtfgZxnxxg7D9BkXUtGMr/view?usp=drive_link)
+  1. **Milestone 2**: download it from [here](https://drive.google.com/file/d/1WurCvV8nwuhuxTEfLy7yQyVlY4Cp7Wi-/view?usp=drive_link)
 - Unzip it
 - Open SimuNUS.exe and try it out yourself
 - Although the packages SimuNUS uses are all cross-platfrom, we have not yet built for Mac and Linux in milestone 2. You may read next part and build yourself for different platforms
@@ -367,7 +367,7 @@ SimuNUS
 1. Open unity/ in Unity editor
    - Set build target to WebGL
    - Build the project to /public/unity_build (it may take more than 10 minutes)
-   - _Alternatively, if you don't have Unity 6 installed, you can download the separate unity build [here](https://drive.google.com/file/d/1PuU1EPYlBaGPvbGuajIZY8e4GMcy2rDZ/view?usp=sharing) and unzip it under /public/unity_build_
+   - _Alternatively, if you don't have Unity 6 installed, you can download the separate unity build [here](https://drive.google.com/file/d/1lCIf_8H_J-3nBiqOb51FbrqIYVg8cBxM/view?usp=drive_link) and unzip it under /public/unity_build_
 1. Run SimuNUS
    ```bash
    npm install
@@ -393,7 +393,7 @@ We are implementing the enrollment tasks according to the actual enrollment proc
 - Handles tasks and their respective steps' status (`NotStarted`, `Ongoing`, `Finished`, `Failed`)
 - Task Scheduling
 
-  - When the prerequisite of a task it met, backend send message to unity in game timer to schedule the task. Once a task is registered, the sceduled time will be stored in game save, thus reloading won't change the date and status of a task
+  - When the prerequisite of a task it met, backend send message to unity in game timer to schedule the task. Once a task is registered, the scheduled time will be stored in game save, thus reloading won't change the date and status of a task
   - At startup, tasks are registered based on status:
     1. Immediately happen
     1. Absolute start time → schedule directly
@@ -404,7 +404,7 @@ We are implementing the enrollment tasks according to the actual enrollment proc
   - Tasks consist of **steps** (`TaskStep`), and some steps have **playerSteps** (`PlayerStep[]`) while others are solely the instructions of what the system do: send email, unlock app, etc.
   - Each step is assigned to one of: `"main"`, `"unity"`, `"laptop"`
   - Different implementations for static steps (no player action required) from interactive ones
-  - Tasks on unity are implemented in unity, here it sends the instructions to `setUnityPlayerNextSteps` and listens `playerCompletedUnitySteps` for completion. However, if the prequisite for the next task is already satified, it may skip this task.
+  - Tasks on unity are implemented in unity, here it sends the instructions to `setUnityPlayerNextSteps` and listens `playerCompletedUnitySteps` for completion. However, if the prequisite for the next task is already satisfied, it may skip this task.
 
 - Task Completion
 
@@ -544,7 +544,7 @@ The entry point of the simulated desktop. It adds the simulated desktop, task pa
 
       - Uses `position: absolute` to manually place the window and enable dragging
       - Renders the app's React component from `app.appmeta.component`
-      - Optinally pass the props from `app.appmeta.props` to the app
+      - Optionally pass the props from `app.appmeta.props` to the app
 
 1. `src/renderer/simdesktop/Desktop.tsx`
 
@@ -594,7 +594,7 @@ The entry point of the simulated desktop. It adds the simulated desktop, task pa
    - Task status (Not Started, Waiting, In Progress, Completed)
    - For task steps it only tracks sub steps that require player actions.
      It creates a progress bar of completed steps / total steps
-   - Ignore locked (not started) tasks be default. However in debug mode there will be a button to enable showing all tasks
+   - Ignore locked (not started) tasks by default. However in debug mode there will be a button to enable showing all tasks
 
 2. Get `taskDetail` and `taskProgress` from backend
 
@@ -615,7 +615,7 @@ The entry point of the simulated desktop. It adds the simulated desktop, task pa
       - `Load`: Sends `load` message and listens for game data
       - `Settings`: Open settings panel (Not implemented as of milestone 2)
       - `Exit`: Sends `Exit` to main to exit game
-      - Buttons to debug the a specific scene
+      - Buttons to debug the specific scene
 
    1. In game menu (`unity/Assets/scripts/InGameMenu.cs`). the menu will appears when the user press ESC. However, even through it is created here, it won't show up until the game starts
 
@@ -668,7 +668,7 @@ The entry point of the simulated desktop. It adds the simulated desktop, task pa
    1. Door (`unity\Assets\scripts\TeleportPoint.cs`): the door object is just a sprite with a TeleportPoint component. All the bus stops, doors and any object that triggers teleporting has this component
 
       - Go outside or jump to a bus stop.
-      - Show a option for the user to choose or cancel
+      - Show an option for the user to choose or cancel
 
    1. Other decorations
       - furnitures
@@ -701,7 +701,7 @@ The entry point of the simulated desktop. It adds the simulated desktop, task pa
       - Registers all bus route GameObjects (assigned in inspector window)
       - Implements get on and get off the bus logic
         - Determines current stop based on `GameDataManager.instance.GetPreviousSceneName()`.
-        - `GetOnBus(string stopName)`: Promp the user to choose one available line. Calls MoveBus() on that line to start from this stop.
+        - `GetOnBus(string stopName)`: Prompt the user to choose one available line. Calls MoveBus() on that line to start from this stop.
         - `GetOff()`: calls `GetOff()` of the current line
 
    1. Bus (`unity\Assets\scripts\Bus.cs`)
@@ -753,7 +753,7 @@ The entry point of the simulated desktop. It adds the simulated desktop, task pa
 1. `src/renderer/apps/NUSApp.tsx` - A template for most of the NUS apps.
 
    - We found that most of NUS apps contains a similar login page which then jump to a main page.
-   - NUSApp is a tamplate to simulate this universal login process to reuse code and unify the login process
+   - NUSApp is a template to simulate this universal login process to reuse code and unify the login process
    - It create a state `login` to track whether the user has login to the system. When login is false, it displays the login component. Otherwise it displays the main component.
    - `setLogin` is passed to login page and main page as props
 
@@ -764,7 +764,7 @@ The entry point of the simulated desktop. It adds the simulated desktop, task pa
    - A simulated version of [NUS Applicant Portal](https://myaces.nus.edu.sg/applicantPortal/app/).
    - We created the simulated page for login, main page, home page and admission page
    - A fully functional navigation bar to switch pages
-   - The player needs to accept offer on this platform. Alghough in real like they actually accept the offer on another platform like JAP
+   - The player needs to accept offer on this platform. although in real like they actually accept the offer on another platform like JAP
 
 1. `src/renderer/apps/PhotoVerification`
 
@@ -812,7 +812,7 @@ The entry point of the simulated desktop. It adds the simulated desktop, task pa
    - All components can get player profile from context
    - To simulate the real website, all components accepts a prop `static`. When it is `true`, all `<input>`, `<select>` button becomes normal elements like `<div>`. This happens in confirmation page.
    - In debug mode, there will be buttons to complete each page immediately and complete all pages immediately to test each page, confirmation page and view student credentials page.
-   - In real life this is a critical enrollment procedure as it unlocks the student account. However the university just put wait for an email for detailed information.
+   - In real life this is a critical enrollment procedure as it unlocks the student account. However the university just put wait for an email with detailed information.
 
 1. `src/renderer/apps/UHC`
 
@@ -829,7 +829,7 @@ The entry point of the simulated desktop. It adds the simulated desktop, task pa
    ![](pictures/uhc-checkin.png)
 
    - A simulated version of [Appointment Booking System for UHC](https://nusaqs.aisoft.sg/eappt/userappointmentslist)
-   - Contains one main page to display the appintments and personal information, and 4 sub pages for the four steps to book an appointment, and additionally one check-in page which will be used in medical examination task.
+   - Contains one main page to display the appointments and personal information, and 4 sub pages for the four steps to book an appointment, and additionally one check-in page which will be used in medical examination task.
    - 2 Sub components to display the available slots and the progress bar
    - Provides debug button to add an appointment with default settings to test check-in page and its functions
    - It syncs with the backend of the appointments and queue number after check-in.
@@ -954,4 +954,4 @@ Some layouts and flow of our simulated apps are directly inspired by actual NUS 
 
 Many of these official resources were difficult (or impossible) to find on official guidelines — they are often buried under `please refer to…` links or scattered across different department sites. To my surprise, I only found several of these most useful and practical guide pdfs via Google Images while searching for screenshots of their layout to design the simulated apps.
 
-**IT WOULD BE OF GREAT HELP FOR future students if NUS could integrate these valuable guides into its guide and time table, instead of empty `please refer to`s**. Even if these documents are created and maintained by different departments, unifying them under a single onboarding resource would be far more helpful for incoming freshmen.
+**IT WOULD BE OF GREAT HELP for future students if NUS could integrate these valuable guides into its guide and timetable, instead of empty `please refer to`s**. Even if these documents are created and maintained by different departments, unifying them under a single onboarding resource would be far more helpful for incoming freshmen.
