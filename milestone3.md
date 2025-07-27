@@ -407,7 +407,7 @@ SimuNUS contains two major tech stacks, one for unity and the other for [nodeJS]
 - Download the release zip file from
   1. **Milestone 1**: download it from [here](https://drive.google.com/file/d/1T1JRNDccxuTMtfgZxnxxg7D9BkXUtGMr/view?usp=drive_link)
   1. **Milestone 2**: download it from [here](https://drive.google.com/file/d/1WurCvV8nwuhuxTEfLy7yQyVlY4Cp7Wi-/view?usp=drive_link)
-  1. **Milestone 3**: download it from [here]()
+  1. **Milestone 3**: download it from [here](https://drive.google.com/file/d/1qDDfm2Jw3MJ6lnsoK1XgHv8j-sjWk-TA/view?usp=drive_link)
 - Unzip it
 - Open SimuNUS.exe and try it out yourself
 - Although the packages SimuNUS uses are all cross-platfrom, we have not yet built for Mac and Linux. You may read next part and build yourself for different platforms
