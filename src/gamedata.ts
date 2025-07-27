@@ -22,6 +22,7 @@ import {
 } from "./tasks.js";
 import {
   isGameConfig,
+  isHostelApplication,
   isIGameSave,
   isPlayerProfile,
   isStaticTime,
@@ -304,6 +305,16 @@ export const handleGameSaveMessage = (
   });
   onMessage("setAppointments", (apps) => {
     if (Array.isArray(apps)) gameSave.appointments = apps;
+  });
+  onMessage("getHostelData", () => {
+    sendMessage("returnHostelData", gameSave.hostelData);
+  });
+  onMessage("setHostelData", (hd) => {
+    if (Array.isArray(hd) && hd.every(isHostelApplication)) {
+      gameSave.hostelData = hd;
+    } else {
+      dbgErr(`setHostelData: Invalid HostelData ${hd}`);
+    }
   });
   //DEAL WITH TASKS
   //perform a static taskstep that does not require player engagement nor update gamesave

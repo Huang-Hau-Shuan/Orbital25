@@ -20,6 +20,12 @@ import {
   TaskStatus,
   type StepCompletion,
   type TaskCompletion,
+  type ApplicationStatus,
+  type DateRange,
+  type NextOfKin,
+  type HostelPreferences,
+  type HostelApplicationForm,
+  type HostelApplication,
   type IGameSave,
   type CompleteIndex,
 } from "./types";
@@ -268,6 +274,92 @@ export function isTaskCompletion(obj: unknown): obj is TaskCompletion {
   );
 }
 
+export function isApplicationStatus(obj: unknown): obj is ApplicationStatus {
+  const typedObj = obj as ApplicationStatus;
+  return (
+    typedObj === "In Progress" ||
+    typedObj === "Application Completed" ||
+    typedObj === "Offered" ||
+    typedObj === "Offer Accepted" ||
+    typedObj === "Successful" ||
+    typedObj === "Unsuccessful" ||
+    typedObj === "Offer Lapsed" ||
+    typedObj === "Not Eligible" ||
+    typedObj === "Application Rejected" ||
+    typedObj === "Endorsed" ||
+    typedObj === "Appeal Received" ||
+    typedObj === "Appeal Unsuccessful"
+  );
+}
+
+export function isDateRange(obj: unknown): obj is DateRange {
+  const typedObj = obj as DateRange;
+  return (
+    ((typedObj !== null && typeof typedObj === "object") ||
+      typeof typedObj === "function") &&
+    typeof typedObj["startDate"] === "string" &&
+    typeof typedObj["endDate"] === "string"
+  );
+}
+
+export function isNextOfKin(obj: unknown): obj is NextOfKin {
+  const typedObj = obj as NextOfKin;
+  return (
+    ((typedObj !== null && typeof typedObj === "object") ||
+      typeof typedObj === "function") &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["relationship"] === "string" &&
+    typeof typedObj["phone"] === "string" &&
+    typeof typedObj["email"] === "string"
+  );
+}
+
+export function isHostelPreferences(obj: unknown): obj is HostelPreferences {
+  const typedObj = obj as HostelPreferences;
+  return (
+    ((typedObj !== null && typeof typedObj === "object") ||
+      typeof typedObj === "function") &&
+    typeof typedObj["preference1"] === "string" &&
+    typeof typedObj["preference2"] === "string" &&
+    typeof typedObj["preference3"] === "string"
+  );
+}
+
+export function isHostelApplicationForm(
+  obj: unknown
+): obj is HostelApplicationForm {
+  const typedObj = obj as HostelApplicationForm;
+  return (
+    ((typedObj !== null && typeof typedObj === "object") ||
+      typeof typedObj === "function") &&
+    (isNextOfKin(typedObj["nextOfKin"]) as boolean) &&
+    typeof typedObj["healthDeclaration"] === "string" &&
+    typeof typedObj["awards"] === "string" &&
+    typeof typedObj["ccaPart1"] === "string" &&
+    typeof typedObj["ccaPart2"] === "string" &&
+    typeof typedObj["ccaPart3"] === "string" &&
+    typeof typedObj["ccaPart4"] === "string" &&
+    typeof typedObj["stayReason"] === "string" &&
+    (isHostelPreferences(typedObj["hostelPreferences"]) as boolean) &&
+    typeof typedObj["specialRequest"] === "string"
+  );
+}
+
+export function isHostelApplication(obj: unknown): obj is HostelApplication {
+  const typedObj = obj as HostelApplication;
+  return (
+    ((typedObj !== null && typeof typedObj === "object") ||
+      typeof typedObj === "function") &&
+    typeof typedObj["name"] === "string" &&
+    (isApplicationStatus(typedObj["status"]) as boolean) &&
+    (isDateRange(typedObj["stayPeriod"]) as boolean) &&
+    typeof typedObj["applicationStartDate"] === "string" &&
+    typeof typedObj["applicationSubmittedDate"] === "string" &&
+    (isHostelApplicationForm(typedObj["form"]) as boolean) &&
+    typeof typedObj["checkIn"] === "boolean"
+  );
+}
+
 export function isIGameSave(obj: unknown): obj is IGameSave {
   const typedObj = obj as IGameSave;
   return (
@@ -282,7 +374,9 @@ export function isIGameSave(obj: unknown): obj is IGameSave {
     typedObj["unlockedApps"].every((e: any) => typeof e === "string") &&
     (isPlayerProfile(typedObj["playerProfile"]) as boolean) &&
     typeof typedObj["registrationData"] === "object" &&
-    Array.isArray(typedObj["appointments"])
+    Array.isArray(typedObj["appointments"]) &&
+    Array.isArray(typedObj["hostelData"]) &&
+    typedObj["hostelData"].every((e: any) => isHostelApplication(e) as boolean)
   );
 }
 

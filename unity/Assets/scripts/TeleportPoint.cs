@@ -11,13 +11,14 @@ public class TeleportPoint : MonoBehaviour
     public string prompt = null;
     private bool isPlayerNear = false;
     public Sprite showOptionImage = null;
-
+    private bool canShow = true;
     [Header("Assign the interaction key. Set it to None if no interaction is required")]
     public KeyCode interactionKey = KeyCode.None;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         isPlayerNear = false;
+        canShow = true;
     }
     public void Teleport()
     {
@@ -28,13 +29,21 @@ public class TeleportPoint : MonoBehaviour
             {
                 if (options.Count == 2)
                 {
-                    opt.Show2Options(showOptionImage, prompt,
+                    if (!opt.gameObject.activeSelf)
+                    {
+                        opt.Show2Options(showOptionImage, prompt,
                         ChooseCallback, ChooseCallback, options[0], options[1]);
+                        canShow = false;
+                    }
                 }
                 else if (options.Count == 3)
                 {
-                    opt.Show3Options(showOptionImage, prompt,
+                    if (!opt.gameObject.activeSelf)
+                    {
+                        opt.Show3Options(showOptionImage, prompt,
                         ChooseCallback, ChooseCallback, ChooseCallback, options[0], options[1], options[2]);
+                        canShow = false;
+                    }
                 }
                 else
                 {
@@ -43,7 +52,7 @@ public class TeleportPoint : MonoBehaviour
             }
             else
             {
-                Utils.LogError("Can't Let user choose which bus stop to go, ShowOptions is null");
+                Utils.LogWarning("Can't Let user choose which bus stop to go, ShowOptions is null");
             }
         }
         else
@@ -66,10 +75,6 @@ public class TeleportPoint : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerNear = true;
-            if (interactionKey == KeyCode.None)
-            {
-                Teleport();
-            }
         }
     }
     private void ChooseCallback(string option, string param)
@@ -79,8 +84,8 @@ public class TeleportPoint : MonoBehaviour
 
             Utils.Log($"User choosed {option}, jump to {jumpTo}");
             if (GameDataManager.instance)
-            { 
-                if(jumpTo == "Campus Map")
+            {
+                if (jumpTo == "Campus Map")
                     GameDataManager.instance.SetLastBusStop(option);
                 GameDataManager.instance.LoadScene(jumpTo);
             }
@@ -95,13 +100,15 @@ public class TeleportPoint : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerNear = false;
+            canShow = true;
         }
     }
     public bool IsPlayerNeat => isPlayerNear;
 
     void Update()
     {
-        if (interactionKey != KeyCode.None && isPlayerNear && Input.GetKeyDown(interactionKey)) {
+        if (isPlayerNear && canShow && (interactionKey == KeyCode.None || Input.GetKeyDown(interactionKey)))
+        {
             Teleport();
         }
     }

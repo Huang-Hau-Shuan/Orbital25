@@ -88,6 +88,30 @@ function handleMessage(mainWindow: BrowserWindow) {
       app.relaunch();
       app.exit(0);
     });
+  onMessage("focusUnity", () => {
+    const bounds = mainWindow.getBounds();
+    const canvasCenterX = bounds.width / 2;
+    const canvasCenterY = bounds.height / 2;
+
+    mainWindow.webContents.focus();
+
+    setTimeout(() => {
+      mainWindow.webContents.sendInputEvent({
+        type: "mouseDown",
+        x: canvasCenterX,
+        y: canvasCenterY,
+        button: "left",
+        clickCount: 1,
+      });
+      mainWindow.webContents.sendInputEvent({
+        type: "mouseUp",
+        x: canvasCenterX,
+        y: canvasCenterY,
+        button: "left",
+        clickCount: 1,
+      });
+    }, 20);
+  });
   handleGameSaveMessage(onMessage, sendMessage, onceMessage);
   //forwardMessage("hideSim");
   //forwardMessage("showSim");

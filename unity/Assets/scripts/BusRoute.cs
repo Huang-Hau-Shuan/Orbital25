@@ -22,7 +22,7 @@ public class BusRoute : MonoBehaviour
     public float waitTime;
     public float speed = 1;
     private Spline spline;
-    public bool isMoving = false;
+    private bool isMoving = false;
     private int currentStopIndex = 0;
     //use dictionary for faster and more convenient look up
     private Dictionary<string, int> _busStops = new();
@@ -296,4 +296,5 @@ public class BusRoute : MonoBehaviour
             busObject.transform.SetPositionAndRotation(new Vector3(pos.x, pos.y, pos.z) + transform.position, Quaternion.LookRotation(up, tan) * Quaternion.Euler(up * -90));
         }
     }
+    public bool IsMoving => isMoving;
 }

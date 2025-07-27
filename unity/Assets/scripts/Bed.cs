@@ -3,9 +3,12 @@ using UnityEngine;
 public class Bed : MonoBehaviour
 {
     private bool isPlayerNear = false;
-    public KeyCode interactKey = KeyCode.Space;
+    private bool canShow = true; //add a state to prevent keeps showing the option interface when interactKey is None
+    public KeyCode interactKey = KeyCode.None;
     public Sprite bedSprite;
     public AudioClip newDayClip;
+    public GameObject exclamationMark;
+
     private AudioSource audioSource;
     void Start()
     {
@@ -18,6 +21,7 @@ public class Bed : MonoBehaviour
         }
         audioSource.clip = newDayClip;
         audioSource.loop = false;
+        canShow = true;
     }
     public void SleepNextMorning(string _, string _1)
     {
@@ -66,11 +70,24 @@ public class Bed : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (isPlayerNear && (Input.GetKeyDown(interactKey) || interactKey == KeyCode.None))
+        if (GameTimeManager.instance != null)
         {
-            ShowOptions.instance.Show3Options(bedSprite, "Go to bed?",
+            var e = GameTimeManager.instance.NextEventTime();
+            if (e != null)
+            {
+                var cur = GameTimeManager.instance.GetGameTime();
+                exclamationMark.SetActive(e - cur > 10);
+            }
+        }
+        if (isPlayerNear && canShow && (Input.GetKeyDown(interactKey) || interactKey == KeyCode.None))
+        {
+            if (ShowOptions.instance != null && ShowOptions.instance.gameObject.activeSelf == false)
+            {
+                ShowOptions.instance.Show3Options(bedSprite, "Go to bed?",
             SleepNextMorning, SleepTillTaskStart, null,
             "Sleep until the next morning", "Sleep until the next task starts");
+            }
+            canShow = false;
         }
     }
     void OnTriggerEnter2D(Collider2D other)
@@ -87,6 +104,7 @@ public class Bed : MonoBehaviour
         {
             isPlayerNear = false;
             MessageBridge.HideSimulatedDesktop();
+            canShow = true;
         }
     }
 }

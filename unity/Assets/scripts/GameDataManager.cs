@@ -20,35 +20,12 @@ public class PlayerStatus
     public Vector4 rotation;
     public Vector3 scale;
 
-    //personal info (before enrollment)
-    public string firstName; //same as passport, should be all capital letter
-    public string lastName; //same as passport, should be all capital letter
-    public bool firstNameBeforeLastName;
-    public string personalEmail;
-    public string passportNumber;
-
-    //personal info (NUS related)
-    public bool registered;
-    public string studentID; //the id on student card, starting with 'A'
-    public string studentEmail; //starts with 'E'
-    public string studentAccountPassword;
-
     public PlayerStatus()
     {
         isActive = true;
         location = new(-1.5f, -1f, 0f);
         rotation = new(0, 0, 0, 1);
         scale = new(0.2f, 0.2f, 1f);
-
-        firstNameBeforeLastName = true;
-        firstName = ""; lastName = "";
-        personalEmail = "player@email.com";
-        passportNumber = "123456789";
-
-        registered = false;
-        studentID = null;
-        studentEmail = null;
-        studentAccountPassword = null;
     }
     public void SavePlayerTransition(GameObject player)
     {
@@ -81,14 +58,14 @@ public class PlayerStatus
 [Serializable]
 public class GameSave
 {
-    public int year, month, day, hour, minute;
+    public GameTime time;
     public int currentScene, previousScene;
     public string lastBusStop;
     public PlayerStatus playerStatus;
     public List<TaskProgress> tasks;
     public GameSave(List<TaskDetail> taskDetails)
     {
-        year = 2025; month = 6; day = 10; hour = 9; minute = 0;
+        time = new();
         currentScene = 1; previousScene = 0;
         playerStatus = new PlayerStatus();
         lastBusStop = null;
@@ -184,11 +161,7 @@ public class GameDataManager : MonoBehaviour
     {
         if (GameTimeManager.instance != null)
         {
-            gameSave.year = GameTimeManager.instance.Year;
-            gameSave.month = GameTimeManager.instance.Month;
-            gameSave.day = GameTimeManager.instance.Day;
-            gameSave.hour = GameTimeManager.instance.Hour;
-            gameSave.minute = GameTimeManager.instance.Minute;
+            gameSave.time = GameTimeManager.instance.GetGameTime();
         }
         GameObject player = GameObject.FindWithTag("Player");
         gameSave.playerStatus.SavePlayerTransition(player);
@@ -203,7 +176,6 @@ public class GameDataManager : MonoBehaviour
     {
         SceneManager.sceneLoaded += OnLoadGame_SceneLoaded;
         LoadScene(gameSave.currentScene);
-
     }
     public void NewGame()
     {
@@ -227,12 +199,8 @@ public class GameDataManager : MonoBehaviour
         }
         gameSave.playerStatus.LoadPlayerTransition(player);
         GameTimeManager.instance.ResetSchedule();
-        GameTimeManager.instance.SetTime(gameSave.year, gameSave.month, gameSave.day, gameSave.hour, gameSave.minute);
+        GameTimeManager.instance.SetTime(gameSave.time);
         GameTimeManager.instance.StartTimer();
-#if UNITY_EDITOR
-        //test the scheduling functionality
-        GameTimeManager.instance.ScheduleTime("{\"taskID\":0, \"time\":{\"year\":2025, \"month\":6,\"day\":10,\"hour\":9,\"minute\":2}}");
-#endif
         SceneManager.sceneLoaded -= OnLoadGame_SceneLoaded;
     }
     //load scene and update currentScene, previous Scene
@@ -248,6 +216,7 @@ public class GameDataManager : MonoBehaviour
         SceneManager.LoadScene(sceneId);
         gameSave.currentScene = sceneId;
         MessageBridge.SendMessage("sceneChanged", Utils.GetSceneName(sceneId));
+        if (ShowOptions.instance != null) ShowOptions.instance.HideOptions();
     }
     public void SetLastBusStop(string busStop)
     {
@@ -275,6 +244,7 @@ public class GameDataManager : MonoBehaviour
         SceneManager.LoadScene(sceneName);
         gameSave.currentScene = SceneManager.GetSceneByName(sceneName).buildIndex;
         MessageBridge.SendMessage("sceneChanged", sceneName);
+        if (ShowOptions.instance != null) ShowOptions.instance.HideOptions();
     }
     public void LoadScene(Scene scene)
     {

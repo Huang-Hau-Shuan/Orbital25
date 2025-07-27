@@ -47,6 +47,7 @@ public class ShowOptions : MonoBehaviour
         ButtonCallback callback1, ButtonCallback callback2,
         string text1 = "Yes", string text2 = "No", string param1 = null, string param2 = null)
     {
+        option3.SetActive(false);
         option2_1.text = text1;
         option2_2.text = text2;
         currentTexts[0] = text1;
@@ -74,6 +75,7 @@ public class ShowOptions : MonoBehaviour
         string text1 = "Yes", string text2 = "No", string text3 = "Cancel",
         string param1 = null, string param2 = null, string param3 = null)
     {
+        option2.SetActive(false);
         option3_1.text = text1;
         option3_2.text = text2;
         option3_3.text = text3;
@@ -143,5 +145,13 @@ public class ShowOptions : MonoBehaviour
     private void Test3Options()
     {
         Show3Options(null, "Test whether 3 options work properly", TestCallback, TestCallback, TestCallback, "A", "B", "C", "p1", "p2", "p3");
+    }
+
+    public void HideOptions()
+    {
+        gameObject.SetActive(false);
+        option2.SetActive(false);
+        option3.SetActive(false);
+        gameObject.SetActive(false);
     }
 }

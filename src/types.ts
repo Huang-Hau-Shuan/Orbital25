@@ -77,7 +77,7 @@ export interface PlayerProfile {
   firstName: string;
   lastName: string;
   birthday: string; //dd/mm/yyyy
-  gender: "Male" | "Female"; // non-binary is not accepted in some forms. To properly simulate those, we only support m and f
+  gender: "Male" | "Female" | ""; // non-binary is not accepted in some forms. To properly simulate those, we only support m and f
   firstNameBefore: boolean; // if first name is before last name
   major: string;
   studentID: string; // generates in registration part one task, the id on the student card starting with A
@@ -116,6 +116,95 @@ export interface TaskCompletion {
   scheduled: boolean;
   scheduledTime: StaticTime;
 }
+export type ApplicationStatus =
+  | "In Progress"
+  | "Application Completed"
+  | "Offered"
+  | "Offer Accepted"
+  | "Successful"
+  | "Unsuccessful"
+  | "Offer Lapsed"
+  | "Not Eligible"
+  | "Application Rejected"
+  | "Endorsed"
+  | "Appeal Received"
+  | "Appeal Unsuccessful";
+
+export interface DateRange {
+  startDate: string; // format: dd/mm/yyyy
+  endDate: string; // format: dd/mm/yyyy
+}
+
+export interface NextOfKin {
+  name: string;
+  relationship: string;
+  phone: string;
+  email: string;
+}
+
+export interface HostelPreferences {
+  preference1: string;
+  preference2: string;
+  preference3: string;
+}
+
+export interface HostelApplicationForm {
+  nextOfKin: NextOfKin;
+  healthDeclaration: string;
+  awards: string; // A. Awards/Scholarships/Bursaries
+  ccaPart1: string; // B.1 University/Poly/JC/HS/Secondary + achievements
+  ccaPart2: string; // B.2 Other Activities, External CCAs
+  ccaPart3: string; // B.3 Community Involvement Projects
+  ccaPart4: string; // B.4 Additional Skills
+  stayReason: string; // C. Reason(s) for Stay
+  hostelPreferences: HostelPreferences;
+  specialRequest: string; // Special or Additional Housing Request
+}
+
+export interface HostelApplication {
+  name: string;
+  status: ApplicationStatus;
+  stayPeriod: DateRange;
+  applicationStartDate: string; // dd/mm/yyyy or empty
+  applicationSubmittedDate: string; // dd/mm/yyyy or empty
+  form: HostelApplicationForm;
+  checkIn: boolean;
+}
+export const defaultHostelForm: HostelApplicationForm = {
+  nextOfKin: {
+    name: "",
+    relationship: "",
+    phone: "",
+    email: "",
+  },
+  healthDeclaration: "",
+  awards: "",
+  ccaPart1: "",
+  ccaPart2: "",
+  ccaPart3: "",
+  ccaPart4: "",
+  stayReason: "",
+  hostelPreferences: {
+    preference1: "",
+    preference2: "",
+    preference3: "",
+  },
+  specialRequest: "",
+};
+
+export const defaultHostelpAplication: HostelApplication = {
+  name: "2025-26 Semester 1 & 2",
+  status: "Successful",
+  stayPeriod: {
+    startDate: "03/08/2025",
+    endDate: "10/05/2026",
+  },
+  applicationStartDate: "",
+  applicationSubmittedDate: "",
+  form: defaultHostelForm,
+  checkIn: false,
+};
+
 export interface IGameSave {
   unitySave: string;
   receivedEmails: EmailMeta[];
@@ -124,13 +213,14 @@ export interface IGameSave {
   playerProfile: PlayerProfile;
   registrationData: object;
   appointments: unknown[];
+  hostelData: HostelApplication[];
 }
 
-export const defaultPlayerProfile: PlayerProfile = {
-  firstName: "Abc",
-  lastName: "Xyz",
-  birthday: "01/01/2000",
-  gender: "Male",
+export const emptyPlayerProfile: PlayerProfile = {
+  firstName: "",
+  lastName: "",
+  birthday: "",
+  gender: "",
   firstNameBefore: true,
   major: "",
   studentID: "",
@@ -139,11 +229,31 @@ export const defaultPlayerProfile: PlayerProfile = {
   passport: "",
   finOrNric: "",
   isSingaporean: false,
-  mobile: "87654321",
-  personalEmail: "123456789abc@example.com",
+  mobile: "",
+  personalEmail: "",
   nationality: "",
+  mobileExt: "",
+};
+
+export const defaultPlayerProfile: PlayerProfile = {
+  firstName: "Abc",
+  lastName: "Xyz",
+  birthday: "01/01/2001",
+  gender: "Female",
+  firstNameBefore: true,
+  major: "Computer Science",
+  studentID: "",
+  NUSNETID: "",
+  emailPassword: "",
+  passport: "E12345678",
+  finOrNric: "",
+  isSingaporean: true,
+  mobile: "87654321",
+  personalEmail: "myemail@example.com",
+  nationality: "Singapore",
   mobileExt: "+65",
 };
+
 export const GetOfficialName = (profile: PlayerProfile) => {
   return profile.firstNameBefore
     ? `${profile.firstName} ${profile.lastName}`

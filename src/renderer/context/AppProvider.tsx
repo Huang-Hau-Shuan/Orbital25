@@ -7,12 +7,12 @@ import {
   onSimuNUSMessage,
   SendToSimuNUS,
 } from "../MessageBridge";
-import { defaultPlayerProfile, type PlayerProfile } from "../../types";
+import { emptyPlayerProfile, type PlayerProfile } from "../../types";
 import { isPlayerProfile } from "../../types.guard";
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [openApps, setOpenApps] = useState<OpenApp[]>([]);
   const [playerProfile, setPlayerProfile] =
-    useState<PlayerProfile>(defaultPlayerProfile);
+    useState<PlayerProfile>(emptyPlayerProfile);
   useEffect(() => {
     onSimuNUSMessage("setPlayerProfile", (p) => {
       if (isPlayerProfile(p)) setPlayerProfile(p);

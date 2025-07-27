@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class Laptop : MonoBehaviour
 {
-    public KeyCode interactKey = KeyCode.E;
+    public KeyCode interactKey = KeyCode.None;
+    private bool canShow = true; //add a state to prevent keeps showing the option interface when interactKey is None
     private bool isPlayerNear = false;
     public GameObject exclamationMark;
     private void Start()
@@ -10,12 +11,14 @@ public class Laptop : MonoBehaviour
         MessageBridge.RegisterUnityMessageHandler(
             "setHasNewMessage", gameObject.name, "ShowExclamation", true);
         MessageBridge.SendMessage("getHasNewMessage", "");
+        canShow = true;
     }
     void Update()
     {
-        if (isPlayerNear && Input.GetKeyDown(interactKey))
+        if (isPlayerNear && canShow && (Input.GetKeyDown(interactKey) || interactKey == KeyCode.None))
         {
             MessageBridge.ShowSimulatedDesktop();
+            canShow = false;
         }
     }
 
@@ -33,6 +36,7 @@ public class Laptop : MonoBehaviour
         {
             isPlayerNear = false;
             MessageBridge.HideSimulatedDesktop();
+            canShow = true;
         }
     }
     public void ShowExclamation(string show)
@@ -42,7 +46,8 @@ public class Laptop : MonoBehaviour
             if (show.ToLower() == "true")
             {
                 exclamationMark.SetActive(true);
-            }else if (show.ToLower() == "false")
+            }
+            else if (show.ToLower() == "false")
             {
                 exclamationMark.SetActive(false);
             }
@@ -56,7 +61,8 @@ public class Laptop : MonoBehaviour
             Utils.LogWarning("exclamationMark is null");
         }
     }
-    private void HideExclamation(){
+    private void HideExclamation()
+    {
         if (exclamationMark != null)
             exclamationMark.SetActive(false);
     }

@@ -11,6 +11,8 @@ import MainMenuPage from "./RegistrationPart1/MainMenuPage";
 import MainPage from "./WebMail/MainPage";
 import UHCLogin from "./UHC/login";
 import UHCMain from "./UHC/main";
+import StarRezLoginPage from "./StartRez/Login";
+import HostelMainPage from "./StartRez/main";
 
 export interface AppMeta {
   name: string;
@@ -84,6 +86,15 @@ export const apps_array: AppMeta[] = [
       loginPage: UHCLogin,
       mainPage: UHCMain,
       appName: "UHC Appointment",
+    },
+  },
+  {
+    name: "UHMS",
+    icon: "icon/starrez.png",
+    component: NUSApp,
+    props: {
+      loginPage: StarRezLoginPage,
+      mainPage: HostelMainPage,
     },
   },
 ];

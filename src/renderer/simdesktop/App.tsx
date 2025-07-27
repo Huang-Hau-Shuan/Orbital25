@@ -48,6 +48,8 @@ const SimDesktopRoot = () => {
           id="desktop-container"
           onClick={() => {
             setShowSimDesktop(false);
+            document.getElementById("unity-container")?.focus(); // focus the unity again. this may not work
+            window.SimuNUS_API?.sendMessage("focusUnity", null); // send a click to focus unity. this is more likely to work
             dbgLog("Toggle simulated desktop");
           }}
         >

@@ -5,7 +5,11 @@ import BirthdayMajorFields from "./BirthdayMajorFields";
 import ContactFields from "./ContactFields";
 import PassportCitizenFields from "./PassportCitizenFields";
 import { dbgErr, onSimuNUSMessage, SendToSimuNUS } from "../MessageBridge";
-import { defaultPlayerProfile, type PlayerProfile } from "../../types";
+import {
+  defaultPlayerProfile,
+  emptyPlayerProfile,
+  type PlayerProfile,
+} from "../../types";
 import { checkInvalidProfile } from "../../safeUtils";
 
 type ChangeCallback = (field: string, value: any) => void;
@@ -15,7 +19,7 @@ export interface FieldsProps {
 }
 export default function PlayerProfileForm() {
   const [show, setShow] = useState(false);
-  const [form, setForm] = useState(defaultPlayerProfile);
+  const [form, setForm] = useState(emptyPlayerProfile);
   const [err, setErr] = useState<null | string>(null);
   useEffect(() => {
     onSimuNUSMessage("newGame", () => {
@@ -67,6 +71,19 @@ export default function PlayerProfileForm() {
       >
         Confirm Profile & Start Game
       </Button>
+
+      {window.SimuNUS_API?._DEBUG && (
+        <Button
+          variant="contained"
+          onClick={() => {
+            setForm(defaultPlayerProfile);
+          }}
+          fullWidth
+          sx={{ mt: 2, color: "yellow" }}
+        >
+          DEBUG: Use Default Profile
+        </Button>
+      )}
     </Box>
   ) : null;
 }

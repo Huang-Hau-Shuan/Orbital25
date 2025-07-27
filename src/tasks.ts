@@ -2,9 +2,11 @@ import { randomInt } from "crypto";
 import { dbgErr } from "./utils";
 import { normalizeTime } from "./safeUtils";
 import {
-  defaultPlayerProfile,
+  defaultHostelpAplication,
+  emptyPlayerProfile,
   TaskStatus,
   type EmailMeta,
+  type HostelApplication,
   type IGameSave,
   type PlayerProfile,
   type PlayerStep,
@@ -340,6 +342,13 @@ so do pick your most satisfying photo`
       ),
     ],
     completedMessage: "resetPasswordSuccess",
+    completedResult: [
+      unlockApp("UHC Appointment"),
+      unlockApp("UHMS"),
+      unlockApp("NUSMods"),
+      unlockApp("Canvas"),
+      unlockApp("EduRec"),
+    ],
   },
   // {
   //   name: "Arrive in NUS",
@@ -361,7 +370,6 @@ so do pick your most satisfying photo`
     guide: true,
     startTime: toTime(0, 0, 0, 0, 0, "resetPasswordSuccess"),
     steps: [
-      unlockApp("UHC Appointment"),
       ...finishOnLaptopTask(
         openApp("UHC Appointment"),
         click("uhc-login-btn"),
@@ -419,7 +427,8 @@ export class GameSave implements IGameSave {
   receivedEmails: EmailMeta[] = [];
   tasks: TaskCompletion[] = newGameTaskCompletion();
   unlockedApps: string[] = [];
-  playerProfile: PlayerProfile = defaultPlayerProfile;
+  playerProfile: PlayerProfile = emptyPlayerProfile;
   registrationData: object = {};
   appointments: unknown[] = [];
+  hostelData: HostelApplication[] = [defaultHostelpAplication];
 }
